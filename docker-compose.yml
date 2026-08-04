@@ -1,0 +1,28 @@
+version: "3.9"
+services:
+  frontend:
+    image: node:22
+    working_dir: /app
+    command: sh -c "pnpm install && pnpm --filter @techforge/web dev"
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/app
+
+  backend:
+    image: node:22
+    working_dir: /app
+    command: sh -c "pnpm install && pnpm --filter @techforge/api dev"
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/app
+
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_DB: techforge
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
