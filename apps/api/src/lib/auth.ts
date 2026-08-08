@@ -17,11 +17,14 @@ export const auth = betterAuth({
     enabled: true,
   },
   user: {
+    changeEmail: {
+      enabled: true,
+    },
     additionalFields: {
       role: {
         type: "string",
         defaultValue: "user",
-        input: false, // don't let clients set their own role on sign-up
+        input: false,
       },
     },
   },

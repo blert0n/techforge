@@ -1,25 +1,20 @@
 "use client";
 
+import { HeroSection } from "@/components/home/hero-section";
 import { useProducts } from "../../hooks/use-products";
+import { CategorySection } from "@/components/home/category-section";
+import { FeaturedProducts } from "@/components/home/featured-products";
+import { TrustIndicators } from "@/components/home/trust-indicators";
 
 export default function HomePage() {
   const { data, isPending, isError } = useProducts();
 
   return (
     <>
-      <h1>TechForge</h1>
-      <p>Modern PC hardware marketplace starter.</p>
-      {isPending && <p>Loading...</p>}
-      {isError && <p>Failed to load products.</p>}
-      {data && (
-        <ul>
-          {data.map((product) => (
-            <li key={product.id}>
-              {product.name} — ${product.price}
-            </li>
-          ))}
-        </ul>
-      )}
+      <HeroSection />
+      <CategorySection />
+      <FeaturedProducts />
+      <TrustIndicators />
     </>
   );
 }

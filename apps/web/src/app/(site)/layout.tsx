@@ -11,7 +11,11 @@ export default function SiteLayout({
       style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
     >
       <Header />
-      <main style={{ flex: 1, fontFamily: "sans-serif" }}>{children}</main>
+      <main
+        style={{ flex: 1, padding: "16px 32px 16px", fontFamily: "sans-serif" }}
+      >
+        {children}
+      </main>
       <Footer />
     </div>
   );

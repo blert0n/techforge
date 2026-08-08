@@ -13,6 +13,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -25,7 +26,6 @@ type SignInValues = z.infer<typeof signInSchema>;
 export default function SignInPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -41,8 +41,6 @@ export default function SignInPage() {
   const rememberMe = watch("rememberMe");
 
   const onSubmit = async (values: SignInValues) => {
-    setFormError(null);
-
     const { error } = await authClient.signIn.email({
       email: values.email,
       password: values.password,
@@ -50,7 +48,10 @@ export default function SignInPage() {
     });
 
     if (error) {
-      setFormError(error.message ?? "Invalid email or password");
+      toast.error("Unable to sign in", {
+        position: "top-center",
+        description: error.message ?? "Invalid email or password",
+      });
       return;
     }
 
@@ -147,8 +148,6 @@ export default function SignInPage() {
               Remember me for 30 days
             </Label>
           </div>
-
-          {formError && <p className="text-sm text-destructive">{formError}</p>}
 
           <Button
             type="submit"

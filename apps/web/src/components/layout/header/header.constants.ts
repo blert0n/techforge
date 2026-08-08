@@ -2,7 +2,7 @@ import { User, Heart } from "lucide-react";
 
 export const categories = [
   {
-    value: "All",
+    value: "All Categories",
     label: "All Categories",
   },
   {
@@ -40,7 +40,7 @@ export const utilityLinks = [
 
 export const accountActions = [
   {
-    href: "/account",
+    href: "/account/dashboard",
     mobileLabel: "Account",
     desktopTop: "Hello, Sign in",
     desktopLabel: "Account & Lists",
@@ -48,7 +48,7 @@ export const accountActions = [
     dropdown: true,
   },
   {
-    href: "/orders",
+    href: "/account/orders",
     mobileLabel: "Orders",
     desktopTop: "Returns",
     desktopLabel: "& Orders",

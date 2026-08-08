@@ -1,15 +1,7 @@
-import Link from "next/link";
-import {
-  Cpu,
-  Search,
-  ShoppingCart,
-  MapPin,
-  Menu,
-  ChevronDown,
-} from "lucide-react";
+"use client";
 
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import Link from "next/link";
+import { Cpu, ShoppingCart, MapPin, Menu, ChevronDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -18,12 +10,17 @@ import {
   SelectValue,
 } from "../../ui/select";
 import { utilityLinks, categories, accountActions } from "./header.constants";
+import { SearchInput } from "@/components/ui/search-input";
+import { useSession } from "@/lib/auth-client";
 
 interface HeaderProps {
   children?: React.ReactNode;
 }
 
 export function Header({ children }: HeaderProps) {
+  const { data: session } = useSession();
+  const user = session?.user;
+
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card">
       <div className="flex items-center justify-between bg-secondary px-4 py-2 text-xs text-secondary-foreground md:px-8">
@@ -70,7 +67,7 @@ export function Header({ children }: HeaderProps) {
 
         <div className="hidden flex-1 md:flex">
           <div className="flex w-full max-w-3xl">
-            <Select defaultValue="All">
+            <Select defaultValue="All Categories">
               <SelectTrigger className="hidden w-48 rounded-r-none lg:flex">
                 <SelectValue />
               </SelectTrigger>
@@ -89,14 +86,10 @@ export function Header({ children }: HeaderProps) {
               </SelectContent>
             </Select>
 
-            <Input
+            <SearchInput
               placeholder="Search for GPUs, CPUs, monitors, and more..."
-              className="rounded-none"
+              className="rounded-l-md min-w-96"
             />
-
-            <Button className="rounded-l-none">
-              <Search className="h-6 w-6" />
-            </Button>
           </div>
         </div>
 
@@ -105,7 +98,7 @@ export function Header({ children }: HeaderProps) {
             ({ href, desktopTop, desktopLabel, icon: Icon, dropdown }) => (
               <Link
                 key={href}
-                href={href}
+                href={href === "/account/dashboard" ? (user ? href : "/sign-in") : href}
                 className="
                   group
                   flex
@@ -124,7 +117,9 @@ export function Header({ children }: HeaderProps) {
                     md:block
                   "
                 >
-                  {desktopTop}
+                  {href === "/account/dashboard" && user
+                    ? `Hello, ${user.name}`
+                    : desktopTop}
                 </span>
 
                 <span className="flex items-center gap-1 text-sm font-medium">
@@ -189,7 +184,7 @@ export function Header({ children }: HeaderProps) {
             .map((category) => (
               <li key={category.value}>
                 <Link
-                  href={`/category/${category.value.toLowerCase()}`}
+                  href={`/category/${category.value.replaceAll(" ", "-").toLowerCase()}`}
                   className="transition-colors hover:text-primary"
                 >
                   {category.label}

@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const signUpSchema = z
   .object({
@@ -43,7 +44,6 @@ type SignUpValues = z.infer<typeof signUpSchema>;
 export default function SignUpPage() {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const [formError, setFormError] = useState<string | null>(null);
 
   const {
     register,
@@ -65,8 +65,6 @@ export default function SignUpPage() {
   const acceptTerms = watch("acceptTerms");
 
   const onSubmit = async (values: SignUpValues) => {
-    setFormError(null);
-
     const { error } = await authClient.signUp.email({
       name: values.name,
       email: values.email,
@@ -74,7 +72,9 @@ export default function SignUpPage() {
     });
 
     if (error) {
-      setFormError(error.message ?? "Could not create your account");
+      toast.error("Unable to create your account", {
+        description: error.message ?? "Could not create your account",
+      });
       return;
     }
 
@@ -192,7 +192,7 @@ export default function SignUpPage() {
             )}
           </div>
 
-          <div className="flex items-start gap-2.5">
+          <div className="flex items-center gap-1">
             <Checkbox
               id="accept-terms"
               className="mt-0.5"
@@ -203,20 +203,14 @@ export default function SignUpPage() {
             />
             <Label
               htmlFor="accept-terms"
-              className="cursor-pointer font-normal text-muted-foreground"
+              className="cursor-pointer font-normal text-muted-foreground gap-1"
             >
               I agree to the{" "}
-              <Link
-                href="/terms"
-                className="font-medium text-primary hover:underline"
-              >
+              <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
               </Link>{" "}
               and{" "}
-              <Link
-                href="/privacy"
-                className="font-medium text-primary hover:underline"
-              >
+              <Link href="/privacy" className="text-primary hover:underline">
                 Privacy Policy
               </Link>
             </Label>
@@ -226,8 +220,6 @@ export default function SignUpPage() {
               {errors.acceptTerms.message}
             </p>
           )}
-
-          {formError && <p className="text-sm text-destructive">{formError}</p>}
 
           <Button
             type="submit"
