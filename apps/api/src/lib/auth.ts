@@ -28,5 +28,11 @@ export const auth = betterAuth({
       },
     },
   },
+  advanced: {
+    crossSubDomainCookies: {
+      enabled: Boolean(env.COOKIE_DOMAIN),
+      ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),
+    },
+  },
   plugins: [openAPI()],
 });
