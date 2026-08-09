@@ -1,7 +1,10 @@
 import { apiClient } from "../lib/api-client";
 import type { paths } from "@/types/api";
 
-const apiBaseUrl = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:3001";
+const apiBaseUrl =
+  typeof window === "undefined"
+    ? process.env.API_ORIGIN ?? "http://localhost:3001"
+    : window.location.origin;
 
 export type CreateProductInput =
   NonNullable<
