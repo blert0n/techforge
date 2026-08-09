@@ -12,6 +12,7 @@
   },
   "deploy": {
     "startCommand": "pnpm --filter @techforge/api start",
+    "preDeployCommand": ["pnpm --filter @techforge/api db:migrate"],
     "healthcheckPath": "/api/health/db",
     "healthcheckTimeout": 120,
     "restartPolicyType": "ON_FAILURE",
