@@ -1,0 +1,20 @@
+{
+  "$schema": "https://railway.com/railway.schema.json",
+  "build": {
+    "builder": "RAILPACK",
+    "buildCommand": "pnpm --filter @techforge/api build",
+    "watchPatterns": [
+      "apps/api/**",
+      "packages/**",
+      "package.json",
+      "pnpm-lock.yaml"
+    ]
+  },
+  "deploy": {
+    "startCommand": "pnpm --filter @techforge/api start",
+    "healthcheckPath": "/api/health/db",
+    "healthcheckTimeout": 120,
+    "restartPolicyType": "ON_FAILURE",
+    "restartPolicyMaxRetries": 5
+  }
+}
