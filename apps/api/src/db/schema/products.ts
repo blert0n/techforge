@@ -36,6 +36,7 @@ export const category = pgTable(
     id: serial("id").primaryKey(),
     name: text("name").notNull(),
     slug: text("slug").notNull().unique(),
+    attributePrefix: text("attribute_prefix").notNull(),
     description: text("description"),
     imageUrl: text("image_url"),
     parentId: integer("parent_id").references((): AnyPgColumn => category.id, {

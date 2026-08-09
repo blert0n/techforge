@@ -24,15 +24,20 @@ export default function AddressesPage() {
     try {
       if (editing) {
         await updateAddress.mutateAsync({ id: editing.id, values });
-        toast.success("Address updated");
+        toast.success("Address updated", {
+          position: "top-center",
+        });
       } else {
         await createAddress.mutateAsync(values);
-        toast.success("Address added");
+        toast.success("Address added", {
+          position: "top-center",
+        });
       }
 
       setEditing(undefined);
     } catch (error) {
       toast.error("Unable to save address", {
+        position: "top-center",
         description: error instanceof Error ? error.message : undefined,
       });
     }
@@ -41,9 +46,12 @@ export default function AddressesPage() {
   const removeAddress = async (id: string) => {
     try {
       await deleteAddress.mutateAsync(id);
-      toast.success("Address deleted");
+      toast.success("Address deleted", {
+        position: "top-center",
+      });
     } catch (error) {
       toast.error("Unable to delete address", {
+        position: "top-center",
         description: error instanceof Error ? error.message : undefined,
       });
     }
@@ -65,9 +73,12 @@ export default function AddressesPage() {
         id,
         values: { ...values, line2: line2 ?? undefined, isDefault: true },
       });
-      toast.success("Default address updated");
+      toast.success("Default address updated", {
+        position: "top-center",
+      });
     } catch (error) {
       toast.error("Unable to set default address", {
+        position: "top-center",
         description: error instanceof Error ? error.message : undefined,
       });
     }
@@ -99,7 +110,9 @@ export default function AddressesPage() {
         </p>
       )}
       <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-        {isLoading && <p className="text-sm text-muted-foreground">Loading addresses...</p>}
+        {isLoading && (
+          <p className="text-sm text-muted-foreground">Loading addresses...</p>
+        )}
         {addresses.map((address) => (
           <AddressCard
             key={address.id}

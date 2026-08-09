@@ -1,11 +1,12 @@
 import { Scalar } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
-import { auth } from "./lib/auth.js";
-import { env } from "./config/env.js";
-import { productsRouter } from "./modules/products/products.routes.js";
-import { healthRouter } from "./modules/health/health.routes.js";
-import { addressesRouter } from "./modules/addresses/addresses.routes.js";
+import { auth } from "./lib/auth";
+import { env } from "./config/env";
+import { productsRouter } from "./modules/products/products.routes";
+import { healthRouter } from "./modules/health/health.routes";
+import { addressesRouter } from "./modules/addresses/addresses.routes";
+import { catalogRouter } from "./modules/catalog/catalog.routes";
 
 export const app = new OpenAPIHono();
 
@@ -17,10 +18,11 @@ app.use(
   }),
 );
 
-app.on(["POST", "GET"], "/api/auth/**", (c) => auth.handler(c.req.raw));
+app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 
 app.route("/api/products", productsRouter);
 app.route("/api/addresses", addressesRouter);
+app.route("/api/catalog", catalogRouter);
 app.route("/api/health", healthRouter);
 
 app.doc("/openapi.json", {

@@ -1,6 +1,6 @@
 import Link from "next/link";
-import { Cpu } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { BrandLogo } from "@/components/layout/brand-logo";
 import {
   faTwitter,
   faFacebook,
@@ -40,8 +40,7 @@ export function Footer() {
               href="/"
               className="flex items-center gap-2 text-2xl font-bold tracking-tight"
             >
-              <Cpu className="h-7 w-7 text-primary" />
-              TechForge
+              <BrandLogo markClassName="size-9" />
             </Link>
 
             <p className="max-w-sm text-sm">

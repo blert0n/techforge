@@ -29,6 +29,13 @@
       "when": 1786205414628,
       "tag": "0003_volatile_ironclad",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1786215059516,
+      "tag": "0004_kind_ultragirl",
+      "breakpoints": true
     }
   ]
 }

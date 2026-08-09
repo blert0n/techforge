@@ -1,6 +1,6 @@
 import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import { sql } from "drizzle-orm";
-import { db } from "../../db/client.js";
+import { db } from "../../db/client";
 
 export const healthRouter = new OpenAPIHono();
 

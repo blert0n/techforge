@@ -2,15 +2,15 @@ import { randomUUID } from "node:crypto";
 import { and, eq } from "drizzle-orm";
 import type { RouteHandler } from "@hono/zod-openapi";
 
-import { db } from "../../db/client.js";
-import { address } from "../../db/schema/index.js";
+import { db } from "../../db/client";
+import { address } from "../../db/schema/index";
 import type {
   createAddressRoute,
   deleteAddressRoute,
   getAddressRoute,
   listAddressesRoute,
   updateAddressRoute,
-} from "./addresses.routes.js";
+} from "./addresses.routes";
 
 function serializeAddress(record: typeof address.$inferSelect) {
   return {

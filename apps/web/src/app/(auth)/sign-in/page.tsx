@@ -6,7 +6,7 @@ import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { Cpu, Eye, EyeOff, Lock, LogIn, Mail, ShieldCheck } from "lucide-react";
+import { Eye, EyeOff, Lock, LogIn, Mail, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,7 @@ import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import { authClient } from "@/lib/auth-client";
 import { toast } from "sonner";
+import { BrandMark } from "@/components/layout/brand-logo";
 
 const signInSchema = z.object({
   email: z.string().email("Enter a valid email address"),
@@ -62,9 +63,7 @@ export default function SignInPage() {
     <div className="w-full max-w-110">
       <div className="rounded-2xl border border-border bg-card px-8 py-10 shadow-sm sm:px-10">
         <div className="mb-8 text-center">
-          <div className="mx-auto mb-5 flex size-12 items-center justify-center rounded-2xl bg-primary">
-            <Cpu className="size-5 text-primary-foreground" />
-          </div>
+          <BrandMark className="mx-auto mb-5 size-14" priority />
           <h1 className="mb-1.5 text-2xl font-bold text-foreground">
             Welcome back
           </h1>

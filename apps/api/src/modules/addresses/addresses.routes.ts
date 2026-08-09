@@ -1,21 +1,21 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
 
-import type { AuthVariables } from "../../middleware/auth.middleware.js";
-import { requireAuth } from "../../middleware/auth.middleware.js";
+import type { AuthVariables } from "../../middleware/auth.middleware";
+import { requireAuth } from "../../middleware/auth.middleware";
 import {
   createAddress,
   deleteAddress,
   getAddress,
   listAddresses,
   updateAddress,
-} from "./addresses.controller.js";
+} from "./addresses.controller";
 import {
   addressParamsSchema,
   addressSchema,
   createAddressSchema,
   messageSchema,
   updateAddressSchema,
-} from "./addresses.schemas.js";
+} from "./addresses.schemas";
 
 export const addressesRouter = new OpenAPIHono<{ Variables: AuthVariables }>();
 

@@ -39,6 +39,7 @@
     "@techforge/api": "workspace:*",
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
     "openapi-typescript": "^7.13.0",
     "typescript": "^5.6.3"
   }

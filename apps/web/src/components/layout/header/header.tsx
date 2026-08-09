@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Cpu, ShoppingCart, MapPin, Menu, ChevronDown } from "lucide-react";
+import { ShoppingCart, MapPin, Menu, ChevronDown } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -12,6 +12,7 @@ import {
 import { utilityLinks, categories, accountActions } from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
 import { useSession } from "@/lib/auth-client";
+import { BrandLogo } from "@/components/layout/brand-logo";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -61,8 +62,7 @@ export function Header({ children }: HeaderProps) {
           href="/"
           className="flex shrink-0 items-center gap-2 text-2xl font-bold tracking-tight"
         >
-          <Cpu className="h-7 w-7 text-primary" />
-          TechForge
+          <BrandLogo markClassName="size-8" priority />
         </Link>
 
         <div className="hidden flex-1 md:flex">

@@ -1,19 +1,27 @@
 import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
 import {
   productSchema,
+  adminProductListQuerySchema,
+  adminProductListSchema,
   createProductSchema,
+  createCatalogProductSchema,
+  createdCatalogProductSchema,
   updateProductSchema,
   productParamsSchema,
   messageSchema,
-} from "./products.schemas.js";
+} from "./products.schemas";
 import {
   listProducts,
+  listAdminProducts,
   getProduct,
   createProduct,
   updateProduct,
   deleteProduct,
+  uploadProductMedia,
+  getAdminProduct,
+  updateAdminProduct,
 } from "./products.controller";
-import { requireRole } from "../../middleware/auth.middleware.js";
+import { requireRole } from "../../middleware/auth.middleware";
 
 export const productsRouter = new OpenAPIHono();
 
@@ -25,6 +33,22 @@ export const listProductsRoute = createRoute({
     200: {
       content: { "application/json": { schema: productSchema.array() } },
       description: "List all products",
+    },
+  },
+});
+
+export const listAdminProductsRoute = createRoute({
+  method: "get",
+  path: "/admin",
+  tags: ["Products"],
+  middleware: requireRole("admin"),
+  request: { query: adminProductListQuerySchema },
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: adminProductListSchema },
+      },
+      description: "Products for catalog administration",
     },
   },
 });
@@ -52,12 +76,18 @@ export const createProductRoute = createRoute({
   tags: ["Products"],
   middleware: requireRole("admin"),
   request: {
-    body: { content: { "application/json": { schema: createProductSchema } } },
+    body: {
+      content: { "application/json": { schema: createCatalogProductSchema } },
+    },
   },
   responses: {
     201: {
-      content: { "application/json": { schema: productSchema } },
+      content: { "application/json": { schema: createdCatalogProductSchema } },
       description: "Product created",
+    },
+    400: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Invalid product data for the selected category template",
     },
   },
 });
@@ -102,9 +132,13 @@ export const deleteProductRoute = createRoute({
 });
 
 productsRouter.openapi(listProductsRoute, listProducts);
+productsRouter.openapi(listAdminProductsRoute, listAdminProducts);
 productsRouter.openapi(getProductRoute, getProduct);
 productsRouter.openapi(createProductRoute, createProduct);
 productsRouter.openapi(updateProductRoute, updateProduct);
 productsRouter.openapi(deleteProductRoute, deleteProduct);
+productsRouter.get("/admin/:id", requireRole("admin"), getAdminProduct);
+productsRouter.put("/admin/:id", requireRole("admin"), updateAdminProduct);
+productsRouter.post("/media", requireRole("admin"), uploadProductMedia);
 
 export default productsRouter;

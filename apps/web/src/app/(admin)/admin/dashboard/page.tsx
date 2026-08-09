@@ -117,7 +117,10 @@ export default function AdminDashboardPage() {
         </div>
       </header>
 
-      <section aria-label="Store metrics" className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section
+        aria-label="Store metrics"
+        className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4"
+      >
         {metrics.map((metric) => {
           const Icon = metric.icon;
 
@@ -135,7 +138,9 @@ export default function AdminDashboardPage() {
                     {metric.value}
                   </p>
                 </div>
-                <span className={`flex size-10 items-center justify-center rounded-full ${metric.iconClassName}`}>
+                <span
+                  className={`flex size-10 items-center justify-center rounded-full ${metric.iconClassName}`}
+                >
                   <Icon className="size-5" />
                 </span>
               </div>
@@ -144,7 +149,9 @@ export default function AdminDashboardPage() {
                   <TrendingUp className="size-4" />
                   {metric.change}
                 </span>
-                <span className="text-xs text-muted-foreground">vs last period</span>
+                <span className="text-xs text-muted-foreground">
+                  vs last period
+                </span>
               </div>
             </article>
           );
@@ -153,7 +160,9 @@ export default function AdminDashboardPage() {
         <article className="flex min-h-40 flex-col rounded-2xl border border-border bg-card p-5 shadow-sm">
           <div className="mb-4 flex items-start justify-between">
             <div>
-              <p className="text-sm font-medium text-muted-foreground">Low Stock Items</p>
+              <p className="text-sm font-medium text-muted-foreground">
+                Low Stock Items
+              </p>
               <p className="mt-1 text-2xl font-bold text-foreground">24</p>
             </div>
             <span className="flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
@@ -161,7 +170,7 @@ export default function AdminDashboardPage() {
             </span>
           </div>
           <Link
-            href="/admin/inventory"
+            href="/admin/products"
             className="mt-auto flex items-center gap-1 text-sm font-medium text-primary hover:underline"
           >
             Review inventory <ArrowRight className="size-3.5" />
@@ -169,65 +178,13 @@ export default function AdminDashboardPage() {
         </article>
       </section>
 
-      <section className="grid gap-6 lg:grid-cols-3">
-        <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm lg:col-span-2">
-          <div className="flex items-center justify-between border-b border-border p-5">
-            <h2 className="text-lg font-bold text-foreground">Revenue Overview</h2>
-            <div className="flex gap-1 rounded-lg bg-muted p-1">
-              <Button size="xs" variant="secondary">Daily</Button>
-              <Button size="xs" variant="ghost">Weekly</Button>
-            </div>
-          </div>
-          <div className="h-75 p-5">
-            <svg
-              aria-label="Revenue rose across the last seven days"
-              className="size-full overflow-visible"
-              viewBox="0 0 680 260"
-              role="img"
-            >
-              <defs>
-                <linearGradient id="revenue-fill" x1="0" x2="0" y1="0" y2="1">
-                  <stop offset="0%" stopColor="currentColor" stopOpacity="0.24" />
-                  <stop offset="100%" stopColor="currentColor" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-              {[40, 95, 150, 205].map((y) => (
-                <line key={y} x1="0" x2="680" y1={y} y2={y} stroke="currentColor" className="text-border" strokeDasharray="4 6" />
-              ))}
-              <path d="M0 215 C45 194 55 205 95 180 S155 155 190 171 S250 115 290 135 S350 95 388 113 S455 55 492 81 S555 54 590 63 S642 17 680 31 L680 260 L0 260 Z" className="text-primary" fill="url(#revenue-fill)" />
-              <path d="M0 215 C45 194 55 205 95 180 S155 155 190 171 S250 115 290 135 S350 95 388 113 S455 55 492 81 S555 54 590 63 S642 17 680 31" className="text-primary" fill="none" stroke="currentColor" strokeLinecap="round" strokeWidth="4" />
-            </svg>
-            <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-              <span>Jul 1</span><span>Jul 7</span><span>Jul 14</span><span>Jul 21</span><span>Jul 30</span>
-            </div>
-          </div>
-        </article>
-
-        <article className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
-          <div className="border-b border-border p-5">
-            <h2 className="text-lg font-bold text-foreground">Sales by Category</h2>
-          </div>
-          <div className="flex min-h-75 flex-col items-center justify-center gap-5 p-5">
-            <div className="relative size-40 rounded-full" style={{ background: "conic-gradient(var(--primary) 0 42%, #8b5cf6 42% 70%, #06b6d4 70% 88%, var(--muted) 88% 100%)" }}>
-              <div className="absolute inset-5 flex flex-col items-center justify-center rounded-full bg-card">
-                <span className="text-xs text-muted-foreground">Sales</span>
-                <span className="text-lg font-bold text-foreground">$124.6k</span>
-              </div>
-            </div>
-            <div className="grid w-full grid-cols-2 gap-x-4 gap-y-2 text-xs text-muted-foreground">
-              <span><i className="mr-1.5 inline-block size-2 rounded-full bg-primary" />Graphics cards</span>
-              <span><i className="mr-1.5 inline-block size-2 rounded-full bg-violet-500" />Processors</span>
-              <span><i className="mr-1.5 inline-block size-2 rounded-full bg-cyan-500" />Monitors</span>
-              <span><i className="mr-1.5 inline-block size-2 rounded-full bg-muted-foreground" />Other</span>
-            </div>
-          </div>
-        </article>
-      </section>
-
       <section className="overflow-hidden rounded-2xl border border-border bg-card shadow-sm">
         <div className="flex items-center justify-between border-b border-border p-5">
           <h2 className="text-lg font-bold text-foreground">Recent Orders</h2>
-          <Link href="/admin/orders" className="text-sm font-medium text-primary hover:underline">
+          <Link
+            href="/admin/orders"
+            className="text-sm font-medium text-primary hover:underline"
+          >
             View all orders
           </Link>
         </div>
@@ -235,18 +192,53 @@ export default function AdminDashboardPage() {
           <table className="w-full min-w-180 text-left text-sm">
             <thead className="border-b border-border bg-muted/50 text-xs font-semibold uppercase text-muted-foreground">
               <tr>
-                <th className="px-6 py-4">Order ID</th><th className="px-6 py-4">Customer</th><th className="px-6 py-4">Date</th><th className="px-6 py-4">Total</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Action</th>
+                <th className="px-6 py-4">Order ID</th>
+                <th className="px-6 py-4">Customer</th>
+                <th className="px-6 py-4">Date</th>
+                <th className="px-6 py-4">Total</th>
+                <th className="px-6 py-4">Status</th>
+                <th className="px-6 py-4 text-right">Action</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
               {orders.map((order) => (
-                <tr key={order.id} className="transition-colors hover:bg-muted/30">
-                  <td className="whitespace-nowrap px-6 py-4 font-medium text-foreground">{order.id}</td>
-                  <td className="px-6 py-4 text-foreground"><div className="flex items-center gap-2"><span className={`flex size-6 items-center justify-center rounded-full text-xs font-bold ${order.avatarClassName}`}>{order.initials}</span>{order.customer}</div></td>
-                  <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">{order.date}</td>
-                  <td className="px-6 py-4 font-medium text-foreground">{order.total}</td>
-                  <td className="px-6 py-4"><Badge variant="outline" className={order.statusClassName}>{order.status}</Badge></td>
-                  <td className="px-6 py-4 text-right"><Button aria-label={`Actions for ${order.id}`} size="icon-sm" variant="ghost"><MoreHorizontal /></Button></td>
+                <tr
+                  key={order.id}
+                  className="transition-colors hover:bg-muted/30"
+                >
+                  <td className="whitespace-nowrap px-6 py-4 font-medium text-foreground">
+                    {order.id}
+                  </td>
+                  <td className="px-6 py-4 text-foreground">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={`flex size-6 items-center justify-center rounded-full text-xs font-bold ${order.avatarClassName}`}
+                      >
+                        {order.initials}
+                      </span>
+                      {order.customer}
+                    </div>
+                  </td>
+                  <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">
+                    {order.date}
+                  </td>
+                  <td className="px-6 py-4 font-medium text-foreground">
+                    {order.total}
+                  </td>
+                  <td className="px-6 py-4">
+                    <Badge variant="outline" className={order.statusClassName}>
+                      {order.status}
+                    </Badge>
+                  </td>
+                  <td className="px-6 py-4 text-right">
+                    <Button
+                      aria-label={`Actions for ${order.id}`}
+                      size="icon-sm"
+                      variant="ghost"
+                    >
+                      <MoreHorizontal />
+                    </Button>
+                  </td>
                 </tr>
               ))}
             </tbody>

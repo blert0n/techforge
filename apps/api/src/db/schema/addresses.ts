@@ -7,7 +7,7 @@ import {
   timestamp,
   uniqueIndex,
 } from "drizzle-orm/pg-core";
-import { user } from "./auth.js";
+import { user } from "./auth";
 
 export const address = pgTable(
   "address",
