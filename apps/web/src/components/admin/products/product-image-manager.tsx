@@ -17,7 +17,7 @@ import {
   Upload,
   X,
 } from "lucide-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { toast } from "sonner";
 import { uploadProductImage } from "@/services/products";
@@ -69,6 +69,13 @@ export function ProductImageManager({
   const [altText, setAltText] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (productName || images.length) return;
+    setAltText("");
+    setUrl("");
+    setSearchQuery("");
+  }, [images.length, productName]);
 
   function openDialog() {
     const suggestedQuery = [brandName, productName].filter(Boolean).join(" ");
@@ -194,7 +201,6 @@ export function ProductImageManager({
                   onClick={openDialog}
                   type="button"
                 >
-                  {/* URLs are supplied by the store's own image host. */}
                   <img
                     alt={image.altText || productName}
                     className="size-full object-contain p-1"

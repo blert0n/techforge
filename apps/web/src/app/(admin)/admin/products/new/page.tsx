@@ -82,6 +82,22 @@ const productFormSchema = z.object({
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
 
+const defaultProductFormValues: ProductFormValues = {
+  name: "",
+  slug: "",
+  sku: "",
+  brandId: 0,
+  categoryId: 0,
+  description: "",
+  price: 0,
+  discountPrice: "",
+  stock: 0,
+  status: "active",
+  images: [],
+  specifications: {},
+  attributeKeys: [],
+};
+
 function createSlug(name: string) {
   return name
     .toLowerCase()
@@ -120,6 +136,7 @@ export function ProductFormPage({ editId }: { editId?: number }) {
   const updateProduct = useUpdateProduct();
   const [isAddingBrand, setIsAddingBrand] = useState(false);
   const [newBrandName, setNewBrandName] = useState("");
+  const [formVersion, setFormVersion] = useState(0);
   const {
     register,
     handleSubmit,
@@ -131,21 +148,7 @@ export function ProductFormPage({ editId }: { editId?: number }) {
     formState: { errors, isSubmitting },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
-    defaultValues: {
-      name: "",
-      slug: "",
-      sku: "",
-      brandId: 0,
-      categoryId: 0,
-      description: "",
-      price: 0,
-      discountPrice: "",
-      stock: 0,
-      status: "draft",
-      images: [],
-      specifications: {},
-      attributeKeys: [],
-    },
+    defaultValues: defaultProductFormValues,
   });
 
   const categoryId = watch("categoryId");
@@ -178,7 +181,6 @@ export function ProductFormPage({ editId }: { editId?: number }) {
   }, [editingId, isEditing, reset]);
 
   async function onSubmit(values: ProductFormValues) {
-    console.log(values, "values");
     if (!selectedCategory) return;
 
     const specifications: Record<string, string | number | boolean> = {};
@@ -223,6 +225,15 @@ export function ProductFormPage({ editId }: { editId?: number }) {
         description:
           "Product details, specifications, images, and filters were saved.",
       });
+      if (!isEditing) {
+        reset({
+          ...defaultProductFormValues,
+          categoryId: values.categoryId,
+        });
+        setIsAddingBrand(false);
+        setNewBrandName("");
+        setFormVersion((current) => current + 1);
+      }
     } catch (createError) {
       toast.error("Unable to create product", {
         position: "top-center",
@@ -337,6 +348,7 @@ export function ProductFormPage({ editId }: { editId?: number }) {
       </header>
 
       <form
+        key={formVersion}
         noValidate
         onSubmit={(event) => {
           event.preventDefault();

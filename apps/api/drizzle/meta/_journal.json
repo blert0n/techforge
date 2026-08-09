@@ -36,6 +36,20 @@
       "when": 1786215059516,
       "tag": "0004_kind_ultragirl",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1786246200000,
+      "tag": "0005_admin_user_management",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1786251600000,
+      "tag": "0006_guest_user_carts",
+      "breakpoints": true
     }
   ]
 }

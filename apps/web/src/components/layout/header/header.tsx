@@ -1,7 +1,17 @@
 "use client";
 
 import Link from "next/link";
-import { ShoppingCart, MapPin, Menu, ChevronDown } from "lucide-react";
+import {
+  ShoppingCart,
+  MapPin,
+  Menu,
+  ChevronDown,
+  LayoutDashboard,
+  LogOut,
+  UserRound,
+} from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   Select,
   SelectContent,
@@ -13,6 +23,17 @@ import { utilityLinks, categories, accountActions } from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
 import { useSession } from "@/lib/auth-client";
 import { BrandLogo } from "@/components/layout/brand-logo";
+import { signOut } from "@/lib/auth-client";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { toast } from "sonner";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -21,6 +42,22 @@ interface HeaderProps {
 export function Header({ children }: HeaderProps) {
   const { data: session } = useSession();
   const user = session?.user;
+  const router = useRouter();
+  const [isSigningOut, setIsSigningOut] = useState(false);
+
+  async function handleSignOut() {
+    setIsSigningOut(true);
+    const { error } = await signOut();
+    setIsSigningOut(false);
+    if (error) {
+      toast.error(error.message || "Unable to log out.", {
+        position: "top-center",
+      });
+      return;
+    }
+    router.replace("/");
+    router.refresh();
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card">
@@ -95,44 +132,95 @@ export function Header({ children }: HeaderProps) {
 
         <div className="flex shrink-0 items-center gap-2 md:gap-6">
           {accountActions.map(
-            ({ href, desktopTop, desktopLabel, icon: Icon, dropdown }) => (
-              <Link
-                key={href}
-                href={href === "/account/dashboard" ? (user ? href : "/sign-in") : href}
-                className="
-                  group
-                  flex
-                  flex-col
-                  text-foreground
-                  transition-colors
-                  hover:text-primary
-                "
-              >
-                <span
-                  className="
-                    hidden
-                    text-xs
-                    text-muted-foreground
-                    group-hover:text-primary
-                    md:block
-                  "
+            ({ href, desktopTop, desktopLabel, icon: Icon, dropdown }) =>
+              href === "/account/dashboard" && user ? (
+                <DropdownMenu key={href}>
+                  <DropdownMenuTrigger
+                    render={
+                      <button
+                        className="group flex cursor-pointer flex-col text-left text-foreground transition-colors hover:text-primary"
+                        type="button"
+                      />
+                    }
+                  >
+                    <span className="hidden text-xs text-muted-foreground group-hover:text-primary md:block">
+                      Hello, {user.name}
+                    </span>
+                    <span className="flex items-center gap-1 text-sm font-medium">
+                      <Icon className="h-5 w-5 md:hidden" />
+                      <span className="hidden items-center md:flex">
+                        {desktopLabel}
+                        <ChevronDown className="ml-1 h-3 w-3" />
+                      </span>
+                    </span>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-56"
+                    sideOffset={10}
+                  >
+                    <DropdownMenuGroup>
+                      <DropdownMenuLabel className="px-2 py-2">
+                        <span className="block truncate font-medium text-foreground">
+                          {user.name}
+                        </span>
+                        <span className="block truncate font-normal">
+                          {user.email}
+                        </span>
+                      </DropdownMenuLabel>
+                    </DropdownMenuGroup>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      render={
+                        <Link
+                          href="/account/dashboard"
+                          className="cursor-pointer px-2 py-2"
+                        />
+                      }
+                    >
+                      <UserRound /> My account
+                    </DropdownMenuItem>
+                    {user.role === "admin" ? (
+                      <DropdownMenuItem
+                        render={
+                          <Link
+                            href="/admin/dashboard"
+                            className="cursor-pointer px-2 py-2"
+                          />
+                        }
+                      >
+                        <LayoutDashboard /> Admin dashboard
+                      </DropdownMenuItem>
+                    ) : null}
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      className="cursor-pointer px-2 py-2"
+                      disabled={isSigningOut}
+                      variant="destructive"
+                      onClick={() => void handleSignOut()}
+                    >
+                      <LogOut /> {isSigningOut ? "Logging out..." : "Log out"}
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Link
+                  key={href}
+                  href={href === "/account/dashboard" ? "/sign-in" : href}
+                  className="group flex flex-col text-foreground transition-colors hover:text-primary"
                 >
-                  {href === "/account/dashboard" && user
-                    ? `Hello, ${user.name}`
-                    : desktopTop}
-                </span>
-
-                <span className="flex items-center gap-1 text-sm font-medium">
-                  <Icon className="h-5 w-5 md:hidden" />
-
-                  <span className="hidden items-center md:flex">
-                    {desktopLabel}
-
-                    {dropdown && <ChevronDown className="ml-1 h-3 w-3" />}
+                  <span className="hidden text-xs text-muted-foreground group-hover:text-primary md:block">
+                    {desktopTop}
                   </span>
-                </span>
-              </Link>
-            ),
+                  <span className="flex items-center gap-1 text-sm font-medium">
+                    <Icon className="h-5 w-5 md:hidden" />
+                    <span className="hidden items-center md:flex">
+                      {desktopLabel}
+                      {dropdown && <ChevronDown className="ml-1 h-3 w-3" />}
+                    </span>
+                  </span>
+                </Link>
+              ),
           )}
 
           <Link

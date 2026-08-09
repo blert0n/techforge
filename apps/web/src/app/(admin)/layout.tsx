@@ -1,12 +1,39 @@
 import Link from "next/link";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { Header } from "../../components/layout/auth/header";
 
-export default function AuthLayout({
+type SessionResponse = {
+  user?: { role?: string };
+};
+
+async function requireAdmin() {
+  const cookieHeader = (await cookies()).toString();
+  const apiOrigin = process.env.API_ORIGIN ?? "http://localhost:3001";
+
+  try {
+    const response = await fetch(`${apiOrigin}/api/auth/get-session`, {
+      headers: cookieHeader ? { cookie: cookieHeader } : undefined,
+      cache: "no-store",
+    });
+    const session = response.ok
+      ? ((await response.json()) as SessionResponse)
+      : undefined;
+
+    if (session?.user?.role === "admin") return;
+  } catch {}
+
+  redirect("/sign-in");
+}
+
+export default async function AdminRouteLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  await requireAdmin();
+
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <Header className="fixed top-0 left-0 z-50">

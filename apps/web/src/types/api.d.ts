@@ -1394,6 +1394,322 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/cart": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current guest or authenticated user's cart */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            owner: "guest" | "user";
+                            items: {
+                                id: string;
+                                productId: number;
+                                name: string;
+                                slug: string;
+                                brand: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                stock: number;
+                                lineTotal: string;
+                            }[];
+                            itemCount: number;
+                            subtotal: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current guest or authenticated user's cart */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            owner: "guest" | "user";
+                            items: {
+                                id: string;
+                                productId: number;
+                                name: string;
+                                slug: string;
+                                brand: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                stock: number;
+                                lineTotal: string;
+                            }[];
+                            itemCount: number;
+                            subtotal: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cart/items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        productId: number;
+                        /** @default 1 */
+                        quantity?: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description The current guest or authenticated user's cart */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            owner: "guest" | "user";
+                            items: {
+                                id: string;
+                                productId: number;
+                                name: string;
+                                slug: string;
+                                brand: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                stock: number;
+                                lineTotal: string;
+                            }[];
+                            itemCount: number;
+                            subtotal: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Product or cart item not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Requested quantity is unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/cart/items/{productId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    productId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current guest or authenticated user's cart */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            owner: "guest" | "user";
+                            items: {
+                                id: string;
+                                productId: number;
+                                name: string;
+                                slug: string;
+                                brand: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                stock: number;
+                                lineTotal: string;
+                            }[];
+                            itemCount: number;
+                            subtotal: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Product or cart item not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    productId: number;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        quantity: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description The current guest or authenticated user's cart */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            /** @enum {string} */
+                            owner: "guest" | "user";
+                            items: {
+                                id: string;
+                                productId: number;
+                                name: string;
+                                slug: string;
+                                brand: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                stock: number;
+                                lineTotal: string;
+                            }[];
+                            itemCount: number;
+                            subtotal: string;
+                            /** Format: date-time */
+                            updatedAt: string;
+                        };
+                    };
+                };
+                /** @description Product or cart item not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Requested quantity is unavailable */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/health/db": {
         parameters: {
             query?: never;

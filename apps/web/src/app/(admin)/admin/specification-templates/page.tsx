@@ -31,7 +31,11 @@ import { FormEvent, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
 
 function toSpecificationKey(value: string) {
-  const words = value.trim().match(/[A-Za-z0-9]+/g) ?? [];
+  const words =
+    value
+      .trim()
+      .replace(/([a-z0-9])([A-Z])/g, "$1 $2")
+      .match(/[A-Za-z0-9]+/g) ?? [];
 
   return words
     .map((word, index) =>
@@ -75,6 +79,7 @@ export default function SpecificationTemplatesPage() {
   >("text");
   const [editingIndex, setEditingIndex] = useState<number | null>(null);
   const [isAddingField, setIsAddingField] = useState(false);
+  const [isFieldKeyManual, setIsFieldKeyManual] = useState(false);
   const [fieldDraft, setFieldDraft] = useState({
     key: "",
     label: "",
@@ -145,13 +150,14 @@ export default function SpecificationTemplatesPage() {
       format: getFieldFormat(current),
       unit: typeof current === "string" ? "" : (current.unit ?? ""),
     });
+    setIsFieldKeyManual(true);
     setEditingIndex(fieldIndex);
   }
 
   function saveFieldEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = {
-      key: toSpecificationKey(fieldDraft.key),
+      key: toSpecificationKey(fieldDraft.key || fieldDraft.label),
       label: fieldDraft.label.trim(),
       format: fieldDraft.format,
       ...(fieldDraft.unit.trim() ? { unit: fieldDraft.unit.trim() } : {}),
@@ -163,6 +169,7 @@ export default function SpecificationTemplatesPage() {
     );
     setEditingIndex(null);
     setIsAddingField(false);
+    setIsFieldKeyManual(false);
   }
 
   function moveField(fieldIndex: number, direction: -1 | 1) {
@@ -297,6 +304,7 @@ export default function SpecificationTemplatesPage() {
               onClick={() => {
                 setEditingIndex(null);
                 setFieldDraft({ key: "", label: "", format: "text", unit: "" });
+                setIsFieldKeyManual(false);
                 setIsAddingField(true);
               }}
             >
@@ -430,16 +438,30 @@ export default function SpecificationTemplatesPage() {
             <Input
               placeholder="Display label"
               value={fieldDraft.label}
-              onChange={(e) =>
-                setFieldDraft({ ...fieldDraft, label: e.target.value })
-              }
+              onChange={(event) => {
+                const label = event.target.value;
+                setFieldDraft({
+                  ...fieldDraft,
+                  label,
+                  key: isFieldKeyManual
+                    ? fieldDraft.key
+                    : toSpecificationKey(label),
+                });
+              }}
             />
             <Input
               placeholder="Field key"
               value={fieldDraft.key}
-              onChange={(e) =>
-                setFieldDraft({ ...fieldDraft, key: e.target.value })
+              onBlur={() =>
+                setFieldDraft((current) => ({
+                  ...current,
+                  key: toSpecificationKey(current.key || current.label),
+                }))
               }
+              onChange={(event) => {
+                setIsFieldKeyManual(true);
+                setFieldDraft({ ...fieldDraft, key: event.target.value });
+              }}
             />
             <Select
               value={fieldDraft.format}
@@ -473,6 +495,7 @@ export default function SpecificationTemplatesPage() {
                 onClick={() => {
                   setEditingIndex(null);
                   setIsAddingField(false);
+                  setIsFieldKeyManual(false);
                 }}
               >
                 Cancel

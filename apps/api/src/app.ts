@@ -8,6 +8,7 @@ import { productsRouter } from "./modules/products/products.routes";
 import { healthRouter } from "./modules/health/health.routes";
 import { addressesRouter } from "./modules/addresses/addresses.routes";
 import { catalogRouter } from "./modules/catalog/catalog.routes";
+import { cartRouter } from "./modules/cart/cart.routes";
 
 export const app = new OpenAPIHono();
 
@@ -35,6 +36,7 @@ app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
 app.route("/api/products", productsRouter);
 app.route("/api/addresses", addressesRouter);
 app.route("/api/catalog", catalogRouter);
+app.route("/api/cart", cartRouter);
 app.route("/api/health", healthRouter);
 
 app.doc("/openapi.json", {
@@ -48,7 +50,6 @@ app.get(
     pageTitle: "TechForge API Documentation",
     sources: [
       { url: "/openapi.json", title: "API" },
-      // Better Auth's own generated schema (requires the openAPI() plugin in lib/auth.ts)
       { url: "/api/auth/open-api/generate-schema", title: "Auth" },
     ],
   }),

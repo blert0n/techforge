@@ -10,6 +10,7 @@
     "generate:open-api": "pnpm --filter @techforge/api generate:api",
     "generate:api-web-types": "pnpm --filter @techforge/web generate:api-types",
     "generate:auth-schema": "pnpm --filter @techforge/api auth:generate",
+    "generate": "pnpm run generate:auth-schema && pnpm run generate:open-api && pnpm run generate:api-web-types",
     "db:up": "pnpm --filter @techforge/api db:up",
     "db:down": "pnpm --filter @techforge/api db:down",
     "db:reset": "pnpm --filter @techforge/api db:reset",

@@ -68,10 +68,10 @@ const adminNavigation: AdminNavigationGroup[] = [
       },
     ],
   },
-  // {
-  //   label: "Users",
-  //   items: [{ href: "/admin/customers", icon: Users, label: "Customers" }],
-  // },
+  {
+    label: "Users",
+    items: [{ href: "/admin/customers", icon: Users, label: "Customers" }],
+  },
 ];
 
 export default function AdminLayout({

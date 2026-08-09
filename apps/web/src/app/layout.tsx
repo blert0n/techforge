@@ -4,6 +4,7 @@ import { QueryProvider } from "../providers/query-provider";
 import { Geist } from "next/font/google";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/sonner";
+import { ImpersonationBanner } from "@/components/auth/impersonation-banner";
 
 const geist = Geist({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -29,6 +30,7 @@ export default function RootLayout({
     <html lang="en" className={cn("font-sans", geist.variable)}>
       <body>
         <QueryProvider>
+          <ImpersonationBanner />
           {children}
           <Toaster richColors closeButton />
         </QueryProvider>

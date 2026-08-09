@@ -35,7 +35,7 @@ export const requireRole = (...roles: string[]) =>
       throw new HTTPException(401, { message: "Unauthorized" });
     }
 
-    if (!roles.includes(session.user.role)) {
+    if (!session.user.role || !roles.includes(session.user.role)) {
       throw new HTTPException(403, { message: "Forbidden" });
     }
 
