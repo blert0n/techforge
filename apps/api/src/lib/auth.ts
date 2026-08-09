@@ -33,6 +33,9 @@ export const auth = betterAuth({
       enabled: Boolean(env.COOKIE_DOMAIN),
       ...(env.COOKIE_DOMAIN ? { domain: env.COOKIE_DOMAIN } : {}),
     },
+    ipAddress: {
+      ipAddressHeaders: ["x-forwarded-for"],
+    },
   },
   plugins: [openAPI()],
 });
