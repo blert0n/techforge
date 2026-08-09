@@ -1,6 +1,7 @@
 import { Scalar } from "@scalar/hono-api-reference";
 import { OpenAPIHono } from "@hono/zod-openapi";
 import { cors } from "hono/cors";
+import { basicAuth } from "hono/basic-auth";
 import { auth } from "./lib/auth";
 import { env } from "./config/env";
 import { productsRouter } from "./modules/products/products.routes";
@@ -9,6 +10,17 @@ import { addressesRouter } from "./modules/addresses/addresses.routes";
 import { catalogRouter } from "./modules/catalog/catalog.routes";
 
 export const app = new OpenAPIHono();
+
+if (env.API_DOCS_USERNAME && env.API_DOCS_PASSWORD) {
+  app.use(
+    "/api/docs",
+    basicAuth({ username: env.API_DOCS_USERNAME, password: env.API_DOCS_PASSWORD }),
+  );
+  app.use(
+    "/openapi.json",
+    basicAuth({ username: env.API_DOCS_USERNAME, password: env.API_DOCS_PASSWORD }),
+  );
+}
 
 app.use(
   "/api/*",
