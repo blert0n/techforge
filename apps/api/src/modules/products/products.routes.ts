@@ -1,4 +1,4 @@
-import { OpenAPIHono, createRoute } from "@hono/zod-openapi";
+import { OpenAPIHono, createRoute, z } from "@hono/zod-openapi";
 import {
   productSchema,
   adminProductListQuerySchema,
@@ -13,6 +13,11 @@ import {
   storefrontProductListSchema,
   productSlugParamsSchema,
   storefrontProductDetailSchema,
+  adminProductParamsSchema,
+  editableProductSchema,
+  productMediaResponseSchema,
+  productMediaUploadSchema,
+  productMediaUrlSchema,
 } from "./products.schemas";
 import {
   listProducts,
@@ -38,9 +43,13 @@ export const listProductsRoute = createRoute({
   responses: {
     200: {
       content: { "application/json": { schema: storefrontProductListSchema } },
-      description: "Active storefront products, optionally including a category's descendants",
+      description:
+        "Active storefront products, optionally including a category's descendants",
     },
-    404: { content: { "application/json": { schema: messageSchema } }, description: "Category not found" },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Category not found",
+    },
   },
 });
 
@@ -66,8 +75,16 @@ export const getStorefrontProductRoute = createRoute({
   tags: ["Products"],
   request: { params: productSlugParamsSchema },
   responses: {
-    200: { content: { "application/json": { schema: storefrontProductDetailSchema } }, description: "An active storefront product" },
-    404: { content: { "application/json": { schema: messageSchema } }, description: "Product not found" },
+    200: {
+      content: {
+        "application/json": { schema: storefrontProductDetailSchema },
+      },
+      description: "An active storefront product",
+    },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Product not found",
+    },
   },
 });
 
@@ -149,6 +166,88 @@ export const deleteProductRoute = createRoute({
   },
 });
 
+export const getAdminProductRoute = createRoute({
+  method: "get",
+  path: "/admin/{id}",
+  tags: ["Products"],
+  middleware: requireRole("admin"),
+  request: { params: adminProductParamsSchema },
+  responses: {
+    200: {
+      content: { "application/json": { schema: editableProductSchema } },
+      description: "Product for editing",
+    },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Product not found",
+    },
+  },
+});
+
+export const updateAdminProductRoute = createRoute({
+  method: "put",
+  path: "/admin/{id}",
+  tags: ["Products"],
+  middleware: requireRole("admin"),
+  request: {
+    params: adminProductParamsSchema,
+    body: {
+      content: { "application/json": { schema: createCatalogProductSchema } },
+    },
+  },
+  responses: {
+    200: {
+      content: {
+        "application/json": {
+          schema: z.object({ id: z.number().int(), name: z.string() }),
+        },
+      },
+      description: "Product updated",
+    },
+    400: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Invalid product data",
+    },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Product not found",
+    },
+  },
+});
+
+export const uploadProductMediaRoute = createRoute({
+  method: "post",
+  path: "/media",
+  tags: ["Products"],
+  middleware: requireRole("admin"),
+  request: {
+    body: {
+      content: {
+        "application/json": { schema: productMediaUrlSchema },
+        "multipart/form-data": { schema: productMediaUploadSchema },
+      },
+    },
+  },
+  responses: {
+    201: {
+      content: { "application/json": { schema: productMediaResponseSchema } },
+      description: "Image uploaded",
+    },
+    400: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Invalid image input",
+    },
+    502: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Image hosting error",
+    },
+    503: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Image hosting is not configured",
+    },
+  },
+});
+
 productsRouter.openapi(listProductsRoute, listProducts);
 productsRouter.openapi(getStorefrontProductRoute, getStorefrontProduct);
 productsRouter.openapi(listAdminProductsRoute, listAdminProducts);
@@ -156,8 +255,8 @@ productsRouter.openapi(getProductRoute, getProduct);
 productsRouter.openapi(createProductRoute, createProduct);
 productsRouter.openapi(updateProductRoute, updateProduct);
 productsRouter.openapi(deleteProductRoute, deleteProduct);
-productsRouter.get("/admin/:id", requireRole("admin"), getAdminProduct);
-productsRouter.put("/admin/:id", requireRole("admin"), updateAdminProduct);
-productsRouter.post("/media", requireRole("admin"), uploadProductMedia);
+productsRouter.openapi(getAdminProductRoute, getAdminProduct);
+productsRouter.openapi(updateAdminProductRoute, updateAdminProduct);
+productsRouter.openapi(uploadProductMediaRoute, uploadProductMedia);
 
 export default productsRouter;

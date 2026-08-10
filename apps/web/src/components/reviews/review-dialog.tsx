@@ -1,10 +1,84 @@
 "use client";
 import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StarRating } from "./star-rating";
-type Values = { rating: number; title: string; body: string; pros: string; cons: string };
-export function ReviewDialog({ product, onClose }: { product: string; onClose: () => void }) { const { register, handleSubmit, watch, setValue } = useForm<Values>({ defaultValues: { rating: 0, title: "", body: "", pros: "", cons: "" } }); const rating = watch("rating"); return <div className="fixed inset-0 z-50 grid place-items-center p-4"><Button type="button" variant="ghost" className="absolute inset-0 size-auto rounded-none bg-black/50 hover:bg-black/50" onClick={onClose} /><form onSubmit={handleSubmit(onClose)} className="relative w-full max-w-lg rounded-2xl bg-card shadow-2xl"><header className="border-b border-border p-6"><h2 className="text-lg font-bold uppercase">Write a Review</h2><p className="text-sm text-muted-foreground">{product}</p></header><div className="space-y-4 p-6"><Label>Overall rating</Label><StarRating rating={rating} interactive onChange={(value) => setValue("rating", value)} /><Field label="Review title"><Input {...register("title", { required: true })} /></Field><Field label="Your review"><Textarea rows={5} {...register("body", { required: true })} /></Field><div className="grid gap-4 sm:grid-cols-2"><Field label="Pros"><Input {...register("pros")} /></Field><Field label="Cons"><Input {...register("cons")} /></Field></div></div><footer className="flex gap-3 p-6 pt-0"><Button type="button" variant="outline" className="flex-1" onClick={onClose}>Cancel</Button><Button type="submit" className="flex-1" disabled={!rating}>Submit review</Button></footer></form></div>; }
-function Field({ label, children }: { label: string; children: React.ReactNode }) { return <div><Label className="mb-2">{label}</Label>{children}</div>; }
+import { reviewFormSchema, type ReviewFormValues } from "./review-schema";
+export function ReviewDialog({
+  product,
+  onClose,
+}: {
+  product: string;
+  onClose: () => void;
+}) {
+  const { register, handleSubmit, watch, setValue } = useForm<ReviewFormValues>(
+    {
+      resolver: zodResolver(reviewFormSchema),
+      defaultValues: { rating: 0, title: "", body: "" },
+    },
+  );
+  const rating = watch("rating");
+  return (
+    <div className="fixed inset-0 z-50 grid place-items-center p-4">
+      <Button
+        type="button"
+        variant="ghost"
+        className="absolute inset-0 size-auto rounded-none bg-black/50 hover:bg-black/50"
+        onClick={onClose}
+      />
+      <form
+        onSubmit={handleSubmit(onClose)}
+        className="relative w-full max-w-lg rounded-2xl bg-card shadow-2xl"
+      >
+        <header className="border-b border-border p-6">
+          <h2 className="text-lg font-bold uppercase">Write a Review</h2>
+          <p className="text-sm text-muted-foreground">{product}</p>
+        </header>
+        <div className="space-y-4 p-6">
+          <Label>Overall rating</Label>
+          <StarRating
+            rating={rating}
+            interactive
+            onChange={(value) => setValue("rating", value)}
+          />
+          <Field label="Review title">
+            <Input {...register("title", { required: true })} />
+          </Field>
+          <Field label="Your review">
+            <Textarea rows={5} {...register("body", { required: true })} />
+          </Field>
+        </div>
+        <footer className="flex gap-3 p-6 pt-0">
+          <Button
+            type="button"
+            variant="outline"
+            className="flex-1"
+            onClick={onClose}
+          >
+            Cancel
+          </Button>
+          <Button type="submit" className="flex-1" disabled={!rating}>
+            Submit review
+          </Button>
+        </footer>
+      </form>
+    </div>
+  );
+}
+function Field({
+  label,
+  children,
+}: {
+  label: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <Label className="mb-2">{label}</Label>
+      {children}
+    </div>
+  );
+}

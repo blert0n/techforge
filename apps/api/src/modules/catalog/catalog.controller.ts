@@ -2,7 +2,13 @@ import { asc, eq, inArray, or } from "drizzle-orm";
 import type { RouteHandler } from "@hono/zod-openapi";
 
 import { db } from "../../db/client";
-import { brand, category, categoryParent, product, specificationTemplate } from "../../db/schema/index";
+import {
+  brand,
+  category,
+  categoryParent,
+  product,
+  specificationTemplate,
+} from "../../db/schema/index";
 import type {
   createCatalogBrandRoute,
   createCatalogCategoryRoute,
@@ -39,12 +45,13 @@ function serializeBrand(record: typeof brand.$inferSelect) {
   };
 }
 
-export const listCatalogBrands: RouteHandler<typeof listCatalogBrandsRoute> =
-  async (c) => {
-    const brands = await db.select().from(brand).orderBy(asc(brand.name));
+export const listCatalogBrands: RouteHandler<
+  typeof listCatalogBrandsRoute
+> = async (c) => {
+  const brands = await db.select().from(brand).orderBy(asc(brand.name));
 
-    return c.json(brands.map(serializeBrand), 200);
-  };
+  return c.json(brands.map(serializeBrand), 200);
+};
 
 export const createCatalogBrand: RouteHandler<
   typeof createCatalogBrandRoute
@@ -61,7 +68,10 @@ export const createCatalogBrand: RouteHandler<
     return c.json({ message: "A brand with this name already exists" }, 409);
   }
 
-  const [createdBrand] = await db.insert(brand).values({ name, slug }).returning();
+  const [createdBrand] = await db
+    .insert(brand)
+    .values({ name, slug })
+    .returning();
 
   return c.json(serializeBrand(createdBrand), 201);
 };
@@ -124,18 +134,21 @@ export const deleteCatalogBrand: RouteHandler<
   return c.json({ message: "Brand deleted" }, 200);
 };
 
-function serializeCategory(record: {
-  id: number;
-  name: string;
-  slug: string;
-  attributePrefix: string;
-  description: string | null;
-  imageUrl: string | null;
-  displayInNav: boolean;
-  createdAt: Date;
-  updatedAt: Date;
-  specificationTemplate: typeof specificationTemplate.$inferSelect | null;
-}, parentIds: number[] = []) {
+function serializeCategory(
+  record: {
+    id: number;
+    name: string;
+    slug: string;
+    attributePrefix: string;
+    description: string | null;
+    imageUrl: string | null;
+    displayInNav: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    specificationTemplate: typeof specificationTemplate.$inferSelect | null;
+  },
+  parentIds: number[] = [],
+) {
   return {
     id: record.id,
     name: record.name,
@@ -175,7 +188,9 @@ export const listCatalogCategories: RouteHandler<
   }
 
   return c.json(
-    categories.map((item) => serializeCategory(item, parentIdsByCategory.get(item.id) ?? [])),
+    categories.map((item) =>
+      serializeCategory(item, parentIdsByCategory.get(item.id) ?? []),
+    ),
     200,
   );
 };
@@ -191,7 +206,10 @@ export const listNavigationCategories: RouteHandler<
 
   const categoryIds = categories.map((item) => item.id);
   const links = categoryIds.length
-    ? await db.select().from(categoryParent).where(inArray(categoryParent.categoryId, categoryIds))
+    ? await db
+        .select()
+        .from(categoryParent)
+        .where(inArray(categoryParent.categoryId, categoryIds))
     : [];
   const parentIdsByCategory = new Map<number, number[]>();
   for (const link of links) {
@@ -209,7 +227,9 @@ export const listNavigationCategories: RouteHandler<
   );
 };
 
-export const createCatalogCategory: RouteHandler<typeof createCatalogCategoryRoute> = async (c) => {
+export const createCatalogCategory: RouteHandler<
+  typeof createCatalogCategoryRoute
+> = async (c) => {
   const body = c.req.valid("json");
   const { parentIds: requestedParentIds, ...values } = body;
   const parentIds = [...new Set(requestedParentIds)];
@@ -219,20 +239,32 @@ export const createCatalogCategory: RouteHandler<typeof createCatalogCategoryRou
       .from(category)
       .where(inArray(category.id, parentIds));
     if (existingParents.length !== parentIds.length) {
-      return c.json({ message: "One or more parent categories do not exist" }, 400);
+      return c.json(
+        { message: "One or more parent categories do not exist" },
+        400,
+      );
     }
   }
 
   const [created] = await db.transaction(async (tx) => {
-    const createdRows = await tx.insert(category).values(values).returning({ id: category.id });
+    const createdRows = await tx
+      .insert(category)
+      .values(values)
+      .returning({ id: category.id });
     if (parentIds.length) {
       await tx.insert(categoryParent).values(
-        parentIds.map((parentId) => ({ categoryId: createdRows[0].id, parentId })),
+        parentIds.map((parentId) => ({
+          categoryId: createdRows[0].id,
+          parentId,
+        })),
       );
     }
     return createdRows;
   });
-  const saved = await db.query.category.findFirst({ where: eq(category.id, created.id), with: { specificationTemplate: true } });
+  const saved = await db.query.category.findFirst({
+    where: eq(category.id, created.id),
+    with: { specificationTemplate: true },
+  });
   return c.json(serializeCategory(saved!, parentIds), 201);
 };
 
@@ -283,7 +315,10 @@ export const updateCatalogCategory: RouteHandler<
       .from(category)
       .where(inArray(category.id, parentIds));
     if (existingParents.length !== parentIds.length) {
-      return c.json({ message: "One or more parent categories do not exist" }, 400);
+      return c.json(
+        { message: "One or more parent categories do not exist" },
+        400,
+      );
     }
   }
 
@@ -308,7 +343,10 @@ export const updateCatalogCategory: RouteHandler<
     return false;
   };
   if (parentIds.some(reachesCategory)) {
-    return c.json({ message: "This parent selection would create a category cycle" }, 400);
+    return c.json(
+      { message: "This parent selection would create a category cycle" },
+      400,
+    );
   }
 
   const [updated] = await db.transaction(async (tx) => {
@@ -320,9 +358,9 @@ export const updateCatalogCategory: RouteHandler<
     if (!updatedRows[0]) return updatedRows;
     await tx.delete(categoryParent).where(eq(categoryParent.categoryId, id));
     if (parentIds.length) {
-      await tx.insert(categoryParent).values(
-        parentIds.map((parentId) => ({ categoryId: id, parentId })),
-      );
+      await tx
+        .insert(categoryParent)
+        .values(parentIds.map((parentId) => ({ categoryId: id, parentId })));
     }
     return updatedRows;
   });

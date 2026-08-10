@@ -363,7 +363,9 @@ export default function AdminProductsPage() {
                         <Button
                           aria-label={`Edit ${product.name}`}
                           nativeButton={false}
-                          render={<Link href={`/admin/products/edit/${product.id}`} />}
+                          render={
+                            <Link href={`/admin/products/edit/${product.id}`} />
+                          }
                           size="icon-sm"
                           type="button"
                           variant="ghost"

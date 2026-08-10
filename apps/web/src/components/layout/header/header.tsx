@@ -20,7 +20,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { utilityLinks, allCategoriesOption, accountActions } from "./header.constants";
+import {
+  utilityLinks,
+  allCategoriesOption,
+  accountActions,
+} from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
 import { useSession } from "@/lib/auth-client";
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -59,7 +63,9 @@ export function Header({ children }: HeaderProps) {
   );
   const topLevelCategories = navigationCategories.filter(
     (category) =>
-      !category.parentIds.some((parentId) => navigationCategoryIds.has(parentId)),
+      !category.parentIds.some((parentId) =>
+        navigationCategoryIds.has(parentId),
+      ),
   );
   const categories = [
     allCategoriesOption,
@@ -107,38 +113,7 @@ export function Header({ children }: HeaderProps) {
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-card">
-      <div className="flex items-center justify-between bg-secondary px-4 py-2 text-xs text-secondary-foreground md:px-8">
-        <div className="flex items-center gap-4">
-          <Link
-            href="#"
-            className="flex items-center gap-1 transition-colors hover:text-primary"
-          >
-            <MapPin className="h-3 w-3" />
-            Ship to: United States
-          </Link>
-
-          <Link
-            href="/deals"
-            className="hidden transition-colors hover:text-primary md:block"
-          >
-            Today's Deals
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-4">
-          {utilityLinks
-            .filter((link) => ["Track Order", "Help"].includes(link.label))
-            .map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className="transition-colors hover:text-primary"
-              >
-                {link.label}
-              </Link>
-            ))}
-        </div>
-      </div>
+      <div className="flex items-center justify-between bg-secondary px-4 py-2 text-xs text-secondary-foreground md:px-8"></div>
 
       <div className="flex items-center justify-between gap-4 px-4 py-4 md:gap-8 md:px-8">
         <Link
@@ -217,10 +192,14 @@ export function Header({ children }: HeaderProps) {
                               ) : null}
                             </div>
                             <div className="min-w-0">
-                              <p className="truncate text-sm font-medium">{product.name}</p>
+                              <p className="truncate text-sm font-medium">
+                                {product.name}
+                              </p>
                               <p className="text-xs text-muted-foreground">
                                 {product.brand} · ${" "}
-                                {(product.discountPrice ?? product.price).toFixed(2)}
+                                {(
+                                  product.discountPrice ?? product.price
+                                ).toFixed(2)}
                               </p>
                             </div>
                           </div>

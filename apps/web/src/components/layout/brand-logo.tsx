@@ -40,11 +40,7 @@ export function BrandLogo({
 }: BrandLogoProps) {
   return (
     <span className={cn("inline-flex items-center gap-2", className)}>
-      <BrandMark
-        alt=""
-        className={markClassName}
-        priority={priority}
-      />
+      <BrandMark alt="" className={markClassName} priority={priority} />
       <span className={nameClassName}>TechForge</span>
     </span>
   );

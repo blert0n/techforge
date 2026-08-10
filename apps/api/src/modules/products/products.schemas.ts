@@ -28,7 +28,10 @@ export const createCatalogProductSchema = z.object({
       }),
     )
     .max(12),
-  specifications: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])),
+  specifications: z.record(
+    z.string(),
+    z.union([z.string(), z.number(), z.boolean()]),
+  ),
   attributeKeys: z.array(z.string()),
 });
 
@@ -40,7 +43,9 @@ export const storefrontProductListQuerySchema = z.object({
   maxPrice: z.coerce.number().nonnegative().optional(),
   minRating: z.coerce.number().min(1).max(5).optional(),
   specifications: z.string().trim().optional(),
-  sort: z.enum(["featured", "price-ascending", "price-descending"]).default("featured"),
+  sort: z
+    .enum(["featured", "price-ascending", "price-descending"])
+    .default("featured"),
 });
 
 export const storefrontProductSchema = z.object({
@@ -64,27 +69,33 @@ export const storefrontProductSchema = z.object({
 });
 
 export const storefrontProductListSchema = z.object({
-  category: z.object({
-    id: z.number().int(),
-    name: z.string(),
-    slug: z.string(),
-    description: z.string().nullable(),
-    parents: z.array(z.object({ name: z.string(), slug: z.string() })),
-    children: z.array(z.object({
+  category: z
+    .object({
       id: z.number().int(),
       name: z.string(),
       slug: z.string(),
-      categoryIds: z.array(z.number().int()),
-    })),
-  }).nullable(),
+      description: z.string().nullable(),
+      parents: z.array(z.object({ name: z.string(), slug: z.string() })),
+      children: z.array(
+        z.object({
+          id: z.number().int(),
+          name: z.string(),
+          slug: z.string(),
+          categoryIds: z.array(z.number().int()),
+        }),
+      ),
+    })
+    .nullable(),
   items: z.array(storefrontProductSchema),
-  specificationFilters: z.array(z.object({
-    key: z.string(),
-    label: z.string(),
-    unit: z.string().nullable(),
-    format: z.enum(["text", "number", "boolean"]),
-    options: z.array(z.object({ value: z.string(), label: z.string() })),
-  })),
+  specificationFilters: z.array(
+    z.object({
+      key: z.string(),
+      label: z.string(),
+      unit: z.string().nullable(),
+      format: z.enum(["text", "number", "boolean"]),
+      options: z.array(z.object({ value: z.string(), label: z.string() })),
+    }),
+  ),
 });
 
 export const adminProductListItemSchema = z.object({
@@ -153,6 +164,17 @@ export const productParamsSchema = z.object({
   }),
 });
 
+export const adminProductParamsSchema = z.object({
+  id: z.coerce
+    .number()
+    .int()
+    .positive()
+    .openapi({
+      param: { name: "id", in: "path" },
+      example: 1,
+    }),
+});
+
 export const productSlugParamsSchema = z.object({
   slug: z.string().min(1),
 });
@@ -163,9 +185,51 @@ export const storefrontProductDetailSchema = storefrontProductSchema.extend({
     id: z.number().int(),
     name: z.string(),
     slug: z.string(),
-    specificationTemplate: z.object({ fields: z.array(z.any()) }).nullable(),
+    specificationTemplate: z
+      .object({
+        fields: z.array(
+          z.union([
+            z.string(),
+            z.object({
+              key: z.string(),
+              label: z.string(),
+              unit: z.string().optional(),
+              group: z.string().optional(),
+              order: z.number().int().optional(),
+              format: z.enum(["text", "number", "boolean"]),
+            }),
+          ]),
+        ),
+      })
+      .nullable(),
   }),
-  images: z.array(z.object({ url: z.string(), altText: z.string().nullable() })),
+  images: z.array(
+    z.object({ url: z.string(), altText: z.string().nullable() }),
+  ),
 });
+
+export const editableProductSchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  slug: z.string(),
+  sku: z.string(),
+  brandId: z.number().int(),
+  categoryId: z.number().int(),
+  description: z.string(),
+  price: z.number(),
+  discountPrice: z.number().nullable(),
+  stock: z.number().int().nonnegative(),
+  status: z.enum(["draft", "active"]),
+  images: z.array(z.object({ url: z.string(), altText: z.string() })),
+  specifications: z.record(
+    z.string(),
+    z.union([z.string(), z.number(), z.boolean()]),
+  ),
+  attributeKeys: z.array(z.string()),
+});
+
+export const productMediaUrlSchema = z.object({ sourceUrl: z.string().url() });
+export const productMediaUploadSchema = z.object({ file: z.any() });
+export const productMediaResponseSchema = z.object({ url: z.string().url() });
 
 export const messageSchema = z.object({ message: z.string() });

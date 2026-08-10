@@ -219,7 +219,10 @@ export default function AdminCategoriesPage() {
               const fieldCount =
                 category.specificationTemplate?.fields.length ?? 0;
               const parentNames = category.parentIds
-                .map((parentId) => categories.find((item) => item.id === parentId)?.name)
+                .map(
+                  (parentId) =>
+                    categories.find((item) => item.id === parentId)?.name,
+                )
                 .filter((name): name is string => Boolean(name));
 
               return (
@@ -238,8 +241,14 @@ export default function AdminCategoriesPage() {
                       <Badge variant="outline">
                         {category.attributePrefix}
                       </Badge>
-                      <Badge variant={category.displayInNav ? "secondary" : "outline"}>
-                        {category.displayInNav ? "Shown in navigation" : "Hidden from navigation"}
+                      <Badge
+                        variant={
+                          category.displayInNav ? "secondary" : "outline"
+                        }
+                      >
+                        {category.displayInNav
+                          ? "Shown in navigation"
+                          : "Hidden from navigation"}
                       </Badge>
                     </div>
                     <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
@@ -406,32 +415,52 @@ export default function AdminCategoriesPage() {
                   }
                 />
                 <span>
-                  <span className="block text-sm font-medium text-foreground">Display in navigation</span>
-                  <span className="block text-xs text-muted-foreground">Show this category in the storefront navigation.</span>
+                  <span className="block text-sm font-medium text-foreground">
+                    Display in navigation
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    Show this category in the storefront navigation.
+                  </span>
                 </span>
               </label>
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">Parent categories</p>
+                <p className="text-sm font-medium text-foreground">
+                  Parent categories
+                </p>
                 <div className="grid max-h-40 gap-2 overflow-y-auto rounded-xl border border-border p-3 sm:grid-cols-2">
-                  {categories.filter((category) => category.id !== editingCategory.id).map((category) => (
-                    <label key={category.id} className="flex cursor-pointer items-center gap-2 text-sm">
-                      <Checkbox
-                        checked={draft.parentIds.includes(category.id)}
-                        onCheckedChange={(checked) =>
-                          setDraft({
-                            ...draft,
-                            parentIds: checked === true
-                              ? [...draft.parentIds, category.id]
-                              : draft.parentIds.filter((id) => id !== category.id),
-                          })
-                        }
-                      />
-                      {category.name}
-                    </label>
-                  ))}
-                  {categories.length <= 1 ? <p className="text-xs text-muted-foreground">No other categories available.</p> : null}
+                  {categories
+                    .filter((category) => category.id !== editingCategory.id)
+                    .map((category) => (
+                      <label
+                        key={category.id}
+                        className="flex cursor-pointer items-center gap-2 text-sm"
+                      >
+                        <Checkbox
+                          checked={draft.parentIds.includes(category.id)}
+                          onCheckedChange={(checked) =>
+                            setDraft({
+                              ...draft,
+                              parentIds:
+                                checked === true
+                                  ? [...draft.parentIds, category.id]
+                                  : draft.parentIds.filter(
+                                      (id) => id !== category.id,
+                                    ),
+                            })
+                          }
+                        />
+                        {category.name}
+                      </label>
+                    ))}
+                  {categories.length <= 1 ? (
+                    <p className="text-xs text-muted-foreground">
+                      No other categories available.
+                    </p>
+                  ) : null}
                 </div>
-                <p className="text-xs text-muted-foreground">A category can appear under multiple parent groups.</p>
+                <p className="text-xs text-muted-foreground">
+                  A category can appear under multiple parent groups.
+                </p>
               </div>
               <div className="flex justify-end gap-2">
                 <Button
@@ -558,34 +587,53 @@ export default function AdminCategoriesPage() {
                 <Checkbox
                   checked={newCategory.displayInNav}
                   onCheckedChange={(checked) =>
-                    setNewCategory({ ...newCategory, displayInNav: checked === true })
+                    setNewCategory({
+                      ...newCategory,
+                      displayInNav: checked === true,
+                    })
                   }
                 />
                 <span>
-                  <span className="block text-sm font-medium text-foreground">Display in navigation</span>
-                  <span className="block text-xs text-muted-foreground">Show this category in the storefront navigation.</span>
+                  <span className="block text-sm font-medium text-foreground">
+                    Display in navigation
+                  </span>
+                  <span className="block text-xs text-muted-foreground">
+                    Show this category in the storefront navigation.
+                  </span>
                 </span>
               </label>
               <div className="space-y-2">
-                <p className="text-sm font-medium text-foreground">Parent categories</p>
+                <p className="text-sm font-medium text-foreground">
+                  Parent categories
+                </p>
                 <div className="grid max-h-40 gap-2 overflow-y-auto rounded-xl border border-border p-3 sm:grid-cols-2">
                   {categories.map((category) => (
-                    <label key={category.id} className="flex cursor-pointer items-center gap-2 text-sm">
+                    <label
+                      key={category.id}
+                      className="flex cursor-pointer items-center gap-2 text-sm"
+                    >
                       <Checkbox
                         checked={newCategory.parentIds.includes(category.id)}
                         onCheckedChange={(checked) =>
                           setNewCategory({
                             ...newCategory,
-                            parentIds: checked === true
-                              ? [...newCategory.parentIds, category.id]
-                              : newCategory.parentIds.filter((id) => id !== category.id),
+                            parentIds:
+                              checked === true
+                                ? [...newCategory.parentIds, category.id]
+                                : newCategory.parentIds.filter(
+                                    (id) => id !== category.id,
+                                  ),
                           })
                         }
                       />
                       {category.name}
                     </label>
                   ))}
-                  {!categories.length ? <p className="text-xs text-muted-foreground">No parent categories available.</p> : null}
+                  {!categories.length ? (
+                    <p className="text-xs text-muted-foreground">
+                      No parent categories available.
+                    </p>
+                  ) : null}
                 </div>
               </div>
               <div className="flex justify-end gap-2">

@@ -21,7 +21,8 @@ export function useCreateAddress() {
 
   return useMutation({
     mutationFn: (values: AddressInput) => createAddress(values),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
   });
 }
 
@@ -31,7 +32,8 @@ export function useUpdateAddress() {
   return useMutation({
     mutationFn: ({ id, values }: { id: string; values: AddressInput }) =>
       updateAddress(id, values),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
   });
 }
 
@@ -40,6 +42,7 @@ export function useDeleteAddress() {
 
   return useMutation({
     mutationFn: deleteAddress,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: addressesQueryKey }),
   });
 }

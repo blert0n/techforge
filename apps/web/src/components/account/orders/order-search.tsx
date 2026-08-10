@@ -1,7 +1,13 @@
 import { Controller, useForm } from "react-hook-form";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { OrderStatus } from "./types";
 type FilterValues = { search: string; status: "All Orders" | OrderStatus };
 export function OrderSearch({
@@ -27,7 +33,24 @@ export function OrderSearch({
           className="w-full pl-9 sm:w-48"
         />
       </div>
-      <Controller control={control} name="status" render={({ field }) => <Select value={field.value} onValueChange={field.onChange}><SelectTrigger aria-label="Filter orders by status"><SelectValue /></SelectTrigger><SelectContent><SelectItem value="All Orders">All Orders</SelectItem><SelectItem value="Processing">Processing</SelectItem><SelectItem value="In Transit">In Transit</SelectItem><SelectItem value="Delivered">Delivered</SelectItem><SelectItem value="Cancelled">Cancelled</SelectItem></SelectContent></Select>} />
+      <Controller
+        control={control}
+        name="status"
+        render={({ field }) => (
+          <Select value={field.value} onValueChange={field.onChange}>
+            <SelectTrigger aria-label="Filter orders by status">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="All Orders">All Orders</SelectItem>
+              <SelectItem value="Processing">Processing</SelectItem>
+              <SelectItem value="In Transit">In Transit</SelectItem>
+              <SelectItem value="Delivered">Delivered</SelectItem>
+              <SelectItem value="Cancelled">Cancelled</SelectItem>
+            </SelectContent>
+          </Select>
+        )}
+      />
     </form>
   );
 }

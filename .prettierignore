@@ -1,0 +1,6 @@
+node_modules
+.next
+.turbo
+.pnpm-store
+apps/api/openapi.json
+apps/web/src/types/api.d.ts

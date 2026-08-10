@@ -1,4 +1,7 @@
-export { getStorefrontProduct, listProducts } from "./products.storefront.controller";
+export {
+  getStorefrontProduct,
+  listProducts,
+} from "./products.storefront.controller";
 export { uploadProductMedia } from "./products.media.controller";
 export {
   createProduct,

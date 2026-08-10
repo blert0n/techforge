@@ -20,7 +20,11 @@ export function StarRating({
           size="icon-xs"
           disabled={!interactive}
           onClick={() => onChange?.(star)}
-          className={interactive ? "cursor-pointer hover:bg-transparent" : "cursor-default hover:bg-transparent"}
+          className={
+            interactive
+              ? "cursor-pointer hover:bg-transparent"
+              : "cursor-default hover:bg-transparent"
+          }
         >
           <Star
             className={`size-4 ${star <= rating ? "fill-yellow-400 text-yellow-400" : "text-muted-foreground"}`}

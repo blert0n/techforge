@@ -15,7 +15,9 @@ export type NavigationCategory =
   paths["/api/catalog/navigation-categories"]["get"]["responses"][200]["content"]["application/json"][number];
 
 export async function getNavigationCategories() {
-  const { data, error } = await apiClient.GET("/api/catalog/navigation-categories");
+  const { data, error } = await apiClient.GET(
+    "/api/catalog/navigation-categories",
+  );
   if (error || !data) throw new Error("Failed to load navigation categories");
   return data;
 }
@@ -115,10 +117,13 @@ export async function updateCatalogCategory(
   id: number,
   values: UpdateCatalogCategoryInput,
 ) {
-  const { data, error } = await apiClient.PATCH("/api/catalog/categories/{id}", {
-    params: { path: { id } },
-    body: values,
-  });
+  const { data, error } = await apiClient.PATCH(
+    "/api/catalog/categories/{id}",
+    {
+      params: { path: { id } },
+      body: values,
+    },
+  );
 
   if (error || !data) throw new Error("Failed to update category");
   return data;
@@ -132,8 +137,12 @@ export async function deleteCatalogCategory(id: number) {
   if (error) throw new Error("Failed to delete category");
 }
 
-export async function createCatalogCategory(values: UpdateCatalogCategoryInput) {
-  const { data, error } = await apiClient.POST("/api/catalog/categories", { body: values });
+export async function createCatalogCategory(
+  values: UpdateCatalogCategoryInput,
+) {
+  const { data, error } = await apiClient.POST("/api/catalog/categories", {
+    body: values,
+  });
   if (error || !data) throw new Error("Failed to create category");
   return data;
 }

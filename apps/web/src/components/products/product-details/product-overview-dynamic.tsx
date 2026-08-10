@@ -12,6 +12,7 @@ import { useState } from "react";
 
 import type { StorefrontProductDetail } from "@/services/products";
 import { Button } from "@/components/ui/button";
+import { useRecordProductView } from "@/hooks/use-products";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -23,6 +24,7 @@ export function ProductOverviewDynamic({
 }: {
   product: StorefrontProductDetail;
 }) {
+  useRecordProductView(product.id);
   const [quantity, setQuantity] = useState(1);
   const currentPrice = product.discountPrice ?? product.price;
   const outOfStock = product.stock === 0;

@@ -1,6 +1,119 @@
 "use client";
 import { useState } from "react";
-import { CheckCircle2, Minus, Plus, ShoppingCart, Star, StarHalf, Zap } from "lucide-react";
+import {
+  CheckCircle2,
+  Minus,
+  Plus,
+  ShoppingCart,
+  Star,
+  StarHalf,
+  Zap,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
-export function ProductOverview() { const [quantity, setQuantity] = useState(1); return <div className="flex w-full flex-col lg:w-1/2"><span className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">NVIDIA</span><h1 className="text-3xl font-bold leading-tight">GeForce RTX 4090 Founders Edition 24GB GDDR6X</h1><div className="my-6 flex flex-wrap items-center gap-3 border-b border-border pb-6"><Stars /><b>4.8</b><a href="#reviews" className="text-sm text-primary hover:underline">(128 reviews)</a><span className="text-muted-foreground">|</span><span className="text-sm text-muted-foreground"># 900-1G136-2530-000</span></div><div className="mb-6"><div className="flex items-end gap-3"><span className="text-4xl font-bold">$1,599.99</span><span className="text-lg text-muted-foreground line-through">$1,699.00</span><span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700">Save $99.01</span></div><p className="mt-2 text-sm text-muted-foreground">Free shipping on orders over $100.</p></div><div className="mb-6 flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4"><CheckCircle2 className="size-5 text-emerald-600" /><div><p className="text-sm font-semibold">In Stock — Ready to Ship</p><p className="text-xs text-muted-foreground">Order within 2 hrs 14 mins for delivery by <b>Tomorrow</b></p></div></div><div className="mb-6 flex flex-col gap-3 sm:flex-row"><div className="flex h-12 items-center rounded-lg border border-border"><Button type="button" variant="ghost" size="icon" onClick={() => setQuantity((value) => Math.max(1, value - 1))}><Minus /></Button><span className="w-12 text-center font-medium">{quantity}</span><Button type="button" variant="ghost" size="icon" onClick={() => setQuantity((value) => value + 1)}><Plus /></Button></div><Button type="button" className="h-12 flex-1"><ShoppingCart />Add to Cart</Button></div><div className="space-y-3 border-t border-border pt-5"><h2 className="text-sm font-semibold">Key Features</h2>{[["Ada Lovelace Architecture", "Up to 2x performance and power efficiency"], ["DLSS 3 & Ray Tracing", "AI-accelerated performance and hyper-realistic graphics"], ["24GB GDDR6X Memory", "Massive VRAM for 4K/8K gaming and creative workloads"]].map(([title, description]) => <div key={title} className="flex gap-3"><Zap className="mt-0.5 size-4 text-primary" /><div><p className="text-sm font-medium">{title}</p><p className="text-xs text-muted-foreground">{description}</p></div></div>)}</div></div>; }
-function Stars() { return <div className="flex text-yellow-400">{[1, 2, 3, 4].map((item) => <Star key={item} className="size-4 fill-current" />)}<StarHalf className="size-4 fill-current" /></div>; }
+export function ProductOverview() {
+  const [quantity, setQuantity] = useState(1);
+  return (
+    <div className="flex w-full flex-col lg:w-1/2">
+      <span className="mb-2 text-xs font-bold uppercase tracking-widest text-primary">
+        NVIDIA
+      </span>
+      <h1 className="text-3xl font-bold leading-tight">
+        GeForce RTX 4090 Founders Edition 24GB GDDR6X
+      </h1>
+      <div className="my-6 flex flex-wrap items-center gap-3 border-b border-border pb-6">
+        <Stars />
+        <b>4.8</b>
+        <a href="#reviews" className="text-sm text-primary hover:underline">
+          (128 reviews)
+        </a>
+        <span className="text-muted-foreground">|</span>
+        <span className="text-sm text-muted-foreground">
+          # 900-1G136-2530-000
+        </span>
+      </div>
+      <div className="mb-6">
+        <div className="flex items-end gap-3">
+          <span className="text-4xl font-bold">$1,599.99</span>
+          <span className="text-lg text-muted-foreground line-through">
+            $1,699.00
+          </span>
+          <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-700">
+            Save $99.01
+          </span>
+        </div>
+        <p className="mt-2 text-sm text-muted-foreground">
+          Free shipping on orders over $100.
+        </p>
+      </div>
+      <div className="mb-6 flex gap-3 rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+        <CheckCircle2 className="size-5 text-emerald-600" />
+        <div>
+          <p className="text-sm font-semibold">In Stock — Ready to Ship</p>
+          <p className="text-xs text-muted-foreground">
+            Order within 2 hrs 14 mins for delivery by <b>Tomorrow</b>
+          </p>
+        </div>
+      </div>
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row">
+        <div className="flex h-12 items-center rounded-lg border border-border">
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setQuantity((value) => Math.max(1, value - 1))}
+          >
+            <Minus />
+          </Button>
+          <span className="w-12 text-center font-medium">{quantity}</span>
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
+            onClick={() => setQuantity((value) => value + 1)}
+          >
+            <Plus />
+          </Button>
+        </div>
+        <Button type="button" className="h-12 flex-1">
+          <ShoppingCart />
+          Add to Cart
+        </Button>
+      </div>
+      <div className="space-y-3 border-t border-border pt-5">
+        <h2 className="text-sm font-semibold">Key Features</h2>
+        {[
+          [
+            "Ada Lovelace Architecture",
+            "Up to 2x performance and power efficiency",
+          ],
+          [
+            "DLSS 3 & Ray Tracing",
+            "AI-accelerated performance and hyper-realistic graphics",
+          ],
+          [
+            "24GB GDDR6X Memory",
+            "Massive VRAM for 4K/8K gaming and creative workloads",
+          ],
+        ].map(([title, description]) => (
+          <div key={title} className="flex gap-3">
+            <Zap className="mt-0.5 size-4 text-primary" />
+            <div>
+              <p className="text-sm font-medium">{title}</p>
+              <p className="text-xs text-muted-foreground">{description}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+function Stars() {
+  return (
+    <div className="flex text-yellow-400">
+      {[1, 2, 3, 4].map((item) => (
+        <Star key={item} className="size-4 fill-current" />
+      ))}
+      <StarHalf className="size-4 fill-current" />
+    </div>
+  );
+}

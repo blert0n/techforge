@@ -22,7 +22,10 @@ import {
   productImage,
   specificationTemplate,
 } from "../../db/schema/index";
-import type { getStorefrontProductRoute, listProductsRoute } from "./products.routes";
+import type {
+  getStorefrontProductRoute,
+  listProductsRoute,
+} from "./products.routes";
 import {
   mapStorefrontProduct,
   parseIdList,
@@ -30,7 +33,9 @@ import {
   resolveCategoryTree,
 } from "./products.shared";
 
-export const getStorefrontProduct: RouteHandler<typeof getStorefrontProductRoute> = async (c) => {
+export const getStorefrontProduct: RouteHandler<
+  typeof getStorefrontProductRoute
+> = async (c) => {
   const { slug } = c.req.valid("param");
   const record = await db.query.product.findFirst({
     where: and(eq(productTable.slug, slug), eq(productTable.status, "active")),
@@ -43,19 +48,25 @@ export const getStorefrontProduct: RouteHandler<typeof getStorefrontProductRoute
   });
   if (!record) return c.json({ message: "Product not found" }, 404);
 
-  return c.json({
-    ...mapStorefrontProduct(record),
-    description: record.description,
-    category: {
-      id: record.category.id,
-      name: record.category.name,
-      slug: record.category.slug,
-      specificationTemplate: record.category.specificationTemplate
-        ? { fields: record.category.specificationTemplate.fields }
-        : null,
-    },
-    images: record.images.map((image) => ({ url: image.url, altText: image.altText })),
-  } as never, 200);
+  return c.json(
+    {
+      ...mapStorefrontProduct(record),
+      description: record.description,
+      category: {
+        id: record.category.id,
+        name: record.category.name,
+        slug: record.category.slug,
+        specificationTemplate: record.category.specificationTemplate
+          ? { fields: record.category.specificationTemplate.fields }
+          : null,
+      },
+      images: record.images.map((image) => ({
+        url: image.url,
+        altText: image.altText,
+      })),
+    } as never,
+    200,
+  );
 };
 
 function getProductOrderBy({
@@ -139,8 +150,16 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
                 eq(productAttribute.attributeName, attributeName),
                 ...(range
                   ? [
-                      ...(range.min !== undefined ? [sql`cast(${productAttribute.attributeValue} as numeric) >= ${range.min}`] : []),
-                      ...(range.max !== undefined ? [sql`cast(${productAttribute.attributeValue} as numeric) <= ${range.max}`] : []),
+                      ...(range.min !== undefined
+                        ? [
+                            sql`cast(${productAttribute.attributeValue} as numeric) >= ${range.min}`,
+                          ]
+                        : []),
+                      ...(range.max !== undefined
+                        ? [
+                            sql`cast(${productAttribute.attributeValue} as numeric) <= ${range.max}`,
+                          ]
+                        : []),
                     ]
                   : [inArray(productAttribute.attributeValue, filter)]),
               ),

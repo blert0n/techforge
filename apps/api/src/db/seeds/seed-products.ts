@@ -132,13 +132,18 @@ async function seedProducts() {
 
       await tx
         .insert(productSpecification)
-        .values({ productId: savedProduct.id, specifications: item.specifications })
+        .values({
+          productId: savedProduct.id,
+          specifications: item.specifications,
+        })
         .onConflictDoUpdate({
           target: productSpecification.productId,
           set: { specifications: item.specifications, updatedAt: new Date() },
         });
 
-      await tx.delete(productAttribute).where(eq(productAttribute.productId, savedProduct.id));
+      await tx
+        .delete(productAttribute)
+        .where(eq(productAttribute.productId, savedProduct.id));
       if (item.attributes.length) {
         await tx.insert(productAttribute).values(
           item.attributes.map(([attributeName, attributeValue]) => ({
@@ -149,7 +154,9 @@ async function seedProducts() {
         );
       }
 
-      await tx.delete(productImage).where(eq(productImage.productId, savedProduct.id));
+      await tx
+        .delete(productImage)
+        .where(eq(productImage.productId, savedProduct.id));
       await tx.insert(productImage).values({
         productId: savedProduct.id,
         url: `https://placehold.co/1200x900?text=${encodeURIComponent(item.name)}`,

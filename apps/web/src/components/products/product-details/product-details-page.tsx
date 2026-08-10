@@ -18,7 +18,8 @@ export default function ProductDetailsPage({
   product: StorefrontProductDetail;
 }) {
   const currentPrice = product.discountPrice ?? product.price;
-  const specificationFields = product.category.specificationTemplate?.fields ?? [];
+  const specificationFields =
+    product.category.specificationTemplate?.fields ?? [];
   const specifications = Object.entries(product.specificationValues)
     .map(([key, value]) => {
       const field = specificationFields.find(
@@ -37,18 +38,29 @@ export default function ProductDetailsPage({
   return (
     <main className="mx-auto flex w-full max-w-7xl flex-col gap-6 px-4 py-8 md:px-8">
       <nav className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
-        <Link href="/" className="hover:text-foreground">Home</Link>
+        <Link href="/" className="hover:text-foreground">
+          Home
+        </Link>
         <ChevronRight className="size-3" />
-        <Link href={`/category/${product.category.slug}`} className="hover:text-foreground">
+        <Link
+          href={`/category/${product.category.slug}`}
+          className="hover:text-foreground"
+        >
           {product.category.name}
         </Link>
         <ChevronRight className="size-3" />
         <span className="font-medium text-foreground">{product.name}</span>
       </nav>
 
-      <section className="flex flex-col gap-10 lg:flex-row"><ProductGallery images={product.images} name={product.name} /><ProductOverviewDynamic product={product} /></section>
+      <section className="flex flex-col gap-10 lg:flex-row">
+        <ProductGallery images={product.images} name={product.name} />
+        <ProductOverviewDynamic product={product} />
+      </section>
 
-      <ProductDetailTabs specifications={specifications} description={product.description} />
+      <ProductDetailTabs
+        specifications={specifications}
+        description={product.description}
+      />
     </main>
   );
 }

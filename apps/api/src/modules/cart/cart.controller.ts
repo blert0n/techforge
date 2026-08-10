@@ -6,16 +6,12 @@ import { deleteCookie, getCookie, setCookie } from "hono/cookie";
 import { db } from "../../db/client";
 import { cartItem, product } from "../../db/schema/index";
 import { auth } from "../../lib/auth";
+import { createGuestToken, isGuestToken } from "../../lib/guest-token";
+import { GUEST_CART_COOKIE, guestCartCookieOptions } from "./cart.constants";
 import {
-  GUEST_CART_COOKIE,
-  guestCartCookieOptions,
-} from "./cart.constants";
-import {
-  createGuestCartToken,
   getCartDetails,
   getOrCreateGuestCart,
   getOrCreateUserCart,
-  isGuestCartToken,
   mergeGuestCartIntoUser,
 } from "./cart.service";
 import type {
@@ -26,30 +22,39 @@ import type {
   updateCartItemRoute,
 } from "./cart.routes";
 
-async function resolveCart(c: Parameters<RouteHandler<typeof getCartRoute>>[0]) {
+async function resolveCart(
+  c: Parameters<RouteHandler<typeof getCartRoute>>[0],
+) {
   const session = await auth.api.getSession({ headers: c.req.raw.headers });
   const cookieToken = getCookie(c, GUEST_CART_COOKIE);
 
   if (session) {
-    if (isGuestCartToken(cookieToken)) {
+    if (isGuestToken(cookieToken)) {
       await mergeGuestCartIntoUser(cookieToken, session.user.id);
       deleteCookie(c, GUEST_CART_COOKIE, { path: "/" });
     }
-    return { record: await getOrCreateUserCart(session.user.id), owner: "user" as const };
+    return {
+      record: await getOrCreateUserCart(session.user.id),
+      owner: "user" as const,
+    };
   }
 
-  const guestToken = isGuestCartToken(cookieToken)
+  const guestToken = isGuestToken(cookieToken)
     ? cookieToken
-    : createGuestCartToken();
+    : createGuestToken();
   if (guestToken !== cookieToken) {
     setCookie(c, GUEST_CART_COOKIE, guestToken, guestCartCookieOptions);
   }
-  return { record: await getOrCreateGuestCart(guestToken), owner: "guest" as const };
+  return {
+    record: await getOrCreateGuestCart(guestToken),
+    owner: "guest" as const,
+  };
 }
 
 async function serializeCart(cartId: string, owner: "guest" | "user") {
   const details = await getCartDetails(cartId);
-  if (!details) throw new Error("Cart disappeared while processing the request");
+  if (!details)
+    throw new Error("Cart disappeared while processing the request");
 
   const items = details.items.map((item) => {
     const unitPrice = Number(item.product.discountPrice ?? item.product.price);
@@ -85,7 +90,9 @@ export const getCart: RouteHandler<typeof getCartRoute> = async (c) => {
 };
 
 export const addCartItem: RouteHandler<typeof addCartItemRoute> = async (c) => {
-  const resolved = await resolveCart(c as Parameters<RouteHandler<typeof getCartRoute>>[0]);
+  const resolved = await resolveCart(
+    c as Parameters<RouteHandler<typeof getCartRoute>>[0],
+  );
   const body = c.req.valid("json");
   const [selectedProduct] = await db
     .select({ id: product.id, stock: product.stock, status: product.status })
@@ -105,7 +112,10 @@ export const addCartItem: RouteHandler<typeof addCartItemRoute> = async (c) => {
   });
   const nextQuantity = (existing?.quantity ?? 0) + body.quantity;
   if (nextQuantity > Math.min(selectedProduct.stock, 99)) {
-    return c.json({ message: "Requested quantity exceeds available stock" }, 409);
+    return c.json(
+      { message: "Requested quantity exceeds available stock" },
+      409,
+    );
   }
 
   await db
@@ -124,8 +134,12 @@ export const addCartItem: RouteHandler<typeof addCartItemRoute> = async (c) => {
   return c.json(await serializeCart(resolved.record.id, resolved.owner), 200);
 };
 
-export const updateCartItem: RouteHandler<typeof updateCartItemRoute> = async (c) => {
-  const resolved = await resolveCart(c as Parameters<RouteHandler<typeof getCartRoute>>[0]);
+export const updateCartItem: RouteHandler<typeof updateCartItemRoute> = async (
+  c,
+) => {
+  const resolved = await resolveCart(
+    c as Parameters<RouteHandler<typeof getCartRoute>>[0],
+  );
   const { productId } = c.req.valid("param");
   const { quantity } = c.req.valid("json");
   const [selectedProduct] = await db
@@ -136,25 +150,42 @@ export const updateCartItem: RouteHandler<typeof updateCartItemRoute> = async (c
 
   if (!selectedProduct) return c.json({ message: "Product not found" }, 404);
   if (quantity > selectedProduct.stock) {
-    return c.json({ message: "Requested quantity exceeds available stock" }, 409);
+    return c.json(
+      { message: "Requested quantity exceeds available stock" },
+      409,
+    );
   }
 
   const [updated] = await db
     .update(cartItem)
     .set({ quantity, updatedAt: new Date() })
-    .where(and(eq(cartItem.cartId, resolved.record.id), eq(cartItem.productId, productId)))
+    .where(
+      and(
+        eq(cartItem.cartId, resolved.record.id),
+        eq(cartItem.productId, productId),
+      ),
+    )
     .returning({ id: cartItem.id });
   if (!updated) return c.json({ message: "Cart item not found" }, 404);
 
   return c.json(await serializeCart(resolved.record.id, resolved.owner), 200);
 };
 
-export const removeCartItem: RouteHandler<typeof removeCartItemRoute> = async (c) => {
-  const resolved = await resolveCart(c as Parameters<RouteHandler<typeof getCartRoute>>[0]);
+export const removeCartItem: RouteHandler<typeof removeCartItemRoute> = async (
+  c,
+) => {
+  const resolved = await resolveCart(
+    c as Parameters<RouteHandler<typeof getCartRoute>>[0],
+  );
   const { productId } = c.req.valid("param");
   const [deleted] = await db
     .delete(cartItem)
-    .where(and(eq(cartItem.cartId, resolved.record.id), eq(cartItem.productId, productId)))
+    .where(
+      and(
+        eq(cartItem.cartId, resolved.record.id),
+        eq(cartItem.productId, productId),
+      ),
+    )
     .returning({ id: cartItem.id });
   if (!deleted) return c.json({ message: "Cart item not found" }, 404);
 
@@ -162,7 +193,9 @@ export const removeCartItem: RouteHandler<typeof removeCartItemRoute> = async (c
 };
 
 export const clearCart: RouteHandler<typeof clearCartRoute> = async (c) => {
-  const resolved = await resolveCart(c as Parameters<RouteHandler<typeof getCartRoute>>[0]);
+  const resolved = await resolveCart(
+    c as Parameters<RouteHandler<typeof getCartRoute>>[0],
+  );
   await db.delete(cartItem).where(eq(cartItem.cartId, resolved.record.id));
   return c.json(await serializeCart(resolved.record.id, resolved.owner), 200);
 };

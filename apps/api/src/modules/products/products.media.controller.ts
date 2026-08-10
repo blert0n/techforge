@@ -3,8 +3,10 @@ import { createHash } from "node:crypto";
 import { env } from "../../config/env";
 
 function cloudinaryConfiguration() {
-  const { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME } = env;
-  if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET || !CLOUDINARY_CLOUD_NAME) return null;
+  const { CLOUDINARY_API_KEY, CLOUDINARY_API_SECRET, CLOUDINARY_CLOUD_NAME } =
+    env;
+  if (!CLOUDINARY_API_KEY || !CLOUDINARY_API_SECRET || !CLOUDINARY_CLOUD_NAME)
+    return null;
   return {
     apiKey: CLOUDINARY_API_KEY,
     apiSecret: CLOUDINARY_API_SECRET,
@@ -12,7 +14,10 @@ function cloudinaryConfiguration() {
   };
 }
 
-function createCloudinarySignature(params: Record<string, string>, apiSecret: string) {
+function createCloudinarySignature(
+  params: Record<string, string>,
+  apiSecret: string,
+) {
   const value = Object.entries(params)
     .sort(([left], [right]) => left.localeCompare(right))
     .map(([key, item]) => `${key}=${item}`)
@@ -31,7 +36,10 @@ async function uploadToCloudinary(file: string | File) {
   formData.set("api_key", config.apiKey);
   formData.set("timestamp", timestamp);
   formData.set("folder", signatureParams.folder);
-  formData.set("signature", createCloudinarySignature(signatureParams, config.apiSecret));
+  formData.set(
+    "signature",
+    createCloudinarySignature(signatureParams, config.apiSecret),
+  );
 
   const response = await fetch(
     `https://api.cloudinary.com/v1_1/${config.cloudName}/image/upload`,
@@ -42,7 +50,9 @@ async function uploadToCloudinary(file: string | File) {
     error?: { message?: string };
   };
   if (!response.ok || !payload.secure_url) {
-    throw new Error(payload.error?.message ?? "Cloudinary could not upload the image.");
+    throw new Error(
+      payload.error?.message ?? "Cloudinary could not upload the image.",
+    );
   }
   return payload.secure_url;
 }
@@ -55,10 +65,12 @@ export async function uploadProductMedia(c: Context) {
     if (contentType.includes("application/json")) {
       const body = await c.req.json<{ sourceUrl?: string }>();
       const sourceUrl = body.sourceUrl?.trim();
-      if (!sourceUrl) return c.json({ message: "Provide a valid HTTP(S) image URL." }, 400);
+      if (!sourceUrl)
+        return c.json({ message: "Provide a valid HTTP(S) image URL." }, 400);
       try {
         const parsedUrl = new URL(sourceUrl);
-        if (!["http:", "https:"].includes(parsedUrl.protocol)) throw new Error();
+        if (!["http:", "https:"].includes(parsedUrl.protocol))
+          throw new Error();
       } catch {
         return c.json({ message: "Provide a valid HTTP(S) image URL." }, 400);
       }
@@ -66,7 +78,10 @@ export async function uploadProductMedia(c: Context) {
     } else {
       const body = await c.req.parseBody();
       const uploadedFile = body.file;
-      if (!(uploadedFile instanceof File) || !uploadedFile.type.startsWith("image/")) {
+      if (
+        !(uploadedFile instanceof File) ||
+        !uploadedFile.type.startsWith("image/")
+      ) {
         return c.json({ message: "Choose an image file to upload." }, 400);
       }
       file = uploadedFile;
@@ -75,7 +90,8 @@ export async function uploadProductMedia(c: Context) {
     const url = await uploadToCloudinary(file);
     return c.json({ url }, 201);
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Unable to upload the image.";
+    const message =
+      error instanceof Error ? error.message : "Unable to upload the image.";
     return c.json({ message }, cloudinaryConfiguration() ? 502 : 503);
   }
 }

@@ -9,9 +9,26 @@ import {
   deleteProduct,
   getAdminProducts,
   getProducts,
+  getRecentlyViewedProducts,
   updateProduct,
+  recordRecentlyViewedProduct,
   type AdminProductFilters,
 } from "../services/products";
+
+export function useRecordProductView(productId: number) {
+  return useQuery({
+    queryKey: ["recently-viewed", productId],
+    queryFn: () => recordRecentlyViewedProduct(productId),
+    staleTime: Infinity,
+  });
+}
+
+export function useRecentlyViewedProducts() {
+  return useQuery({
+    queryKey: ["recently-viewed"],
+    queryFn: getRecentlyViewedProducts,
+  });
+}
 
 const productsQueryKey = ["products"] as const;
 const adminProductsQueryKey = ["products", "admin"] as const;
@@ -28,15 +45,23 @@ export function useCreateProduct() {
 
   return useMutation({
     mutationFn: createProduct,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productsQueryKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: productsQueryKey }),
   });
 }
 
 export function useUpdateProduct() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, values }: { id: number; values: Parameters<typeof updateProduct>[1] }) => updateProduct(id, values),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: productsQueryKey }),
+    mutationFn: ({
+      id,
+      values,
+    }: {
+      id: number;
+      values: Parameters<typeof updateProduct>[1];
+    }) => updateProduct(id, values),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: productsQueryKey }),
   });
 }
 

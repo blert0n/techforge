@@ -39,8 +39,14 @@ export const addCartItemRoute = createRoute({
   method: "post",
   path: "/items",
   tags: ["Cart"],
-  request: { body: { content: { "application/json": { schema: addCartItemSchema } } } },
-  responses: { 200: cartResponse, 404: notFoundResponse, 409: conflictResponse },
+  request: {
+    body: { content: { "application/json": { schema: addCartItemSchema } } },
+  },
+  responses: {
+    200: cartResponse,
+    404: notFoundResponse,
+    409: conflictResponse,
+  },
 });
 
 export const updateCartItemRoute = createRoute({
@@ -51,7 +57,11 @@ export const updateCartItemRoute = createRoute({
     params: cartItemParamsSchema,
     body: { content: { "application/json": { schema: updateCartItemSchema } } },
   },
-  responses: { 200: cartResponse, 404: notFoundResponse, 409: conflictResponse },
+  responses: {
+    200: cartResponse,
+    404: notFoundResponse,
+    409: conflictResponse,
+  },
 });
 
 export const removeCartItemRoute = createRoute({

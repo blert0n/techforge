@@ -17,7 +17,10 @@ import {
 
 export const catalogCategoriesQueryKey = ["catalog", "categories"] as const;
 export const catalogBrandsQueryKey = ["catalog", "brands"] as const;
-export const navigationCategoriesQueryKey = ["catalog", "navigation-categories"] as const;
+export const navigationCategoriesQueryKey = [
+  "catalog",
+  "navigation-categories",
+] as const;
 
 export function useNavigationCategories() {
   return useQuery({
@@ -90,9 +93,15 @@ export function useDeleteCatalogBrand() {
 export function useUpdateCatalogCategory() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, values }: { id: number; values: UpdateCatalogCategoryInput }) =>
-      updateCatalogCategory(id, values),
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }),
+    mutationFn: ({
+      id,
+      values,
+    }: {
+      id: number;
+      values: UpdateCatalogCategoryInput;
+    }) => updateCatalogCategory(id, values),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }),
   });
 }
 
@@ -100,11 +109,16 @@ export function useDeleteCatalogCategory() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: deleteCatalogCategory,
-    onSuccess: () => queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }),
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }),
   });
 }
 
 export function useCreateCatalogCategory() {
   const queryClient = useQueryClient();
-  return useMutation({ mutationFn: createCatalogCategory, onSuccess: () => queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }) });
+  return useMutation({
+    mutationFn: createCatalogCategory,
+    onSuccess: () =>
+      queryClient.invalidateQueries({ queryKey: catalogCategoriesQueryKey }),
+  });
 }

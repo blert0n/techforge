@@ -52,7 +52,10 @@ export const cartItem = pgTable(
       .notNull(),
   },
   (table) => [
-    uniqueIndex("cart_items_cart_product_idx").on(table.cartId, table.productId),
+    uniqueIndex("cart_items_cart_product_idx").on(
+      table.cartId,
+      table.productId,
+    ),
     index("cart_items_cart_id_idx").on(table.cartId),
     index("cart_items_product_id_idx").on(table.productId),
     check("cart_items_quantity_check", sql`${table.quantity} > 0`),
@@ -66,5 +69,8 @@ export const cartRelations = relations(cart, ({ one, many }) => ({
 
 export const cartItemRelations = relations(cartItem, ({ one }) => ({
   cart: one(cart, { fields: [cartItem.cartId], references: [cart.id] }),
-  product: one(product, { fields: [cartItem.productId], references: [product.id] }),
+  product: one(product, {
+    fields: [cartItem.productId],
+    references: [product.id],
+  }),
 }));

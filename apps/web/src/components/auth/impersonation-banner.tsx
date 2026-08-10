@@ -27,8 +27,17 @@ export function ImpersonationBanner() {
   return (
     <div className="sticky top-0 z-100 flex items-center justify-center gap-3 border-b border-amber-300 bg-amber-100 px-4 py-2 text-sm text-amber-950 dark:border-amber-800 dark:bg-amber-950 dark:text-amber-100">
       <UserRoundCog className="size-4" />
-      <span>You are impersonating <strong>{data.user.name || data.user.email}</strong>.</span>
-      <Button disabled={isStopping} size="sm" type="button" variant="outline" onClick={() => void stopImpersonating()}>
+      <span>
+        You are impersonating{" "}
+        <strong>{data.user.name || data.user.email}</strong>.
+      </span>
+      <Button
+        disabled={isStopping}
+        size="sm"
+        type="button"
+        variant="outline"
+        onClick={() => void stopImpersonating()}
+      >
         <LogOut /> {isStopping ? "Stopping..." : "Return to admin"}
       </Button>
     </div>

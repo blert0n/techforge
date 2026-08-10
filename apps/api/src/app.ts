@@ -9,17 +9,25 @@ import { healthRouter } from "./modules/health/health.routes";
 import { addressesRouter } from "./modules/addresses/addresses.routes";
 import { catalogRouter } from "./modules/catalog/catalog.routes";
 import { cartRouter } from "./modules/cart/cart.routes";
+import { recentlyViewedRouter } from "./modules/recently-viewed/recently-viewed.routes";
+import { reviewsRouter } from "./modules/reviews/reviews.routes";
 
 export const app = new OpenAPIHono();
 
 if (env.API_DOCS_USERNAME && env.API_DOCS_PASSWORD) {
   app.use(
     "/api/docs",
-    basicAuth({ username: env.API_DOCS_USERNAME, password: env.API_DOCS_PASSWORD }),
+    basicAuth({
+      username: env.API_DOCS_USERNAME,
+      password: env.API_DOCS_PASSWORD,
+    }),
   );
   app.use(
     "/openapi.json",
-    basicAuth({ username: env.API_DOCS_USERNAME, password: env.API_DOCS_PASSWORD }),
+    basicAuth({
+      username: env.API_DOCS_USERNAME,
+      password: env.API_DOCS_PASSWORD,
+    }),
   );
 }
 
@@ -37,6 +45,8 @@ app.route("/api/products", productsRouter);
 app.route("/api/addresses", addressesRouter);
 app.route("/api/catalog", catalogRouter);
 app.route("/api/cart", cartRouter);
+app.route("/api/recently-viewed", recentlyViewedRouter);
+app.route("/api/reviews", reviewsRouter);
 app.route("/api/health", healthRouter);
 
 app.doc("/openapi.json", {

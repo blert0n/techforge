@@ -7,6 +7,9 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "prepare": "husky",
     "generate:open-api": "pnpm --filter @techforge/api generate:api",
     "generate:api-web-types": "pnpm --filter @techforge/web generate:api-types",
     "generate:auth-schema": "pnpm --filter @techforge/api auth:generate",
@@ -21,7 +24,13 @@
     "db:migrate": "pnpm --filter @techforge/api db:migrate",
     "db:seed": "pnpm --filter @techforge/api db:seed"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md,yml,yaml}": "prettier --write"
+  },
   "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^17.3.0",
+    "prettier": "^3.9.6",
     "turbo": "^2.1.0",
     "typescript": "^5.6.3"
   },

@@ -193,7 +193,10 @@ function CheckoutSection({
   children: React.ReactNode;
 }) {
   return (
-    <section id={id} className="scroll-mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6">
+    <section
+      id={id}
+      className="scroll-mt-6 rounded-2xl border border-border bg-card p-5 shadow-sm sm:p-6"
+    >
       <h2 className="mb-5 text-xl font-bold">{title}</h2>
       <div className="space-y-4">{children}</div>
     </section>

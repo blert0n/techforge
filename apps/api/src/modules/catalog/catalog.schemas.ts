@@ -59,7 +59,10 @@ export const updateBrandSchema = createBrandSchema;
 export const updateCatalogCategorySchema = z.object({
   name: z.string().trim().min(1).max(120),
   slug: z.string().trim().min(1).max(120),
-  attributePrefix: z.string().trim().regex(/^[a-z][a-z0-9_]*$/),
+  attributePrefix: z
+    .string()
+    .trim()
+    .regex(/^[a-z][a-z0-9_]*$/),
   description: z.string().trim().nullable(),
   displayInNav: z.boolean().default(false),
   parentIds: z.array(z.number().int().positive()).default([]),
@@ -68,10 +71,14 @@ export const updateCatalogCategorySchema = z.object({
 export const createCatalogCategorySchema = updateCatalogCategorySchema;
 
 export const categoryParamsSchema = z.object({
-  id: z.coerce.number().int().positive().openapi({
-    param: { name: "id", in: "path" },
-    example: 1,
-  }),
+  id: z.coerce
+    .number()
+    .int()
+    .positive()
+    .openapi({
+      param: { name: "id", in: "path" },
+      example: 1,
+    }),
 });
 
 export const updateSpecificationTemplateSchema = z.object({

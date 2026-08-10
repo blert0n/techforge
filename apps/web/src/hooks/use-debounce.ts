@@ -5,7 +5,9 @@ export function useDebounce<Args extends unknown[]>(
   delay = 300,
 ) {
   const callbackRef = useRef(callback);
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
+    undefined,
+  );
   callbackRef.current = callback;
 
   return useCallback(

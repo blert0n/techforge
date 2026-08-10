@@ -1,9 +1,6 @@
 import { asc, eq, inArray } from "drizzle-orm";
 import { db } from "../../db/client";
-import {
-  category,
-  categoryParent,
-} from "../../db/schema/index";
+import { category, categoryParent } from "../../db/schema/index";
 
 export type CategoryFilter = {
   id: number;
@@ -75,15 +72,23 @@ export function parseIdList(value?: string) {
 }
 
 export function parseSpecificationFilters(value?: string) {
-  if (!value) return {} as Record<string, string[] | { min?: number; max?: number }>;
+  if (!value)
+    return {} as Record<string, string[] | { min?: number; max?: number }>;
   try {
     const parsed = JSON.parse(value) as unknown;
-    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) return {};
-    return Object.fromEntries(Object.entries(parsed).filter(([, filter]) =>
-      (Array.isArray(filter) && filter.every((item) => typeof item === "string")) ||
-      (typeof filter === "object" && filter !== null && !Array.isArray(filter) &&
-        (typeof filter.min === "number" || typeof filter.max === "number")),
-    ));
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed))
+      return {};
+    return Object.fromEntries(
+      Object.entries(parsed).filter(
+        ([, filter]) =>
+          (Array.isArray(filter) &&
+            filter.every((item) => typeof item === "string")) ||
+          (typeof filter === "object" &&
+            filter !== null &&
+            !Array.isArray(filter) &&
+            (typeof filter.min === "number" || typeof filter.max === "number")),
+      ),
+    );
   } catch {
     return {};
   }
@@ -101,11 +106,13 @@ export function mapStorefrontProduct(record: {
   images: Array<{ url: string; altText: string | null }>;
   specification: { specifications: unknown } | null;
 }) {
-  const rawSpecifications = (record.specification?.specifications ?? {}) as Record<string, unknown>;
+  const rawSpecifications = (record.specification?.specifications ??
+    {}) as Record<string, unknown>;
   const specificationValues = Object.fromEntries(
     Object.entries(rawSpecifications).filter(
       (entry): entry is [string, string | number | boolean] =>
-        ["string", "number", "boolean"].includes(typeof entry[1]) && entry[1] !== "",
+        ["string", "number", "boolean"].includes(typeof entry[1]) &&
+        entry[1] !== "",
     ),
   );
   return {
@@ -115,13 +122,17 @@ export function mapStorefrontProduct(record: {
     brand: record.brand.name,
     categoryId: record.categoryId,
     price: Number(record.price),
-    discountPrice: record.discountPrice === null ? null : Number(record.discountPrice),
+    discountPrice:
+      record.discountPrice === null ? null : Number(record.discountPrice),
     stock: record.stock,
     imageUrl: record.images[0]?.url ?? null,
     imageAltText: record.images[0]?.altText ?? null,
     specifications: Object.entries(specificationValues)
       .slice(0, 2)
-      .map(([key, item]) => `${key.replace(/([a-z0-9])([A-Z])/g, "$1 $2")}: ${String(item)}`),
+      .map(
+        ([key, item]) =>
+          `${key.replace(/([a-z0-9])([A-Z])/g, "$1 $2")}: ${String(item)}`,
+      ),
     specificationValues,
     rating: 0,
     reviewCount: 0,

@@ -176,8 +176,14 @@ export function ProductFormPage({ editId }: { editId?: number }) {
   useEffect(() => {
     if (!isEditing) return;
     void getEditableProduct(editingId)
-      .then((product) => reset({ ...product, discountPrice: product.discountPrice ?? "" }))
-      .catch((error) => toast.error("Unable to load product", { description: error instanceof Error ? error.message : undefined }));
+      .then((product) =>
+        reset({ ...product, discountPrice: product.discountPrice ?? "" }),
+      )
+      .catch((error) =>
+        toast.error("Unable to load product", {
+          description: error instanceof Error ? error.message : undefined,
+        }),
+      );
   }, [editingId, isEditing, reset]);
 
   async function onSubmit(values: ProductFormValues) {
@@ -215,16 +221,22 @@ export function ProductFormPage({ editId }: { editId?: number }) {
         ),
       };
       if (isEditing) {
-        await updateProduct.mutateAsync({ id: editingId, values: productValues });
+        await updateProduct.mutateAsync({
+          id: editingId,
+          values: productValues,
+        });
       } else {
         await createProduct.mutateAsync(productValues);
       }
 
-      toast.success(`${values.name} was ${isEditing ? "updated" : "created"}.`, {
-        position: "top-center",
-        description:
-          "Product details, specifications, images, and filters were saved.",
-      });
+      toast.success(
+        `${values.name} was ${isEditing ? "updated" : "created"}.`,
+        {
+          position: "top-center",
+          description:
+            "Product details, specifications, images, and filters were saved.",
+        },
+      );
       if (!isEditing) {
         reset({
           ...defaultProductFormValues,
@@ -254,7 +266,8 @@ export function ProductFormPage({ editId }: { editId?: number }) {
     void handleSubmit(onSubmit, () => {
       toast.error("Product could not be created", {
         position: "top-center",
-        description: "Complete the required fields and correct any invalid values.",
+        description:
+          "Complete the required fields and correct any invalid values.",
       });
     })();
   }
@@ -337,7 +350,9 @@ export function ProductFormPage({ editId }: { editId?: number }) {
             <ArrowLeft className="size-4" />
             Products
           </Link>
-          <h1 className="text-2xl font-bold text-foreground">{isEditing ? "Edit product" : "Add product"}</h1>
+          <h1 className="text-2xl font-bold text-foreground">
+            {isEditing ? "Edit product" : "Add product"}
+          </h1>
           <p className="text-sm text-muted-foreground">
             Create a product and define the technical details for its category.
           </p>
@@ -743,7 +758,10 @@ export function ProductFormPage({ editId }: { editId?: number }) {
               size="lg"
               onClick={submitProduct}
               disabled={
-                isSubmitting || createProduct.isPending || updateProduct.isPending || !selectedCategory
+                isSubmitting ||
+                createProduct.isPending ||
+                updateProduct.isPending ||
+                !selectedCategory
               }
             >
               {createProduct.isPending || updateProduct.isPending ? (

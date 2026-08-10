@@ -160,7 +160,8 @@
 
 .filter-scrollbar {
   scroll-behavior: smooth;
-  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent) transparent;
+  scrollbar-color: color-mix(in oklab, var(--muted-foreground) 45%, transparent)
+    transparent;
   scrollbar-width: thin;
 }
 

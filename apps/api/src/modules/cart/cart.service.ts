@@ -1,33 +1,29 @@
-import { createHash, randomUUID } from "node:crypto";
+import { randomUUID } from "node:crypto";
 import { and, eq, sql } from "drizzle-orm";
 
 import { db } from "../../db/client";
 import { cart, cartItem, product } from "../../db/schema/index";
-
-export function hashGuestCartToken(token: string) {
-  return createHash("sha256").update(token).digest("hex");
-}
-
-export function createGuestCartToken() {
-  return randomUUID();
-}
-
-export function isGuestCartToken(value: string | null | undefined): value is string {
-  return Boolean(value && /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value));
-}
+import { hashGuestToken } from "../../lib/guest-token";
 
 export async function getOrCreateUserCart(userId: string) {
-  const existing = await db.query.cart.findFirst({ where: eq(cart.userId, userId) });
+  const existing = await db.query.cart.findFirst({
+    where: eq(cart.userId, userId),
+  });
   if (existing) return existing;
 
-  await db.insert(cart).values({ id: randomUUID(), userId }).onConflictDoNothing();
-  const created = await db.query.cart.findFirst({ where: eq(cart.userId, userId) });
+  await db
+    .insert(cart)
+    .values({ id: randomUUID(), userId })
+    .onConflictDoNothing();
+  const created = await db.query.cart.findFirst({
+    where: eq(cart.userId, userId),
+  });
   if (!created) throw new Error("Unable to create user cart");
   return created;
 }
 
 export async function getOrCreateGuestCart(token: string) {
-  const guestTokenHash = hashGuestCartToken(token);
+  const guestTokenHash = hashGuestToken(token);
   const existing = await db.query.cart.findFirst({
     where: eq(cart.guestTokenHash, guestTokenHash),
   });
@@ -45,7 +41,7 @@ export async function getOrCreateGuestCart(token: string) {
 }
 
 export async function mergeGuestCartIntoUser(token: string, userId: string) {
-  const guestTokenHash = hashGuestCartToken(token);
+  const guestTokenHash = hashGuestToken(token);
 
   return db.transaction(async (tx) => {
     const guest = await tx.query.cart.findFirst({
@@ -53,20 +49,29 @@ export async function mergeGuestCartIntoUser(token: string, userId: string) {
     });
     if (!guest) return false;
 
-    let userCart = await tx.query.cart.findFirst({ where: eq(cart.userId, userId) });
+    let userCart = await tx.query.cart.findFirst({
+      where: eq(cart.userId, userId),
+    });
     if (!userCart) {
       const [claimed] = await tx
         .update(cart)
         .set({ userId, guestTokenHash: null, updatedAt: new Date() })
-        .where(and(eq(cart.id, guest.id), eq(cart.guestTokenHash, guestTokenHash)))
+        .where(
+          and(eq(cart.id, guest.id), eq(cart.guestTokenHash, guestTokenHash)),
+        )
         .returning();
       if (claimed) return true;
 
-      userCart = await tx.query.cart.findFirst({ where: eq(cart.userId, userId) });
+      userCart = await tx.query.cart.findFirst({
+        where: eq(cart.userId, userId),
+      });
       if (!userCart) throw new Error("Unable to claim guest cart");
     }
 
-    const guestItems = await tx.select().from(cartItem).where(eq(cartItem.cartId, guest.id));
+    const guestItems = await tx
+      .select()
+      .from(cartItem)
+      .where(eq(cartItem.cartId, guest.id));
     for (const item of guestItems) {
       const [selectedProduct] = await tx
         .select({ stock: product.stock })
@@ -93,7 +98,10 @@ export async function mergeGuestCartIntoUser(token: string, userId: string) {
     }
 
     await tx.delete(cart).where(eq(cart.id, guest.id));
-    await tx.update(cart).set({ updatedAt: new Date() }).where(eq(cart.id, userCart.id));
+    await tx
+      .update(cart)
+      .set({ updatedAt: new Date() })
+      .where(eq(cart.id, userCart.id));
     return true;
   });
 }

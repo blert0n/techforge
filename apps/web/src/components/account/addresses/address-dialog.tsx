@@ -134,7 +134,9 @@ export function AddressDialog({
             </Field>
             <Field label="ZIP code" error={errors.postalCode?.message}>
               <Input
-                {...register("postalCode", { required: "ZIP code is required" })}
+                {...register("postalCode", {
+                  required: "ZIP code is required",
+                })}
               />
             </Field>
           </div>

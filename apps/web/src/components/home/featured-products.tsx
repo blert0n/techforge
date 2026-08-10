@@ -1,5 +1,8 @@
 import Link from "next/link";
-import { ProductCard, type ProductCardData } from "@/components/products/product-card";
+import {
+  ProductCard,
+  type ProductCardData,
+} from "@/components/products/product-card";
 
 const products: ProductCardData[] = [
   {
@@ -66,7 +69,9 @@ export function FeaturedProducts() {
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
-          {products.map((product) => <ProductCard key={product.name} product={product} />)}
+          {products.map((product) => (
+            <ProductCard key={product.name} product={product} />
+          ))}
         </div>
       </div>
     </section>

@@ -1,15 +1,9 @@
 import { apiClient } from "../lib/api-client";
 import type { paths } from "@/types/api";
 
-const apiBaseUrl =
-  typeof window === "undefined"
-    ? process.env.API_ORIGIN ?? "http://localhost:3001"
-    : window.location.origin;
-
-export type CreateProductInput =
-  NonNullable<
-    paths["/api/products"]["post"]["requestBody"]
-  >["content"]["application/json"];
+export type CreateProductInput = NonNullable<
+  paths["/api/products"]["post"]["requestBody"]
+>["content"]["application/json"];
 
 export type AdminProductsResponse =
   paths["/api/products/admin"]["get"]["responses"][200]["content"]["application/json"];
@@ -29,25 +23,8 @@ export type StorefrontProductFilters = NonNullable<
 
 export type StorefrontProduct = StorefrontProductsResponse["items"][number];
 
-export type StorefrontProductDetail = StorefrontProduct & {
-  description: string;
-  category: {
-    id: number;
-    name: string;
-    slug: string;
-    specificationTemplate: {
-      fields: Array<string | {
-        key: string;
-        label: string;
-        unit?: string;
-        group?: string;
-        order?: number;
-        format: "text" | "number" | "boolean";
-      }>;
-    } | null;
-  };
-  images: { url: string; altText: string | null }[];
-};
+export type StorefrontProductDetail =
+  paths["/api/products/by-slug/{slug}"]["get"]["responses"][200]["content"]["application/json"];
 
 function getErrorMessage(error: unknown, fallback: string) {
   if (
@@ -74,12 +51,33 @@ export async function getProducts(filters: StorefrontProductFilters = {}) {
   return data;
 }
 
-export async function getStorefrontProduct(slug: string) {
-  const response = await fetch(`${apiBaseUrl}/api/products/by-slug/${encodeURIComponent(slug)}`, {
-    cache: "no-store",
+export async function recordRecentlyViewedProduct(productId: number) {
+  const { error } = await apiClient.POST("/api/recently-viewed", {
+    body: { productId },
   });
-  if (!response.ok) return null;
-  return response.json() as Promise<StorefrontProductDetail>;
+  if (error) throw new Error("Unable to record recently viewed product");
+  return true;
+}
+
+export type RecentlyViewedProductsResponse =
+  paths["/api/recently-viewed"]["get"]["responses"][200]["content"]["application/json"];
+
+export async function getRecentlyViewedProducts() {
+  const { data, error } = await apiClient.GET("/api/recently-viewed");
+  if (error || !data) {
+    throw new Error(
+      getErrorMessage(error, "Unable to load recently viewed products"),
+    );
+  }
+  return data;
+}
+
+export async function getStorefrontProduct(slug: string) {
+  const { data, error } = await apiClient.GET("/api/products/by-slug/{slug}", {
+    params: { path: { slug } },
+  });
+  if (error || !data) return null;
+  return data;
 }
 
 export async function createProduct(values: CreateProductInput) {
@@ -117,41 +115,45 @@ export async function deleteProduct(id: number) {
 }
 
 export async function uploadProductImage(source: string | File) {
-  const formData = new FormData();
-  if (source instanceof File) formData.set("file", source);
-
-  const response = await fetch(`${apiBaseUrl}/api/products/media`, {
-    method: "POST",
-    credentials: "include",
-    headers: typeof source === "string" ? { "Content-Type": "application/json" } : undefined,
-    body: typeof source === "string" ? JSON.stringify({ sourceUrl: source }) : formData,
-  });
-  const payload = (await response.json()) as { url?: string; message?: string };
-
-  if (!response.ok || !payload.url) {
-    throw new Error(payload.message ?? "Unable to upload the image.");
+  let response;
+  if (typeof source === "string") {
+    response = await apiClient.POST("/api/products/media", {
+      body: { sourceUrl: source },
+    });
+  } else {
+    const formData = new FormData();
+    formData.set("file", source);
+    response = await apiClient.POST("/api/products/media", {
+      body: { file: source },
+      bodySerializer: () => formData,
+    });
   }
 
-  return payload.url;
+  if (response.error || !response.data) {
+    throw new Error(
+      getErrorMessage(response.error, "Unable to upload the image."),
+    );
+  }
+  return response.data.url;
 }
 
-export type EditableProduct = {
-  id: number; name: string; slug: string; sku: string; brandId: number; categoryId: number;
-  description: string; price: number; discountPrice: number | null; stock: number; status: "draft" | "active";
-  images: { url: string; altText: string }[]; specifications: Record<string, string | number | boolean>; attributeKeys: string[];
-};
+export type EditableProduct =
+  paths["/api/products/admin/{id}"]["get"]["responses"][200]["content"]["application/json"];
 
 export async function getEditableProduct(id: number) {
-  const response = await fetch(`${apiBaseUrl}/api/products/admin/${id}`, { credentials: "include" });
-  const payload = (await response.json()) as EditableProduct & { message?: string };
-  if (!response.ok) throw new Error(payload.message ?? "Failed to load product.");
-  return payload;
+  const { data, error } = await apiClient.GET("/api/products/admin/{id}", {
+    params: { path: { id } },
+  });
+  if (error || !data)
+    throw new Error(getErrorMessage(error, "Failed to load product."));
+  return data;
 }
 
 export async function updateProduct(id: number, values: CreateProductInput) {
-  const response = await fetch(`${apiBaseUrl}/api/products/admin/${id}`, {
-    method: "PUT", credentials: "include", headers: { "Content-Type": "application/json" }, body: JSON.stringify(values),
+  const { error } = await apiClient.PUT("/api/products/admin/{id}", {
+    params: { path: { id } },
+    body: values,
   });
-  const payload = (await response.json()) as { message?: string };
-  if (!response.ok) throw new Error(payload.message ?? "Failed to update product.");
+  if (error)
+    throw new Error(getErrorMessage(error, "Failed to update product."));
 }

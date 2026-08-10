@@ -735,19 +735,28 @@ export default function CustomersPage() {
                     <div className="min-w-0 max-w-full space-y-2 overflow-hidden">
                       <p
                         className="max-w-full whitespace-normal text-sm font-medium"
-                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                        style={{
+                          overflowWrap: "anywhere",
+                          wordBreak: "break-word",
+                        }}
                       >
                         {session.userAgent || "Unknown device"}
                       </p>
                       <p
                         className="max-w-full whitespace-normal text-xs text-muted-foreground"
-                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                        style={{
+                          overflowWrap: "anywhere",
+                          wordBreak: "break-word",
+                        }}
                       >
                         IP: {session.ipAddress || "Unavailable"}
                       </p>
                       <p
                         className="max-w-full whitespace-normal text-xs text-muted-foreground"
-                        style={{ overflowWrap: "anywhere", wordBreak: "break-word" }}
+                        style={{
+                          overflowWrap: "anywhere",
+                          wordBreak: "break-word",
+                        }}
                       >
                         Created {new Date(session.createdAt).toLocaleString()} ·
                         Expires {new Date(session.expiresAt).toLocaleString()}

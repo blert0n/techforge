@@ -31,23 +31,20 @@ export const brand = pgTable(
   (table) => [uniqueIndex("brands_name_idx").on(table.name)],
 );
 
-export const category = pgTable(
-  "categories",
-  {
-    id: serial("id").primaryKey(),
-    name: text("name").notNull(),
-    slug: text("slug").notNull().unique(),
-    attributePrefix: text("attribute_prefix").notNull(),
-    description: text("description"),
-    imageUrl: text("image_url"),
-    displayInNav: boolean("display_in_nav").default(false).notNull(),
-    createdAt: timestamp("created_at").defaultNow().notNull(),
-    updatedAt: timestamp("updated_at")
-      .defaultNow()
-      .$onUpdate(() => /* @__PURE__ */ new Date())
-      .notNull(),
-  },
-);
+export const category = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  slug: text("slug").notNull().unique(),
+  attributePrefix: text("attribute_prefix").notNull(),
+  description: text("description"),
+  imageUrl: text("image_url"),
+  displayInNav: boolean("display_in_nav").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
+    .defaultNow()
+    .$onUpdate(() => /* @__PURE__ */ new Date())
+    .notNull(),
+});
 
 export const categoryParent = pgTable(
   "category_parents",
@@ -132,7 +129,9 @@ export const productSpecification = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("product_specifications_product_id_idx").on(table.productId)],
+  (table) => [
+    index("product_specifications_product_id_idx").on(table.productId),
+  ],
 );
 
 export const productAttribute = pgTable(
@@ -175,7 +174,9 @@ export const specificationTemplate = pgTable(
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("specification_templates_category_id_idx").on(table.categoryId)],
+  (table) => [
+    index("specification_templates_category_id_idx").on(table.categoryId),
+  ],
 );
 
 export const brandRelations = relations(brand, ({ many }) => ({
@@ -233,12 +234,15 @@ export const productSpecificationRelations = relations(
   }),
 );
 
-export const productAttributeRelations = relations(productAttribute, ({ one }) => ({
-  product: one(product, {
-    fields: [productAttribute.productId],
-    references: [product.id],
+export const productAttributeRelations = relations(
+  productAttribute,
+  ({ one }) => ({
+    product: one(product, {
+      fields: [productAttribute.productId],
+      references: [product.id],
+    }),
   }),
-}));
+);
 
 export const specificationTemplateRelations = relations(
   specificationTemplate,

@@ -51,7 +51,9 @@ export const listNavigationCategoriesRoute = createRoute({
   middleware: catalogContext,
   responses: {
     200: {
-      content: { "application/json": { schema: navigationCategorySchema.array() } },
+      content: {
+        "application/json": { schema: navigationCategorySchema.array() },
+      },
       description: "Categories displayed in storefront navigation",
     },
   },
@@ -75,9 +77,27 @@ export const listCatalogCategoriesRoute = createRoute({
 });
 
 export const createCatalogCategoryRoute = createRoute({
-  method: "post", path: "/categories", tags: ["Catalog"], middleware: requireRole("admin"),
-  request: { body: { content: { "application/json": { schema: createCatalogCategorySchema } } } },
-  responses: { 201: { content: { "application/json": { schema: categoryWithTemplateSchema } }, description: "Category created" }, 400: { content: { "application/json": { schema: messageSchema } }, description: "Invalid parent categories" }, 401: unauthorizedResponse, 403: forbiddenResponse },
+  method: "post",
+  path: "/categories",
+  tags: ["Catalog"],
+  middleware: requireRole("admin"),
+  request: {
+    body: {
+      content: { "application/json": { schema: createCatalogCategorySchema } },
+    },
+  },
+  responses: {
+    201: {
+      content: { "application/json": { schema: categoryWithTemplateSchema } },
+      description: "Category created",
+    },
+    400: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Invalid parent categories",
+    },
+    401: unauthorizedResponse,
+    403: forbiddenResponse,
+  },
 });
 
 export const listCatalogBrandsRoute = createRoute({
@@ -203,17 +223,25 @@ export const updateCatalogCategoryRoute = createRoute({
   middleware: requireRole("admin"),
   request: {
     params: categoryParamsSchema,
-    body: { content: { "application/json": { schema: updateCatalogCategorySchema } } },
+    body: {
+      content: { "application/json": { schema: updateCatalogCategorySchema } },
+    },
   },
   responses: {
     200: {
       content: { "application/json": { schema: categoryWithTemplateSchema } },
       description: "Category updated",
     },
-    400: { content: { "application/json": { schema: messageSchema } }, description: "Invalid parent categories or hierarchy cycle" },
+    400: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Invalid parent categories or hierarchy cycle",
+    },
     401: unauthorizedResponse,
     403: forbiddenResponse,
-    404: { content: { "application/json": { schema: messageSchema } }, description: "Category not found" },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Category not found",
+    },
   },
 });
 
@@ -230,8 +258,14 @@ export const deleteCatalogCategoryRoute = createRoute({
     },
     401: unauthorizedResponse,
     403: forbiddenResponse,
-    404: { content: { "application/json": { schema: messageSchema } }, description: "Category not found" },
-    409: { content: { "application/json": { schema: messageSchema } }, description: "Category is in use by products" },
+    404: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Category not found",
+    },
+    409: {
+      content: { "application/json": { schema: messageSchema } },
+      description: "Category is in use by products",
+    },
   },
 });
 

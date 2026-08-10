@@ -32,10 +32,14 @@ export const updateCartItemSchema = z.object({
 });
 
 export const cartItemParamsSchema = z.object({
-  productId: z.coerce.number().int().positive().openapi({
-    param: { name: "productId", in: "path" },
-    example: 1,
-  }),
+  productId: z.coerce
+    .number()
+    .int()
+    .positive()
+    .openapi({
+      param: { name: "productId", in: "path" },
+      example: 1,
+    }),
 });
 
 export const cartMessageSchema = z.object({ message: z.string() });
