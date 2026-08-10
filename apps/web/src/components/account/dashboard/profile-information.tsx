@@ -1,6 +1,9 @@
+"use client";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import Link from "next/link";
 
 export default function ProfileInformation() {
+  const user = useCurrentUser();
   return (
     <section className="rounded-xl border border-border bg-card shadow-sm">
       <div className="flex items-center justify-between border-b border-border p-6">
@@ -21,7 +24,7 @@ export default function ProfileInformation() {
           <div className="text-sm text-muted-foreground">Name</div>
 
           <div className="col-span-2 text-sm font-medium text-foreground">
-            Alex Smith
+            {user.user?.name}
           </div>
         </div>
 
@@ -29,7 +32,7 @@ export default function ProfileInformation() {
           <div className="text-sm text-muted-foreground">Email</div>
 
           <div className="col-span-2 text-sm font-medium text-foreground">
-            alex@example.com
+            {user.user?.email}
           </div>
         </div>
 

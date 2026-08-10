@@ -390,6 +390,7 @@ export default function ProductsPage({
                 image: product.imageUrl ?? undefined,
                 rating: product.rating,
                 specs: product.specifications,
+                isWishlisted: product.isWishlisted,
                 stock:
                   product.stock === 0
                     ? "Out of Stock"

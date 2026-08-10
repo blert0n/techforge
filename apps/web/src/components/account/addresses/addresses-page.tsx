@@ -11,7 +11,6 @@ import {
 } from "@/hooks/use-addresses";
 import { AddressCard } from "./address-card";
 import { AddressDialog } from "./address-dialog";
-import { AddressUsage } from "./address-usage";
 import type { Address, AddressInput } from "./types";
 export default function AddressesPage() {
   const [editing, setEditing] = useState<Address | null | undefined>(undefined);
@@ -135,7 +134,6 @@ export default function AddressesPage() {
           </span>
         </Button>
       </div>
-      <AddressUsage />
       {editing !== undefined && (
         <AddressDialog
           address={editing}

@@ -1,6 +1,7 @@
 "use client";
 import Image from "next/image";
 import Link from "next/link";
+import { useState } from "react";
 import {
   Check,
   Heart,
@@ -13,6 +14,8 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAddCartItem } from "@/hooks/use-cart";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useToggleWishlistProduct } from "@/hooks/use-wishlist";
 import { toast } from "sonner";
 
 export type ProductCardData = {
@@ -28,6 +31,7 @@ export type ProductCardData = {
   rating: number;
   specs?: string[];
   stock?: "In Stock" | "Low Stock" | "Out of Stock";
+  isWishlisted?: boolean;
 };
 export function ProductCard({
   product,
@@ -37,6 +41,11 @@ export function ProductCard({
   variant?: "featured" | "listing";
 }) {
   const addCartItem = useAddCartItem();
+  const { hasMounted, user } = useCurrentUser();
+  const toggleWishlistProduct = useToggleWishlistProduct();
+  const [isWishlisted, setIsWishlisted] = useState(
+    product.isWishlisted ?? false,
+  );
   const listing = variant === "listing";
   const productHref = product.slug ? `/products/${product.slug}` : undefined;
   const addToCart = () => {
@@ -56,6 +65,32 @@ export function ProductCard({
       },
     );
   };
+  const toggleWishlist = () => {
+    if (!product.id) return;
+    if (!hasMounted) return;
+    if (!user) {
+      toast.info("Log in to save products to your wishlist", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    toggleWishlistProduct.mutate(product.id, {
+      onSuccess: ({ isWishlisted: nextIsWishlisted }) => {
+        setIsWishlisted(nextIsWishlisted);
+        toast.success(
+          nextIsWishlisted
+            ? `${product.name} added to your wishlist`
+            : `${product.name} removed from your wishlist`,
+          { position: "top-center" },
+        );
+      },
+      onError: () =>
+        toast.error("Unable to update your wishlist", {
+          position: "top-center",
+        }),
+    });
+  };
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-lg">
       {product.badge && (
@@ -67,10 +102,20 @@ export function ProductCard({
         type="button"
         variant="ghost"
         size="icon-sm"
-        className="absolute top-4 right-4 z-10 rounded-full text-muted-foreground hover:text-primary"
+        className="absolute top-4 right-4 z-10 rounded-full text-muted-foreground hover:text-primary cursor-pointer"
+        disabled={!product.id || toggleWishlistProduct.isPending}
+        onClick={toggleWishlist}
       >
-        <Heart />
-        <span className="sr-only">Add {product.name} to wishlist</span>
+        {toggleWishlistProduct.isPending ? (
+          <LoaderCircle className="animate-spin" />
+        ) : (
+          <Heart
+            className={isWishlisted ? "fill-current text-primary" : undefined}
+          />
+        )}
+        <span className="sr-only">
+          {isWishlisted ? "Remove" : "Add"} {product.name} {"from wishlist"}
+        </span>
       </Button>
       <ProductLink
         href={productHref}
@@ -102,7 +147,7 @@ export function ProductCard({
         </ProductLink>
 
         <div className="mt-auto flex flex-col gap-2 pt-4">
-          <div className="flex items-center gap-1 text-xs text-yellow-500">
+          {/* <div className="flex items-center gap-1 text-xs text-yellow-500">
             {product.rating === 0 ? <Star className="size-3" /> : null}
             {Array.from({ length: Math.floor(product.rating) }).map(
               (_, index) => (
@@ -115,7 +160,7 @@ export function ProductCard({
             <span className="ml-1 text-muted-foreground">
               ({product.reviews})
             </span>
-          </div>
+          </div> */}
           <div className="flex items-center justify-between">
             <div>
               <span className="text-lg font-bold">{product.price}</span>

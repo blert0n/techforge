@@ -17,9 +17,3 @@ export type Address = {
   line2: string;
   country: string;
 };
-
-export type WishlistItem = {
-  name: string;
-  price: string;
-  icon: string;
-};

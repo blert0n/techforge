@@ -1,4 +1,3 @@
-import AccountLayout from "@/components/account/account-layout";
 import AddressCard from "@/components/account/dashboard/address-card";
 import ProfileInformation from "@/components/account/dashboard/profile-information";
 import RecentOrders from "@/components/account/dashboard/recent-orders";

@@ -38,13 +38,15 @@ export function WishlistProductCard({
         <span className="sr-only">Remove {product.name}</span>
       </Button>
       <div className="mb-4 flex h-48 items-center justify-center overflow-hidden rounded-xl bg-muted/60 p-4">
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={300}
-          height={300}
-          className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
-        />
+        {product.image ? (
+          <Image
+            src={product.image}
+            alt={product.name}
+            width={300}
+            height={300}
+            className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
+          />
+        ) : null}
       </div>
       <div className="flex flex-1 flex-col">
         <span className="mb-1 text-xs text-muted-foreground">

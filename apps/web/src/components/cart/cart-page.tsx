@@ -53,7 +53,7 @@ export default function CartPage() {
         </div>
         <>
           <p className="mt-6 text-right text-lg">
-            Subtotal ({cart?.itemCount ?? 0} items):{" "}
+            Subtotal ({cart?.items?.length ?? 0} items):{" "}
             <b>${subtotal.toFixed(2)}</b>
           </p>
           <CartRecommendations />

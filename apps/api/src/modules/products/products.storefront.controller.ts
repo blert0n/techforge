@@ -21,7 +21,9 @@ import {
   productAttribute,
   productImage,
   specificationTemplate,
+  wishlistItem,
 } from "../../db/schema/index";
+import { auth } from "../../lib/auth";
 import type {
   getStorefrontProductRoute,
   listProductsRoute,
@@ -32,6 +34,25 @@ import {
   parseSpecificationFilters,
   resolveCategoryTree,
 } from "./products.shared";
+
+async function getWishlistedProductIds(headers: Headers, productIds: number[]) {
+  if (!productIds.length) return new Set<number>();
+
+  const session = await auth.api.getSession({ headers });
+  if (!session) return new Set<number>();
+
+  const records = await db
+    .select({ productId: wishlistItem.productId })
+    .from(wishlistItem)
+    .where(
+      and(
+        eq(wishlistItem.userId, session.user.id),
+        inArray(wishlistItem.productId, productIds),
+      ),
+    );
+
+  return new Set(records.map((record) => record.productId));
+}
 
 export const getStorefrontProduct: RouteHandler<
   typeof getStorefrontProductRoute
@@ -47,10 +68,14 @@ export const getStorefrontProduct: RouteHandler<
     },
   });
   if (!record) return c.json({ message: "Product not found" }, 404);
+  const wishlistedProductIds = await getWishlistedProductIds(
+    c.req.raw.headers,
+    [record.id],
+  );
 
   return c.json(
     {
-      ...mapStorefrontProduct(record),
+      ...mapStorefrontProduct(record, wishlistedProductIds.has(record.id)),
       description: record.description,
       category: {
         id: record.category.id,
@@ -205,6 +230,10 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
           .where(and(...baseFilters))
       : Promise.resolve([]),
   ]);
+  const wishlistedProductIds = await getWishlistedProductIds(
+    c.req.raw.headers,
+    records.map((record) => record.id),
+  );
 
   let parents: { name: string; slug: string }[] = [];
   if (selectedCategory) {
@@ -283,7 +312,9 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
             children: childCategoryFilters,
           }
         : null,
-      items: records.map(mapStorefrontProduct),
+      items: records.map((record) =>
+        mapStorefrontProduct(record, wishlistedProductIds.has(record.id)),
+      ),
       specificationFilters,
     },
     200,

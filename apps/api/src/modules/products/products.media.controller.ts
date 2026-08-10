@@ -25,12 +25,12 @@ function createCloudinarySignature(
   return createHash("sha1").update(`${value}${apiSecret}`).digest("hex");
 }
 
-async function uploadToCloudinary(file: string | File) {
+async function uploadToCloudinary(file: string | File, folder: string) {
   const config = cloudinaryConfiguration();
   if (!config) throw new Error("Cloudinary is not configured.");
 
   const timestamp = Math.floor(Date.now() / 1000).toString();
-  const signatureParams = { folder: "techforge/products", timestamp };
+  const signatureParams = { folder, timestamp };
   const formData = new FormData();
   formData.set("file", file);
   formData.set("api_key", config.apiKey);
@@ -57,7 +57,7 @@ async function uploadToCloudinary(file: string | File) {
   return payload.secure_url;
 }
 
-export async function uploadProductMedia(c: Context) {
+async function uploadMedia(c: Context, folder: string) {
   try {
     const contentType = c.req.header("content-type") ?? "";
     let file: string | File;
@@ -87,11 +87,19 @@ export async function uploadProductMedia(c: Context) {
       file = uploadedFile;
     }
 
-    const url = await uploadToCloudinary(file);
+    const url = await uploadToCloudinary(file, folder);
     return c.json({ url }, 201);
   } catch (error) {
     const message =
       error instanceof Error ? error.message : "Unable to upload the image.";
     return c.json({ message }, cloudinaryConfiguration() ? 502 : 503);
   }
+}
+
+export function uploadProductMedia(c: Context) {
+  return uploadMedia(c, "techforge/products");
+}
+
+export function uploadUserAvatarMedia(c: Context) {
+  return uploadMedia(c, "techforge/avatars");
 }

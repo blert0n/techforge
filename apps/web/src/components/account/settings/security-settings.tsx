@@ -7,16 +7,18 @@ import {
   EyeOff,
   KeyRound,
   Laptop,
-  MessageSquareText,
-  Monitor,
   ShieldCheck,
   Smartphone,
-  Trash2,
+  // MessageSquareText,
+  // Monitor,
+  // Trash2,
 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 import { SettingsSection } from "./settings-section";
 
 export function SecuritySettings() {
@@ -24,7 +26,8 @@ export function SecuritySettings() {
     register,
     handleSubmit,
     watch,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<{
     currentPassword: string;
     newPassword: string;
@@ -43,18 +46,33 @@ export function SecuritySettings() {
     /[0-9!@#$%^&*]/.test(newPassword),
     newPassword.length >= 12,
   ].filter(Boolean).length;
+  const onSubmit = async (values: {
+    currentPassword: string;
+    newPassword: string;
+    confirmPassword: string;
+  }) => {
+    try {
+      const result = await authClient.changePassword({
+        currentPassword: values.currentPassword,
+        newPassword: values.newPassword,
+      });
+      if (result.error) throw new Error(result.error.message);
+      reset();
+      toast.success("Password updated", { position: "top-center" });
+    } catch (error) {
+      toast.error("Unable to update password", {
+        description: error instanceof Error ? error.message : undefined,
+        position: "top-center",
+      });
+    }
+  };
   return (
     <div className="space-y-6">
       <SettingsSection
         title="Change Password"
         description="Use a strong password that you don't use elsewhere."
       >
-        <form
-          onSubmit={handleSubmit((values) => {
-            void values; /* Connect this to the password update API. */
-          })}
-          className="space-y-5 p-6"
-        >
+        <form onSubmit={handleSubmit(onSubmit)} className="space-y-5 p-6">
           <PasswordField
             label="Current password"
             registration={register("currentPassword", {
@@ -116,11 +134,13 @@ export function SecuritySettings() {
             </p>
           )}
           <div className="flex justify-end">
-            <Button type="submit">Update password</Button>
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? "Updating password..." : "Update password"}
+            </Button>
           </div>
         </form>
       </SettingsSection>
-      <SettingsSection
+      {/* <SettingsSection
         danger
         title="Danger Zone"
         description="Irreversible account actions. Proceed with caution."
@@ -138,7 +158,7 @@ export function SecuritySettings() {
             Delete account
           </Button>
         </div>
-      </SettingsSection>
+      </SettingsSection> */}
     </div>
   );
 }

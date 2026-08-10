@@ -66,6 +66,7 @@ export const storefrontProductSchema = z.object({
   ),
   rating: z.number().min(0).max(5),
   reviewCount: z.number().int().nonnegative(),
+  isWishlisted: z.boolean(),
 });
 
 export const storefrontProductListSchema = z.object({

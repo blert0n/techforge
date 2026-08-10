@@ -1,6 +1,6 @@
 import type { LucideIcon } from "lucide-react";
 export type OrderStatus =
-  "Processing" | "In Transit" | "Delivered" | "Cancelled";
+  "Pending" | "Processing" | "In Transit" | "Delivered" | "Cancelled";
 export type Order = {
   id: string;
   product: string;

@@ -1,4 +1,4 @@
-import { AccountMenuItem, WishlistItem, UserProfile, Address } from "../types";
+import { AccountMenuItem, UserProfile, Address } from "../types";
 
 import {
   Gauge,
@@ -17,7 +17,7 @@ export const accountMenu = [
     icon: Gauge,
   },
   {
-    label: "Orders & Tracking",
+    label: "Orders",
     href: "/account/orders",
     icon: Box,
   },
@@ -43,67 +43,3 @@ export const accountMenu = [
     settings: true,
   },
 ];
-
-export const userProfile: UserProfile = {
-  name: "Alex Smith",
-  email: "alex@example.com",
-  phone: "+1 (555) 123-4567",
-};
-
-export const defaultAddress: Address = {
-  name: "Alex Smith",
-  line1: "123 Tech Avenue, Suite 400",
-  line2: "San Francisco, CA 94105",
-  country: "United States",
-};
-
-export const wishlistItems: WishlistItem[] = [
-  {
-    name: 'Alienware AW3423DWF 34" QD-OLED',
-    price: "$999.99",
-    icon: "fa-display",
-  },
-  {
-    name: "Corsair Dominator Platinum RGB 64GB DDR5",
-    price: "$279.99",
-    icon: "fa-memory",
-  },
-];
-
-export const recentOrder = {
-  id: "TF-89420-11",
-  placedAt: "Oct 24, 2023",
-  status: "Shipped",
-  total: "$1,399.63",
-  title: "Intel Core i9-13900K & ASUS ROG Motherboard",
-  itemCount: 5,
-  progress: 66,
-
-  items: [
-    {
-      id: 1,
-      name: "Intel Core i9-13900K",
-      image: "/images/home/categories-cpu.png",
-    },
-    {
-      id: 2,
-      name: "ASUS ROG Maximus",
-      image: "/images/home/categories-desktop.png",
-    },
-    {
-      id: 3,
-      name: "Corsair DDR5",
-      image: "/images/home/categories-desktop.png",
-    },
-    {
-      id: 4,
-      name: "Samsung 990 Pro",
-      image: "/images/home/categories-accessory.png",
-    },
-    {
-      id: 5,
-      name: "RTX 5090",
-      image: "/images/home/categories-gpu.png",
-    },
-  ],
-};

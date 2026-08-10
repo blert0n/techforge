@@ -4,7 +4,7 @@
   "packageManager": "pnpm@9.15.0",
   "scripts": {
     "dev": "turbo run dev --parallel",
-    "dev:stripe": "node scripts/dev-with-stripe.mjs",
+    "dev2": "node scripts/dev-with-stripe.mjs",
     "build": "turbo run build",
     "lint": "turbo run lint",
     "typecheck": "turbo run typecheck",

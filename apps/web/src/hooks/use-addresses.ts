@@ -14,6 +14,7 @@ export function useAddresses({ enabled = true }: { enabled?: boolean } = {}) {
     queryKey: addressesQueryKey,
     queryFn: getAddresses,
     enabled,
+    staleTime: 60_000,
   });
 }
 

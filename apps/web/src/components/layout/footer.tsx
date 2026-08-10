@@ -15,12 +15,7 @@ const footerSections = [
   },
   {
     title: "Support",
-    links: [
-      "Order Tracking",
-      "Returns & Refunds",
-      "Warranty Info",
-      "Contact Us",
-    ],
+    links: ["Contact Us"],
   },
   {
     title: "Company",

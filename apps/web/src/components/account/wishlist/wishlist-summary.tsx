@@ -24,22 +24,6 @@ export function WishlistSummary({
         value={`$${savings.toFixed(2)}`}
         danger
       />
-      <div className="flex items-center gap-4 rounded-xl border border-primary/20 bg-primary/5 p-5 shadow-sm">
-        <span className="grid size-12 place-items-center rounded-xl bg-primary/15 text-primary">
-          <Bell />
-        </span>
-        <div>
-          <p className="text-xs font-bold uppercase text-primary">
-            Price Drop Alerts
-          </p>
-          <p className="mt-0.5 text-sm font-semibold">
-            Get notified on price drops
-          </p>
-          <Button variant="link" size="sm">
-            Enable alerts →
-          </Button>
-        </div>
-      </div>
     </section>
   );
 }

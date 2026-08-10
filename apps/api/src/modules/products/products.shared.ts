@@ -94,18 +94,21 @@ export function parseSpecificationFilters(value?: string) {
   }
 }
 
-export function mapStorefrontProduct(record: {
-  id: number;
-  slug: string;
-  name: string;
-  categoryId: number;
-  price: string;
-  discountPrice: string | null;
-  stock: number;
-  brand: { name: string };
-  images: Array<{ url: string; altText: string | null }>;
-  specification: { specifications: unknown } | null;
-}) {
+export function mapStorefrontProduct(
+  record: {
+    id: number;
+    slug: string;
+    name: string;
+    categoryId: number;
+    price: string;
+    discountPrice: string | null;
+    stock: number;
+    brand: { name: string };
+    images: Array<{ url: string; altText: string | null }>;
+    specification: { specifications: unknown } | null;
+  },
+  isWishlisted = false,
+) {
   const rawSpecifications = (record.specification?.specifications ??
     {}) as Record<string, unknown>;
   const specificationValues = Object.fromEntries(
@@ -136,5 +139,6 @@ export function mapStorefrontProduct(record: {
     specificationValues,
     rating: 0,
     reviewCount: 0,
+    isWishlisted,
   };
 }

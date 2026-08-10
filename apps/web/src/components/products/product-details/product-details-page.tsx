@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { ChevronRight } from "lucide-react";
 import { ProductGallery } from "./product-gallery";
@@ -7,17 +6,11 @@ import { ProductDetailTabs } from "./product-detail-tabs";
 
 import type { StorefrontProductDetail } from "@/services/products";
 
-const currencyFormatter = new Intl.NumberFormat("en-US", {
-  style: "currency",
-  currency: "USD",
-});
-
 export default function ProductDetailsPage({
   product,
 }: {
   product: StorefrontProductDetail;
 }) {
-  const currentPrice = product.discountPrice ?? product.price;
   const specificationFields =
     product.category.specificationTemplate?.fields ?? [];
   const specifications = Object.entries(product.specificationValues)

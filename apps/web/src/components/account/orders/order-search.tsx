@@ -8,15 +8,28 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import type { OrderStatus } from "./types";
-type FilterValues = { search: string; status: "All Orders" | OrderStatus };
+export type OrderFilters = {
+  search: string;
+  status:
+    "all" | "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+};
+
+const statusLabels: Record<OrderFilters["status"], string> = {
+  all: "All Orders",
+  pending: "Pending",
+  processing: "Processing",
+  shipped: "In Transit",
+  delivered: "Delivered",
+  cancelled: "Cancelled",
+};
+
 export function OrderSearch({
   onChange,
 }: {
-  onChange: (values: FilterValues) => void;
+  onChange: (values: OrderFilters) => void;
 }) {
-  const { control, register, handleSubmit, getValues } = useForm<FilterValues>({
-    defaultValues: { search: "", status: "All Orders" },
+  const { control, register, handleSubmit, getValues } = useForm<OrderFilters>({
+    defaultValues: { search: "", status: "all" },
   });
   const submit = () => onChange(getValues());
   return (
@@ -37,16 +50,24 @@ export function OrderSearch({
         control={control}
         name="status"
         render={({ field }) => (
-          <Select value={field.value} onValueChange={field.onChange}>
+          <Select
+            value={field.value}
+            onValueChange={(value) => {
+              const status = value as OrderFilters["status"];
+              field.onChange(status);
+              onChange({ ...getValues(), status });
+            }}
+          >
             <SelectTrigger aria-label="Filter orders by status">
-              <SelectValue />
+              <SelectValue>{statusLabels[field.value]}</SelectValue>
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="All Orders">All Orders</SelectItem>
-              <SelectItem value="Processing">Processing</SelectItem>
-              <SelectItem value="In Transit">In Transit</SelectItem>
-              <SelectItem value="Delivered">Delivered</SelectItem>
-              <SelectItem value="Cancelled">Cancelled</SelectItem>
+              <SelectItem value="all">All Orders</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="processing">Processing</SelectItem>
+              <SelectItem value="shipped">In Transit</SelectItem>
+              <SelectItem value="delivered">Delivered</SelectItem>
+              <SelectItem value="cancelled">Cancelled</SelectItem>
             </SelectContent>
           </Select>
         )}

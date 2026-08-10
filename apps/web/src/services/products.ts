@@ -39,9 +39,13 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export async function getProducts(filters: StorefrontProductFilters = {}) {
+export async function getProducts(
+  filters: StorefrontProductFilters = {},
+  headers?: HeadersInit,
+) {
   const { data, error } = await apiClient.GET("/api/products", {
     params: { query: filters },
+    headers,
   });
 
   if (error || !data) {
@@ -72,9 +76,13 @@ export async function getRecentlyViewedProducts() {
   return data;
 }
 
-export async function getStorefrontProduct(slug: string) {
+export async function getStorefrontProduct(
+  slug: string,
+  headers?: HeadersInit,
+) {
   const { data, error } = await apiClient.GET("/api/products/by-slug/{slug}", {
     params: { path: { slug } },
+    headers,
   });
   if (error || !data) return null;
   return data;

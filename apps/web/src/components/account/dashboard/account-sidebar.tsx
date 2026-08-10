@@ -3,9 +3,12 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { accountMenu } from "../data/account.mock";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { UserRound } from "lucide-react";
 
 export default function AccountSidebar() {
   const pathname = usePathname();
+  const user = useCurrentUser();
 
   return (
     <aside
@@ -30,14 +33,25 @@ export default function AccountSidebar() {
           shadow-sm
         "
       >
-        <img
-          src="https://storage.googleapis.com/uxpilot-auth.appspot.com/avatars/avatar-2.jpg"
-          alt="Alex Smith"
-          className="h-12 w-12 rounded-full object-cover"
-        />
+        {user?.user?.image ? (
+          <img
+            alt="Profile preview"
+            className="h-12 w-12 rounded-full object-cover object-center"
+            src={user.user.image}
+          />
+        ) : (
+          <div
+            className="flex h-12 w-12 items-center justify-center rounded-full bg-gray-200 text-gray-500"
+            aria-label="Profile preview"
+          >
+            <UserRound className="h-6 w-6" strokeWidth={1.8} />
+          </div>
+        )}
 
         <div>
-          <h2 className="font-bold text-foreground">Alex Smith</h2>
+          <h2 className="font-bold text-foreground">
+            {user?.user?.name ?? ""}
+          </h2>
 
           <p className="text-xs text-muted-foreground">alex@example.com</p>
         </div>

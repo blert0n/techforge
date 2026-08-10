@@ -1,16 +1,12 @@
-import Image from "next/image";
+import { ImageIcon } from "lucide-react";
 
 type OrderItem = {
-  id: number;
-  name: string;
-  image: string;
+  id: string;
+  productName: string;
+  imageUrl: string | null;
 };
 
-type Props = {
-  items: OrderItem[];
-};
-
-export default function OrderImages({ items }: Props) {
+export default function OrderImages({ items }: { items: OrderItem[] }) {
   const visible = items.slice(0, 3);
   const remaining = items.length - visible.length;
 
@@ -19,18 +15,20 @@ export default function OrderImages({ items }: Props) {
       {visible.map((item, index) => (
         <div
           key={item.id}
-          className="relative h-16 w-16 overflow-hidden rounded-lg border-2 border-card bg-muted"
+          className="relative grid h-16 w-16 place-items-center overflow-hidden rounded-lg border-2 border-card bg-muted"
           style={{ zIndex: visible.length - index }}
         >
-          <Image
-            src={item.image}
-            alt={item.name}
-            fill
-            className="object-cover"
-          />
+          {item.imageUrl ? (
+            <img
+              alt={item.productName}
+              className="size-full object-contain p-1"
+              src={item.imageUrl}
+            />
+          ) : (
+            <ImageIcon className="size-5 text-muted-foreground" />
+          )}
         </div>
       ))}
-
       {remaining > 0 && (
         <div className="flex h-16 w-16 items-center justify-center rounded-lg border-2 border-card bg-muted text-sm font-semibold text-muted-foreground">
           +{remaining}

@@ -1,67 +1,73 @@
 "use client";
+
 import { useState } from "react";
-import { ShoppingBag } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { wishlistProducts } from "./wishlist.data";
+
+import { useToggleWishlistProduct, useWishlist } from "@/hooks/use-wishlist";
+
 import { WishlistProductCard } from "./wishlist-product-card";
 import { WishlistSummary } from "./wishlist-summary";
 import { WishlistToolbar, type WishlistFilters } from "./wishlist-toolbar";
 import type { WishlistProduct } from "./types";
+
 export default function WishlistPage() {
-  const [products, setProducts] = useState(wishlistProducts);
   const [filters, setFilters] = useState<WishlistFilters>({
-    filter: "All",
     sort: "Date Added",
   });
-  const visible = products
-    .filter(
-      (product) =>
-        filters.filter === "All" ||
-        (filters.filter === "In Stock" && product.inStock) ||
-        (filters.filter === "On Sale" && product.oldPrice) ||
-        product.category === filters.filter,
-    )
-    .sort((a, b) =>
-      filters.sort === "Price: Low to High"
-        ? a.price - b.price
-        : filters.sort === "Price: High to Low"
-          ? b.price - a.price
-          : filters.sort === "Name A–Z"
-            ? a.name.localeCompare(b.name)
-            : 0,
-    );
+  const { data, isError, isLoading } = useWishlist({
+    categoryId: filters.categoryId,
+    sort: filters.sort,
+  });
+  const toggleWishlistProduct = useToggleWishlistProduct();
+  const categoryNames = new Map(
+    data?.categories.map((category) => [category.id, category.name]),
+  );
+  const products: WishlistProduct[] = (data?.items ?? []).map((product) => ({
+    id: String(product.id),
+    brand: product.brand,
+    category: categoryNames.get(product.categoryId) ?? "Uncategorized",
+    name: product.name,
+    price: product.discountPrice ?? product.price,
+    oldPrice: product.discountPrice === null ? undefined : product.price,
+    reviews: product.reviewCount,
+    rating: product.rating,
+    image: product.imageUrl ?? undefined,
+    inStock: product.stock > 0,
+  }));
+  const visible = products;
+
   return (
     <div className="min-w-0 space-y-8">
-      <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
-        <div>
-          <h1 className="text-3xl font-bold uppercase">My Wishlist</h1>
-          <p className="text-muted-foreground">
-            {products.length} saved items — products you love, ready to purchase
-            when you are.
-          </p>
-        </div>
-        <Button type="button">
-          <ShoppingBag />
-          Add all to cart
-        </Button>
+      <header>
+        <h1 className="text-3xl font-bold uppercase">My Wishlist</h1>
+        <p className="text-muted-foreground">
+          {products.length} saved items — products you love, ready to purchase
+          when you are.
+        </p>
       </header>
-      <WishlistToolbar onChange={setFilters} />
+      <WishlistToolbar
+        categories={data?.categories ?? []}
+        onChange={setFilters}
+      />
+      {isLoading ? (
+        <p className="text-muted-foreground">Loading wishlist…</p>
+      ) : null}
+      {isError ? (
+        <p className="text-destructive">Unable to load your wishlist.</p>
+      ) : null}
       <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
         {visible.map((product) => (
           <WishlistProductCard
             key={product.id}
             product={product}
-            onRemove={(id) =>
-              setProducts((current) => current.filter((item) => item.id !== id))
-            }
+            onRemove={(id) => toggleWishlistProduct.mutate(Number(id))}
           />
         ))}
       </div>
-      {visible.length === 0 && (
+      {!isLoading && !isError && visible.length === 0 ? (
         <p className="rounded-xl border border-dashed border-border p-10 text-center text-muted-foreground">
-          No wishlist items match these filters.
+          No wishlist items match this category.
         </p>
-      )}
+      ) : null}
       <WishlistSummary products={products} />
     </div>
   );

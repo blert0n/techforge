@@ -1,8 +1,8 @@
 import Stripe from "stripe";
-import { and, eq, gt, lte, ne, sql } from "drizzle-orm";
+import { and, eq, gt, gte, lte, ne, sql } from "drizzle-orm";
 import { env } from "../../config/env";
 import { db } from "../../db/client";
-import { cart, cartItem, order, orderItem } from "../../db/schema";
+import { cart, cartItem, order, orderItem, product } from "../../db/schema";
 
 export async function handleStripeWebhook(request: Request) {
   if (!env.STRIPE_SECRET_KEY || !env.STRIPE_WEBHOOK_SECRET)
@@ -40,7 +40,7 @@ export async function handleStripeWebhook(request: Request) {
           })
           .where(and(eq(order.id, orderId), ne(order.paymentStatus, "paid")))
           .returning({ cartId: order.cartId });
-        if (!settledOrder?.cartId) return;
+        if (!settledOrder) return;
 
         const purchasedItems = await tx
           .select({
@@ -49,6 +49,24 @@ export async function handleStripeWebhook(request: Request) {
           })
           .from(orderItem)
           .where(eq(orderItem.orderId, orderId));
+
+        for (const item of purchasedItems) {
+          if (item.productId === null) continue;
+          await tx
+            .update(product)
+            .set({
+              stock: sql`${product.stock} - ${item.quantity}`,
+              updatedAt: new Date(),
+            })
+            .where(
+              and(
+                eq(product.id, item.productId),
+                gte(product.stock, item.quantity),
+              ),
+            );
+        }
+
+        if (!settledOrder.cartId) return;
         for (const item of purchasedItems) {
           if (item.productId === null) continue;
           await tx

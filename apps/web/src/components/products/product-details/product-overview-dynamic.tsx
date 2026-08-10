@@ -12,7 +12,11 @@ import { useState } from "react";
 
 import type { StorefrontProductDetail } from "@/services/products";
 import { Button } from "@/components/ui/button";
+import { useCurrentUser } from "@/hooks/use-current-user";
+import { useAddCartItem } from "@/hooks/use-cart";
 import { useRecordProductView } from "@/hooks/use-products";
+import { useToggleWishlistProduct } from "@/hooks/use-wishlist";
+import { toast } from "sonner";
 
 const currencyFormatter = new Intl.NumberFormat("en-US", {
   style: "currency",
@@ -25,7 +29,12 @@ export function ProductOverviewDynamic({
   product: StorefrontProductDetail;
 }) {
   useRecordProductView(product.id);
+
+  const { hasMounted, user } = useCurrentUser();
   const [quantity, setQuantity] = useState(1);
+  const [isWishlisted, setIsWishlisted] = useState(product.isWishlisted);
+  const addCartItem = useAddCartItem();
+  const toggleWishlistProduct = useToggleWishlistProduct();
   const currentPrice = product.discountPrice ?? product.price;
   const outOfStock = product.stock === 0;
   const savings =
@@ -33,6 +42,46 @@ export function ProductOverviewDynamic({
   const discountPercentage = savings
     ? Math.round((savings / product.price) * 100)
     : 0;
+  const toggleWishlist = () => {
+    if (!hasMounted) return;
+    if (!user) {
+      toast.info("Log in to save products to your wishlist", {
+        position: "top-center",
+      });
+      return;
+    }
+
+    toggleWishlistProduct.mutate(product.id, {
+      onSuccess: ({ isWishlisted: nextIsWishlisted }) => {
+        setIsWishlisted(nextIsWishlisted);
+        toast.success(
+          nextIsWishlisted
+            ? `${product.name} added to your wishlist`
+            : `${product.name} removed from your wishlist`,
+          { position: "top-center" },
+        );
+      },
+      onError: () =>
+        toast.error("Unable to update your wishlist", {
+          position: "top-center",
+        }),
+    });
+  };
+  const addToCart = () => {
+    addCartItem.mutate(
+      { productId: product.id, quantity },
+      {
+        onSuccess: () =>
+          toast.success(`${product.name} added to your cart`, {
+            position: "top-center",
+          }),
+        onError: () =>
+          toast.error("Unable to add this product to your cart", {
+            position: "top-center",
+          }),
+      },
+    );
+  };
 
   return (
     <div className="flex w-full flex-col lg:w-1/2">
@@ -93,18 +142,31 @@ export function ProductOverviewDynamic({
             <Plus />
           </Button>
         </div>
-        <Button type="button" className="h-9 flex-1" disabled={outOfStock}>
+        <Button
+          type="button"
+          className="h-9 flex-1"
+          disabled={outOfStock || addCartItem.isPending}
+          onClick={addToCart}
+        >
           <ShoppingCart />
-          Add to Cart
+          {addCartItem.isPending ? "Adding..." : "Add to Cart"}
         </Button>
         <Button
           type="button"
           variant="outline"
           size="icon"
-          className="group h-9 w-9"
-          aria-label="Add to wishlist"
+          className="group h-9 w-9 cursor-pointer"
+          aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
+          disabled={toggleWishlistProduct.isPending}
+          onClick={toggleWishlist}
         >
-          <Heart className="transition-all duration-200 group-hover:scale-110 group-hover:fill-current group-hover:text-primary" />
+          {toggleWishlistProduct.isPending ? (
+            <span className="size-4 animate-spin rounded-full border-2 border-current border-t-transparent" />
+          ) : (
+            <Heart
+              className={`transition-all duration-200 group-hover:scale-110 group-hover:fill-current group-hover:text-primary ${isWishlisted ? "fill-current text-primary" : ""}`}
+            />
+          )}
         </Button>
       </div>
 

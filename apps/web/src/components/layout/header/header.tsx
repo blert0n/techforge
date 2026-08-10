@@ -9,10 +9,12 @@ import {
   ChevronDown,
   LayoutDashboard,
   LogOut,
+  Heart,
   UserRound,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Select,
   SelectContent,
@@ -40,7 +42,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useNavigationCategories } from "@/hooks/use-catalog";
-import { useCart } from "@/hooks/use-cart";
+import { cartQueryKey, useCart } from "@/hooks/use-cart";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getProducts, type StorefrontProduct } from "@/services/products";
 
@@ -51,7 +53,8 @@ interface HeaderProps {
 export function Header({ children }: HeaderProps) {
   const { user } = useCurrentUser();
   const { data: cart } = useCart();
-  const cartItemCount = cart?.itemCount ?? 0;
+  const queryClient = useQueryClient();
+  const cartItemCount = cart?.items.length ?? 0;
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -109,6 +112,7 @@ export function Header({ children }: HeaderProps) {
       });
       return;
     }
+    await queryClient.resetQueries({ queryKey: cartQueryKey });
     router.replace("/");
     router.refresh();
   }
@@ -268,6 +272,16 @@ export function Header({ children }: HeaderProps) {
                       }
                     >
                       <UserRound /> My account
+                    </DropdownMenuItem>
+                    <DropdownMenuItem
+                      render={
+                        <Link
+                          href="/account/wishlist"
+                          className="cursor-pointer px-2 py-2"
+                        />
+                      }
+                    >
+                      <Heart /> Wishlist
                     </DropdownMenuItem>
                     {user.role === "admin" ? (
                       <DropdownMenuItem

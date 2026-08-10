@@ -69,6 +69,7 @@ export interface paths {
                                 };
                                 rating: number;
                                 reviewCount: number;
+                                isWishlisted: boolean;
                             }[];
                             specificationFilters: {
                                 key: string;
@@ -209,6 +210,7 @@ export interface paths {
                             };
                             rating: number;
                             reviewCount: number;
+                            isWishlisted: boolean;
                             description: string;
                             category: {
                                 id: number;
@@ -2194,6 +2196,7 @@ export interface paths {
                                 };
                                 rating: number;
                                 reviewCount: number;
+                                isWishlisted: boolean;
                             }[];
                         };
                     };
@@ -2777,6 +2780,425 @@ export interface paths {
                 };
                 /** @description Authentication is required */
                 401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/wishlist": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    categoryId?: number;
+                    sort?: "Date Added" | "Price: Low to High" | "Price: High to Low" | "Name A–Z";
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current user's wishlist */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: number;
+                                slug: string;
+                                name: string;
+                                brand: string;
+                                categoryId: number;
+                                price: number;
+                                discountPrice: number | null;
+                                stock: number;
+                                imageUrl: string | null;
+                                imageAltText: string | null;
+                                specifications: string[];
+                                specificationValues: {
+                                    [key: string]: string | number | boolean;
+                                };
+                                rating: number;
+                                reviewCount: number;
+                                isWishlisted: boolean;
+                            }[];
+                            categories: {
+                                id: number;
+                                name: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/wishlist/toggle": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        productId: number;
+                    };
+                };
+            };
+            responses: {
+                /** @description Wishlist state updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            productId: number;
+                            isWishlisted: boolean;
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Product is not available */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    search?: string;
+                    status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                    userId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description The current user's orders */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                orderNumber: string;
+                                /** @enum {string} */
+                                status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                                paymentStatus: string;
+                                currency: string;
+                                total: string;
+                                itemCount: number;
+                                /** Format: date-time */
+                                placedAt: string;
+                                items: {
+                                    id: string;
+                                    productName: string;
+                                    productSlug: string;
+                                    imageUrl: string | null;
+                                    quantity: number;
+                                    lineTotal: string;
+                                }[];
+                            }[];
+                            pagination: {
+                                page: number;
+                                pageSize: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                            stats: {
+                                total: number;
+                                pending: number;
+                                processing: number;
+                                shipped: number;
+                                delivered: number;
+                                cancelled: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Filtering another user's orders requires administrator access */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/{orderNumber}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderNumber: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An order the current user may access */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: string;
+                            orderNumber: string;
+                            /** @enum {string} */
+                            status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                            paymentStatus: string;
+                            currency: string;
+                            subtotal: string;
+                            shippingTotal: string;
+                            taxTotal: string;
+                            discountTotal: string;
+                            total: string;
+                            /** Format: date-time */
+                            placedAt: string;
+                            shippingAddress: {
+                                firstName: string;
+                                lastName: string;
+                                phone: string;
+                                line1: string;
+                                line2: string | null;
+                                city: string;
+                                state: string;
+                                postalCode: string;
+                                country: string;
+                            };
+                            items: {
+                                id: string;
+                                productName: string;
+                                productSlug: string;
+                                sku: string;
+                                imageUrl: string | null;
+                                unitPrice: string;
+                                quantity: number;
+                                lineTotal: string;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Order not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/users/avatar": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "multipart/form-data": {
+                        file?: unknown;
+                    };
+                };
+            };
+            responses: {
+                /** @description Avatar uploaded */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** Format: uri */
+                            url: string;
+                        };
+                    };
+                };
+                /** @description Invalid image input */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Avatar upload failed */
+                502: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Avatar storage is not configured */
+                503: {
                     headers: {
                         [name: string]: unknown;
                     };
