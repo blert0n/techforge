@@ -374,6 +374,7 @@ export default function ProductsPage({
                   ? undefined
                   : Math.round((1 - currentPrice / product.price) * 100);
               const card: ProductCardData = {
+                id: product.id,
                 slug: product.slug,
                 brand: product.brand,
                 name: product.name,

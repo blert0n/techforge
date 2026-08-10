@@ -1,17 +1,22 @@
+"use client";
 import Image from "next/image";
 import Link from "next/link";
 import {
   Check,
   Heart,
   ImageIcon,
+  LoaderCircle,
   Plus,
   ShoppingCart,
   Star,
   StarHalf,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useAddCartItem } from "@/hooks/use-cart";
+import { toast } from "sonner";
 
 export type ProductCardData = {
+  id?: number;
   slug?: string;
   brand: string;
   name: string;
@@ -31,8 +36,26 @@ export function ProductCard({
   product: ProductCardData;
   variant?: "featured" | "listing";
 }) {
+  const addCartItem = useAddCartItem();
   const listing = variant === "listing";
   const productHref = product.slug ? `/products/${product.slug}` : undefined;
+  const addToCart = () => {
+    if (!product.id) return;
+
+    addCartItem.mutate(
+      { productId: product.id },
+      {
+        onSuccess: () =>
+          toast.success(`${product.name} added to your cart`, {
+            position: "top-center",
+          }),
+        onError: () =>
+          toast.error("Unable to add this product to your cart", {
+            position: "top-center",
+          }),
+      },
+    );
+  };
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-lg">
       {product.badge && (
@@ -78,23 +101,21 @@ export function ProductCard({
           {product.name}
         </ProductLink>
 
-        <div className="mb-2 flex items-center gap-1 text-xs text-yellow-500">
-          {product.rating === 0 ? <Star className="size-3" /> : null}
-          {Array.from({ length: Math.floor(product.rating) }).map(
-            (_, index) => (
-              <Star key={index} className="size-3 fill-current" />
-            ),
-          )}
-          {product.rating % 1 !== 0 && (
-            <StarHalf className="size-3 fill-current" />
-          )}
-          <span className="ml-1 text-muted-foreground">
-            ({product.reviews})
-          </span>
-        </div>
-        <div
-          className={`mt-auto pt-4 ${listing ? "flex flex-col gap-2" : "flex items-center justify-between"}`}
-        >
+        <div className="mt-auto flex flex-col gap-2 pt-4">
+          <div className="flex items-center gap-1 text-xs text-yellow-500">
+            {product.rating === 0 ? <Star className="size-3" /> : null}
+            {Array.from({ length: Math.floor(product.rating) }).map(
+              (_, index) => (
+                <Star key={index} className="size-3 fill-current" />
+              ),
+            )}
+            {product.rating % 1 !== 0 && (
+              <StarHalf className="size-3 fill-current" />
+            )}
+            <span className="ml-1 text-muted-foreground">
+              ({product.reviews})
+            </span>
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <span className="text-lg font-bold">{product.price}</span>
@@ -112,20 +133,40 @@ export function ProductCard({
                 {product.stock}
               </span>
             )}
+            {!listing && (
+              <Button
+                type="button"
+                size="icon-sm"
+                className="rounded-full"
+                disabled={!product.id || addCartItem.isPending}
+                onClick={addToCart}
+              >
+                {addCartItem.isPending ? (
+                  <LoaderCircle className="animate-spin" />
+                ) : (
+                  <Plus />
+                )}
+                <span className="sr-only">Add {product.name} to cart</span>
+              </Button>
+            )}
           </div>
-          {listing ? (
+          {listing && (
             <Button
               type="button"
-              disabled={product.stock === "Out of Stock"}
+              disabled={
+                product.stock === "Out of Stock" ||
+                !product.id ||
+                addCartItem.isPending
+              }
+              onClick={addToCart}
               className="w-full"
             >
-              <ShoppingCart />
-              Add to Cart
-            </Button>
-          ) : (
-            <Button type="button" size="icon-sm" className="rounded-full">
-              <Plus />
-              <span className="sr-only">Add {product.name} to cart</span>
+              {addCartItem.isPending ? (
+                <LoaderCircle className="animate-spin" />
+              ) : (
+                <ShoppingCart />
+              )}
+              {addCartItem.isPending ? "Adding..." : "Add to Cart"}
             </Button>
           )}
         </div>

@@ -9,10 +9,11 @@ import {
 import type { AddressInput } from "@/components/account/addresses/types";
 
 const addressesQueryKey = ["addresses"] as const;
-export function useAddresses() {
+export function useAddresses({ enabled = true }: { enabled?: boolean } = {}) {
   return useQuery({
     queryKey: addressesQueryKey,
     queryFn: getAddresses,
+    enabled,
   });
 }
 

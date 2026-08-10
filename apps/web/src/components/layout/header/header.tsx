@@ -26,7 +26,7 @@ import {
   accountActions,
 } from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
-import { useSession } from "@/lib/auth-client";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import { BrandLogo } from "@/components/layout/brand-logo";
 import { signOut } from "@/lib/auth-client";
 import {
@@ -40,6 +40,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { useNavigationCategories } from "@/hooks/use-catalog";
+import { useCart } from "@/hooks/use-cart";
 import { useDebounce } from "@/hooks/use-debounce";
 import { getProducts, type StorefrontProduct } from "@/services/products";
 
@@ -48,8 +49,9 @@ interface HeaderProps {
 }
 
 export function Header({ children }: HeaderProps) {
-  const { data: session } = useSession();
-  const user = session?.user;
+  const { user } = useCurrentUser();
+  const { data: cart } = useCart();
+  const cartItemCount = cart?.itemCount ?? 0;
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("all");
@@ -324,25 +326,28 @@ export function Header({ children }: HeaderProps) {
             <div className="relative inline-flex">
               <ShoppingCart className="h-6 w-6" />
 
-              <span
-                className="
-                  absolute
-                  -right-2
-                  -top-1
-                  flex
-                  h-4
-                  w-4
-                  items-center
-                  justify-center
-                  rounded-full
-                  bg-primary
-                  text-[10px]
-                  font-bold
-                  text-primary-foreground
-                "
-              >
-                2
-              </span>
+              {cartItemCount > 0 ? (
+                <span
+                  className="
+                    absolute
+                    -right-2
+                    -top-1
+                    flex
+                    h-4
+                    min-w-4
+                    items-center
+                    justify-center
+                    rounded-full
+                    bg-primary
+                    px-1
+                    text-[10px]
+                    font-bold
+                    text-primary-foreground
+                  "
+                >
+                  {cartItemCount > 99 ? "99+" : cartItemCount}
+                </span>
+              ) : null}
             </div>
 
             <span className="hidden text-sm font-medium md:block">Cart</span>

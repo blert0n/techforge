@@ -11,6 +11,8 @@ import { catalogRouter } from "./modules/catalog/catalog.routes";
 import { cartRouter } from "./modules/cart/cart.routes";
 import { recentlyViewedRouter } from "./modules/recently-viewed/recently-viewed.routes";
 import { reviewsRouter } from "./modules/reviews/reviews.routes";
+import { paymentsRouter } from "./modules/payments/payments.routes";
+import { handleStripeWebhook } from "./modules/payments/payments.webhook";
 
 export const app = new OpenAPIHono();
 
@@ -40,6 +42,7 @@ app.use(
 );
 
 app.on(["POST", "GET"], "/api/auth/*", (c) => auth.handler(c.req.raw));
+app.post("/api/payments/stripe/webhook", (c) => handleStripeWebhook(c.req.raw));
 
 app.route("/api/products", productsRouter);
 app.route("/api/addresses", addressesRouter);
@@ -47,6 +50,7 @@ app.route("/api/catalog", catalogRouter);
 app.route("/api/cart", cartRouter);
 app.route("/api/recently-viewed", recentlyViewedRouter);
 app.route("/api/reviews", reviewsRouter);
+app.route("/api/payments", paymentsRouter);
 app.route("/api/health", healthRouter);
 
 app.doc("/openapi.json", {

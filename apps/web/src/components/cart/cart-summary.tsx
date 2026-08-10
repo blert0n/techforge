@@ -3,20 +3,29 @@ import { ShoppingCart, Truck } from "lucide-react";
 import Link from "next/link";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { cn } from "@/lib/utils";
+
 export function CartSummary({
   subtotal,
   tax,
+  isCheckoutDisabled = false,
+  showCheckoutActions = true,
+  className,
 }: {
   subtotal: number;
   tax: number;
+  isCheckoutDisabled?: boolean;
+  showCheckoutActions?: boolean;
+  className?: string;
 }) {
   const { register, handleSubmit } = useForm<{ promo: string }>({
     defaultValues: { promo: "" },
   });
   const total = subtotal + tax;
+
   return (
-    <aside className="w-full lg:w-1/3">
-      <div className="sticky top-24 rounded-2xl border border-border bg-card p-6 shadow-sm">
+    <aside className={cn("w-full lg:w-1/3", className)}>
+      <div className="sticky top-36 rounded-2xl border border-border bg-card p-6 shadow-sm">
         <h2 className="mb-6 border-b border-border pb-4 text-xl font-bold">
           Order Summary
         </h2>
@@ -29,24 +38,33 @@ export function CartSummary({
           <b className="text-lg">Order Total:</b>
           <b className="text-2xl">${total.toFixed(2)}</b>
         </div>
-        <Link
-          href="/checkout"
-          className={buttonVariants({ className: "h-12 w-full text-lg" })}
-        >
-          <ShoppingCart />
-          Proceed to Checkout
-        </Link>
-        <form onSubmit={handleSubmit(() => undefined)} className="mt-6">
-          <label className="mb-2 block text-sm font-semibold">
-            Apply Promo Code
-          </label>
-          <div className="flex gap-2">
-            <Input placeholder="Enter code" {...register("promo")} />
-            <Button type="submit" variant="secondary">
-              Apply
-            </Button>
-          </div>
-        </form>
+        {showCheckoutActions ? (
+          <>
+            <Link
+              href="/checkout"
+              aria-disabled={isCheckoutDisabled}
+              tabIndex={isCheckoutDisabled ? -1 : undefined}
+              className={
+                buttonVariants({ className: "h-12 w-full text-lg" }) +
+                (isCheckoutDisabled ? " pointer-events-none opacity-50" : "")
+              }
+            >
+              <ShoppingCart />
+              Proceed to Checkout
+            </Link>
+            <form onSubmit={handleSubmit(() => undefined)} className="mt-6">
+              <label className="mb-2 block text-sm font-semibold">
+                Apply Promo Code
+              </label>
+              <div className="flex gap-2">
+                <Input placeholder="Enter code" {...register("promo")} />
+                <Button type="submit" variant="secondary">
+                  Apply
+                </Button>
+              </div>
+            </form>
+          </>
+        ) : null}
         <div className="mt-6 flex gap-3 rounded-xl bg-muted/50 p-4 text-sm">
           <Truck className="size-5 text-primary" />
           <p>
@@ -61,6 +79,7 @@ export function CartSummary({
     </aside>
   );
 }
+
 function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">

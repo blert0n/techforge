@@ -36,7 +36,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { authClient, useSession } from "@/lib/auth-client";
+import { authClient } from "@/lib/auth-client";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   Ban,
   KeyRound,
@@ -78,7 +79,7 @@ const emptyUser: {
 } = { name: "", email: "", password: "", role: "user" };
 
 export default function CustomersPage() {
-  const { data: currentSession } = useSession();
+  const { user: currentUser } = useCurrentUser();
   const [users, setUsers] = useState<ManagedUser[]>([]);
   const [search, setSearch] = useState("");
   const [isLoading, setIsLoading] = useState(true);
@@ -161,7 +162,7 @@ export default function CustomersPage() {
         });
         if (result.error) return result;
         if (
-          target.id !== currentSession?.user.id &&
+          target.id !== currentUser?.id &&
           editDraft.role !== (target.role ?? "user")
         ) {
           return authClient.admin.setRole({
@@ -442,7 +443,7 @@ export default function CustomersPage() {
                           className="cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                           size="icon-sm"
                           title={
-                            user.id === currentSession?.user.id
+                            user.id === currentUser?.id
                               ? "You cannot revoke your current admin session here"
                               : "Manage sessions"
                           }
@@ -454,9 +455,7 @@ export default function CustomersPage() {
                         </Button>
                         <Button
                           className="cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
-                          disabled={
-                            pending || user.id === currentSession?.user.id
-                          }
+                          disabled={pending || user.id === currentUser?.id}
                           size="icon-sm"
                           title={user.banned ? "Unban" : "Ban"}
                           type="button"
@@ -485,7 +484,7 @@ export default function CustomersPage() {
                           disabled={
                             pending ||
                             user.role === "admin" ||
-                            user.id === currentSession?.user.id
+                            user.id === currentUser?.id
                           }
                           size="icon-sm"
                           title="Impersonate"
@@ -512,7 +511,7 @@ export default function CustomersPage() {
                               <Button
                                 className="cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                                 disabled={
-                                  pending || user.id === currentSession?.user.id
+                                  pending || user.id === currentUser?.id
                                 }
                                 size="icon-sm"
                                 title="Delete"
@@ -608,7 +607,7 @@ export default function CustomersPage() {
                 <Label>Role</Label>
                 <Select
                   value={editDraft.role}
-                  disabled={editTarget?.id === currentSession?.user.id}
+                  disabled={editTarget?.id === currentUser?.id}
                   onValueChange={(value) => {
                     if (value)
                       setEditDraft({
@@ -625,7 +624,7 @@ export default function CustomersPage() {
                     <SelectItem value="admin">Admin</SelectItem>
                   </SelectContent>
                 </Select>
-                {editTarget?.id === currentSession?.user.id ? (
+                {editTarget?.id === currentUser?.id ? (
                   <p className="text-xs text-muted-foreground">
                     You cannot change your own role.
                   </p>

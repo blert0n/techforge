@@ -35,6 +35,10 @@ export const order = pgTable(
     userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "restrict" }),
+    cartId: text("cart_id"),
+    checkoutKey: text("checkout_key").notNull(),
+    stripeCheckoutSessionId: text("stripe_checkout_session_id"),
+    stripePaymentIntentId: text("stripe_payment_intent_id"),
     shippingAddressId: text("shipping_address_id").references(
       () => address.id,
       { onDelete: "set null" },
@@ -65,6 +69,10 @@ export const order = pgTable(
   },
   (table) => [
     uniqueIndex("orders_order_number_idx").on(table.orderNumber),
+    uniqueIndex("orders_checkout_key_idx").on(table.checkoutKey),
+    uniqueIndex("orders_stripe_checkout_session_idx").on(
+      table.stripeCheckoutSessionId,
+    ),
     index("orders_user_placed_at_idx").on(table.userId, table.placedAt),
     index("orders_status_idx").on(table.status),
     check(

@@ -4,33 +4,33 @@ import { ArrowRight } from "lucide-react";
 const categories = [
   {
     name: "Desktops",
-    price: "From $1099",
     image: "/images/home/categories-desktop.png",
+    link: "/category/desktops",
   },
   {
     name: "Laptops",
-    price: "From $799",
     image: "/images/home/categories-laptop.png",
+    link: "/category/laptops",
   },
   {
     name: "GPUs",
-    price: "From $299",
     image: "/images/home/categories-gpu.png",
+    link: "/category/graphics-cards",
   },
   {
     name: "CPUs",
-    price: "From $149",
     image: "/images/home/categories-cpu.png",
+    link: "/category/processors",
   },
   {
     name: "Monitors",
-    price: "From $249",
     image: "/images/home/categories-monitor.png",
+    link: "/category/monitors",
   },
   {
     name: "Accessories",
-    price: "From $49",
     image: "/images/home/categories-accessory.png",
+    link: "/category/accessories",
   },
 ];
 
@@ -61,7 +61,7 @@ export function CategorySection() {
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6">
           {categories.map((category) => (
             <Link
-              href="#"
+              href={category.link}
               key={category.name}
               className="cat-card group block h-36"
             >
@@ -78,10 +78,6 @@ export function CategorySection() {
                   <div>
                     <p className="text-xs font-bold leading-tight text-white">
                       {category.name}
-                    </p>
-
-                    <p className="text-[10px] text-white/50">
-                      {category.price}
                     </p>
                   </div>
 

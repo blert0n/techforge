@@ -1,6 +1,6 @@
 {
   "$schema": "https://turbo.build/schema.json",
-  "globalEnv": ["API_ORIGIN", "NEXT_PUBLIC_API_URL"],
+  "globalEnv": ["API_ORIGIN", "NEXT_PUBLIC_API_URL", "STRIPE_WEBHOOK_SECRET"],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],

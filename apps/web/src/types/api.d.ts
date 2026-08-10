@@ -2715,6 +2715,85 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/payments/checkout-session": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        checkoutKey: string;
+                        shippingAddress: {
+                            firstName: string;
+                            lastName: string;
+                            phone: string;
+                            line1: string;
+                            line2?: string;
+                            city: string;
+                            state: string;
+                            postalCode: string;
+                            country: string;
+                        };
+                    };
+                };
+            };
+            responses: {
+                /** @description A reusable Stripe Checkout session for this checkout attempt */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            orderId: string;
+                            /** Format: uri */
+                            checkoutUrl: string;
+                        };
+                    };
+                };
+                /** @description The cart cannot be checked out */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/health/db": {
         parameters: {
             query?: never;

@@ -1,11 +1,14 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Controller, type UseFormReturn } from "react-hook-form";
 import { LockKeyhole } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useAddresses } from "@/hooks/use-addresses";
+import { useCurrentUser } from "@/hooks/use-current-user";
 import {
   Select,
   SelectContent,
@@ -18,29 +21,81 @@ import type { CheckoutFormValues } from "./types";
 export function CheckoutForm({
   form,
   onSubmit,
+  isSubmitting,
 }: {
   form: UseFormReturn<CheckoutFormValues>;
   onSubmit: (values: CheckoutFormValues) => void;
+  isSubmitting: boolean;
 }) {
   const {
     register,
     control,
+    setValue,
     formState: { errors },
   } = form;
+  const { user } = useCurrentUser();
+  const { data: addresses = [], isLoading: isLoadingAddresses } = useAddresses({
+    enabled: Boolean(user),
+  });
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(
+    null,
+  );
+  const defaultAddress = addresses.find((address) => address.isDefault);
+  const selectedAddress = addresses.find(
+    (address) => address.id === selectedAddressId,
+  );
+
+  useEffect(() => {
+    const address = defaultAddress ?? selectedAddress;
+    if (!address) return;
+
+    setValue("firstName", address.firstName);
+    setValue("lastName", address.lastName);
+    setValue("address", address.line1);
+    setValue("apartment", address.line2 ?? "");
+    setValue("country", address.country);
+    setValue("city", address.city);
+    setValue("state", address.state);
+    setValue("postalCode", address.postalCode);
+    setValue("phone", address.phone);
+  }, [defaultAddress, selectedAddress, setValue]);
+
   return (
     <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
-      <CheckoutSection title="Contact information">
-        <Field label="Email address" error={errors.email?.message}>
-          <Input
-            type="email"
-            autoComplete="email"
-            placeholder="you@example.com"
-            aria-invalid={!!errors.email}
-            {...register("email", { required: "Email is required" })}
-          />
-        </Field>
-      </CheckoutSection>
       <CheckoutSection id="shipping-address" title="Shipping address">
+        {defaultAddress ? (
+          <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
+            Your default saved address has been loaded.
+          </p>
+        ) : null}
+        {!defaultAddress && addresses.length ? (
+          <Field label="Use a saved address">
+            <Select
+              value={selectedAddressId}
+              onValueChange={setSelectedAddressId}
+            >
+              <SelectTrigger className="w-full">
+                <span className="flex-1 truncate text-left">
+                  {selectedAddress
+                    ? `${selectedAddress.type}: ${selectedAddress.line1}, ${selectedAddress.city}`
+                    : "Choose a saved address"}
+                </span>
+              </SelectTrigger>
+              <SelectContent align="start" alignItemWithTrigger={false}>
+                {addresses.map((address) => (
+                  <SelectItem key={address.id} value={address.id}>
+                    {address.type}: {address.line1}, {address.city}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Field>
+        ) : null}
+        {isLoadingAddresses ? (
+          <p className="text-sm text-muted-foreground">
+            Loading saved addresses...
+          </p>
+        ) : null}
         <div className="grid gap-4 sm:grid-cols-2">
           <Field label="First name" error={errors.firstName?.message}>
             <Input
@@ -67,6 +122,13 @@ export function CheckoutForm({
         </Field>
         <Field label="Apartment, suite, etc. (optional)">
           <Input autoComplete="address-line2" {...register("apartment")} />
+        </Field>
+        <Field label="Country" error={errors.country?.message}>
+          <Input
+            autoComplete="country-name"
+            aria-invalid={!!errors.country}
+            {...register("country", { required: "Country is required" })}
+          />
         </Field>
         <div className="grid gap-4 sm:grid-cols-3">
           <Field label="City" error={errors.city?.message}>
@@ -116,68 +178,23 @@ export function CheckoutForm({
             {...register("phone", { required: "Phone number is required" })}
           />
         </Field>
-        <CheckField
-          control={control}
-          name="saveAddress"
-          label="Save this address to my account"
-        />
+        {user ? (
+          <CheckField
+            control={control}
+            name="saveAddress"
+            label="Save this address to my account"
+          />
+        ) : null}
       </CheckoutSection>
-      <CheckoutSection id="payment-method" title="Payment method">
-        <div className="space-y-4 rounded-xl border border-border bg-muted/30 p-4">
-          <Field label="Card number" error={errors.cardNumber?.message}>
-            <Input
-              inputMode="numeric"
-              autoComplete="cc-number"
-              placeholder="1234 1234 1234 1234"
-              aria-invalid={!!errors.cardNumber}
-              {...register("cardNumber", {
-                required: "Card number is required",
-              })}
-            />
-          </Field>
-          <Field label="Name on card" error={errors.cardName?.message}>
-            <Input
-              autoComplete="cc-name"
-              aria-invalid={!!errors.cardName}
-              {...register("cardName", {
-                required: "Name on card is required",
-              })}
-            />
-          </Field>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <Field label="Expiration date" error={errors.expiry?.message}>
-              <Input
-                autoComplete="cc-exp"
-                placeholder="MM / YY"
-                aria-invalid={!!errors.expiry}
-                {...register("expiry", {
-                  required: "Expiration date is required",
-                })}
-              />
-            </Field>
-            <Field label="Security code" error={errors.cvc?.message}>
-              <Input
-                type="password"
-                inputMode="numeric"
-                autoComplete="cc-csc"
-                placeholder="CVC"
-                aria-invalid={!!errors.cvc}
-                {...register("cvc", {
-                  required: "Security code is required",
-                })}
-              />
-            </Field>
-          </div>
-        </div>
-        <CheckField
-          control={control}
-          name="billingSameAsShipping"
-          label="Billing address is the same as shipping address"
-        />
-      </CheckoutSection>
-      <Button type="submit" className="h-12 w-full text-base">
+      <Button
+        type="submit"
+        className="h-12 w-full text-base"
+        disabled={isSubmitting}
+      >
         <LockKeyhole />
-        Place order securely
+        {isSubmitting
+          ? "Redirecting to secure payment..."
+          : "Continue to secure payment"}
       </Button>
     </form>
   );

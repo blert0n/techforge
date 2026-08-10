@@ -4,6 +4,7 @@ export type CheckoutFormValues = {
   lastName: string;
   address: string;
   apartment: string;
+  country: string;
   city: string;
   state: string;
   postalCode: string;

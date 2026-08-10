@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -29,20 +30,12 @@ export function HeroSection() {
         </p>
 
         <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center lg:justify-start">
-          <Button
-            size="lg"
-            className="rounded-full bg-white px-8 text-black hover:bg-gray-200 sm:w-auto"
+          <Link
+            className="inline-flex h-10 items-center justify-center rounded-full bg-white px-8 text-center text-black hover:bg-gray-200 sm:w-auto"
+            href="/category"
           >
             Shop Now
-          </Button>
-
-          <Button
-            size="lg"
-            variant="outline"
-            className="rounded-full border-white/30 bg-transparent px-8 text-white hover:bg-white/10 hover:text-white sm:w-auto"
-          >
-            Build Custom PC
-          </Button>
+          </Link>
         </div>
       </div>
     </section>
