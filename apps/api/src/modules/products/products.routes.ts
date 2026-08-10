@@ -9,9 +9,14 @@ import {
   updateProductSchema,
   productParamsSchema,
   messageSchema,
+  storefrontProductListQuerySchema,
+  storefrontProductListSchema,
+  productSlugParamsSchema,
+  storefrontProductDetailSchema,
 } from "./products.schemas";
 import {
   listProducts,
+  getStorefrontProduct,
   listAdminProducts,
   getProduct,
   createProduct,
@@ -29,11 +34,13 @@ export const listProductsRoute = createRoute({
   method: "get",
   path: "/",
   tags: ["Products"],
+  request: { query: storefrontProductListQuerySchema },
   responses: {
     200: {
-      content: { "application/json": { schema: productSchema.array() } },
-      description: "List all products",
+      content: { "application/json": { schema: storefrontProductListSchema } },
+      description: "Active storefront products, optionally including a category's descendants",
     },
+    404: { content: { "application/json": { schema: messageSchema } }, description: "Category not found" },
   },
 });
 
@@ -50,6 +57,17 @@ export const listAdminProductsRoute = createRoute({
       },
       description: "Products for catalog administration",
     },
+  },
+});
+
+export const getStorefrontProductRoute = createRoute({
+  method: "get",
+  path: "/by-slug/{slug}",
+  tags: ["Products"],
+  request: { params: productSlugParamsSchema },
+  responses: {
+    200: { content: { "application/json": { schema: storefrontProductDetailSchema } }, description: "An active storefront product" },
+    404: { content: { "application/json": { schema: messageSchema } }, description: "Product not found" },
   },
 });
 
@@ -132,6 +150,7 @@ export const deleteProductRoute = createRoute({
 });
 
 productsRouter.openapi(listProductsRoute, listProducts);
+productsRouter.openapi(getStorefrontProductRoute, getStorefrontProduct);
 productsRouter.openapi(listAdminProductsRoute, listAdminProducts);
 productsRouter.openapi(getProductRoute, getProduct);
 productsRouter.openapi(createProductRoute, createProduct);

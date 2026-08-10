@@ -1,15 +1,16 @@
 import { relations } from "drizzle-orm";
 import {
+  boolean,
   index,
   integer,
   jsonb,
   numeric,
   pgTable,
+  primaryKey,
   serial,
   text,
   timestamp,
   uniqueIndex,
-  type AnyPgColumn,
 } from "drizzle-orm/pg-core";
 
 type JsonObject = Record<string, unknown>;
@@ -39,16 +40,29 @@ export const category = pgTable(
     attributePrefix: text("attribute_prefix").notNull(),
     description: text("description"),
     imageUrl: text("image_url"),
-    parentId: integer("parent_id").references((): AnyPgColumn => category.id, {
-      onDelete: "set null",
-    }),
+    displayInNav: boolean("display_in_nav").default(false).notNull(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
     updatedAt: timestamp("updated_at")
       .defaultNow()
       .$onUpdate(() => /* @__PURE__ */ new Date())
       .notNull(),
   },
-  (table) => [index("categories_parent_id_idx").on(table.parentId)],
+);
+
+export const categoryParent = pgTable(
+  "category_parents",
+  {
+    categoryId: integer("category_id")
+      .notNull()
+      .references(() => category.id, { onDelete: "cascade" }),
+    parentId: integer("parent_id")
+      .notNull()
+      .references(() => category.id, { onDelete: "cascade" }),
+  },
+  (table) => [
+    primaryKey({ columns: [table.categoryId, table.parentId] }),
+    index("category_parents_parent_id_idx").on(table.parentId),
+  ],
 );
 
 export const product = pgTable(
@@ -169,14 +183,23 @@ export const brandRelations = relations(brand, ({ many }) => ({
 }));
 
 export const categoryRelations = relations(category, ({ one, many }) => ({
-  parent: one(category, {
-    fields: [category.parentId],
-    references: [category.id],
-    relationName: "categoryHierarchy",
-  }),
-  children: many(category, { relationName: "categoryHierarchy" }),
+  parentLinks: many(categoryParent, { relationName: "categoryParentLinks" }),
+  childLinks: many(categoryParent, { relationName: "categoryChildLinks" }),
   products: many(product),
   specificationTemplate: one(specificationTemplate),
+}));
+
+export const categoryParentRelations = relations(categoryParent, ({ one }) => ({
+  category: one(category, {
+    fields: [categoryParent.categoryId],
+    references: [category.id],
+    relationName: "categoryParentLinks",
+  }),
+  parent: one(category, {
+    fields: [categoryParent.parentId],
+    references: [category.id],
+    relationName: "categoryChildLinks",
+  }),
 }));
 
 export const productRelations = relations(product, ({ one, many }) => ({

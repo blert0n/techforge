@@ -13,12 +13,16 @@ import { cn } from "@/lib/utils";
 
 interface SearchInputProps {
   onSearch?: (query: string) => void;
+  onQueryChange?: (query: string) => void;
+  onFocus?: () => void;
   placeholder?: string;
   className?: string;
 }
 
 export function SearchInput({
   onSearch,
+  onQueryChange,
+  onFocus,
   placeholder = "Search...",
   className,
 }: SearchInputProps) {
@@ -34,7 +38,12 @@ export function SearchInput({
       <InputGroup className={cn("rounded-full", className)}>
         <InputGroupInput
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const nextQuery = e.target.value;
+            setQuery(nextQuery);
+            onQueryChange?.(nextQuery);
+          }}
+          onFocus={onFocus}
           placeholder={placeholder}
         />
 

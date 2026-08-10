@@ -14,36 +14,332 @@
         "tags": [
           "Products"
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": false,
+            "name": "category",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 200
+            },
+            "required": false,
+            "name": "search",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "categoryIds",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": 0
+            },
+            "required": false,
+            "name": "minPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "nullable": true,
+              "minimum": 0
+            },
+            "required": false,
+            "name": "maxPrice",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "number",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "required": false,
+            "name": "minRating",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string"
+            },
+            "required": false,
+            "name": "specifications",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "featured",
+                "price-ascending",
+                "price-descending"
+              ],
+              "default": "featured"
+            },
+            "required": false,
+            "name": "sort",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
-            "description": "List all products",
+            "description": "Active storefront products, optionally including a category's descendants",
             "content": {
               "application/json": {
                 "schema": {
-                  "type": "array",
-                  "items": {
-                    "type": "object",
-                    "properties": {
-                      "id": {
-                        "type": "string"
+                  "type": "object",
+                  "properties": {
+                    "category": {
+                      "type": "object",
+                      "nullable": true,
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "description": {
+                          "type": "string",
+                          "nullable": true
+                        },
+                        "parents": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "name": {
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "name",
+                              "slug"
+                            ]
+                          }
+                        },
+                        "children": {
+                          "type": "array",
+                          "items": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "slug": {
+                                "type": "string"
+                              },
+                              "categoryIds": {
+                                "type": "array",
+                                "items": {
+                                  "type": "integer"
+                                }
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "slug",
+                              "categoryIds"
+                            ]
+                          }
+                        }
                       },
-                      "name": {
-                        "type": "string"
-                      },
-                      "price": {
-                        "type": "number"
-                      },
-                      "category": {
-                        "type": "string"
+                      "required": [
+                        "id",
+                        "name",
+                        "slug",
+                        "description",
+                        "parents",
+                        "children"
+                      ]
+                    },
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "slug": {
+                            "type": "string"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "brand": {
+                            "type": "string"
+                          },
+                          "categoryId": {
+                            "type": "integer"
+                          },
+                          "price": {
+                            "type": "number"
+                          },
+                          "discountPrice": {
+                            "type": "number",
+                            "nullable": true
+                          },
+                          "stock": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "imageUrl": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "imageAltText": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "specifications": {
+                            "type": "array",
+                            "items": {
+                              "type": "string"
+                            }
+                          },
+                          "specificationValues": {
+                            "type": "object",
+                            "additionalProperties": {
+                              "anyOf": [
+                                {
+                                  "type": "string"
+                                },
+                                {
+                                  "type": "number"
+                                },
+                                {
+                                  "type": "boolean"
+                                }
+                              ]
+                            }
+                          },
+                          "rating": {
+                            "type": "number",
+                            "minimum": 0,
+                            "maximum": 5
+                          },
+                          "reviewCount": {
+                            "type": "integer",
+                            "minimum": 0
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "slug",
+                          "name",
+                          "brand",
+                          "categoryId",
+                          "price",
+                          "discountPrice",
+                          "stock",
+                          "imageUrl",
+                          "imageAltText",
+                          "specifications",
+                          "specificationValues",
+                          "rating",
+                          "reviewCount"
+                        ]
                       }
                     },
-                    "required": [
-                      "id",
-                      "name",
-                      "price",
-                      "category"
-                    ]
-                  }
+                    "specificationFilters": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "key": {
+                            "type": "string"
+                          },
+                          "label": {
+                            "type": "string"
+                          },
+                          "unit": {
+                            "type": "string",
+                            "nullable": true
+                          },
+                          "format": {
+                            "type": "string",
+                            "enum": [
+                              "text",
+                              "number",
+                              "boolean"
+                            ]
+                          },
+                          "options": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "value": {
+                                  "type": "string"
+                                },
+                                "label": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "value",
+                                "label"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "key",
+                          "label",
+                          "unit",
+                          "format",
+                          "options"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "category",
+                    "items",
+                    "specificationFilters"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Category not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
                 }
               }
             }
@@ -214,6 +510,197 @@
           },
           "400": {
             "description": "Invalid product data for the selected category template",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/products/by-slug/{slug}": {
+      "get": {
+        "tags": [
+          "Products"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": true,
+            "name": "slug",
+            "in": "path"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "An active storefront product",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "id": {
+                      "type": "integer"
+                    },
+                    "slug": {
+                      "type": "string"
+                    },
+                    "name": {
+                      "type": "string"
+                    },
+                    "brand": {
+                      "type": "string"
+                    },
+                    "categoryId": {
+                      "type": "integer"
+                    },
+                    "price": {
+                      "type": "number"
+                    },
+                    "discountPrice": {
+                      "type": "number",
+                      "nullable": true
+                    },
+                    "stock": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "imageUrl": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "imageAltText": {
+                      "type": "string",
+                      "nullable": true
+                    },
+                    "specifications": {
+                      "type": "array",
+                      "items": {
+                        "type": "string"
+                      }
+                    },
+                    "specificationValues": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "anyOf": [
+                          {
+                            "type": "string"
+                          },
+                          {
+                            "type": "number"
+                          },
+                          {
+                            "type": "boolean"
+                          }
+                        ]
+                      }
+                    },
+                    "rating": {
+                      "type": "number",
+                      "minimum": 0,
+                      "maximum": 5
+                    },
+                    "reviewCount": {
+                      "type": "integer",
+                      "minimum": 0
+                    },
+                    "description": {
+                      "type": "string"
+                    },
+                    "category": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "slug": {
+                          "type": "string"
+                        },
+                        "specificationTemplate": {
+                          "type": "object",
+                          "nullable": true,
+                          "properties": {
+                            "fields": {
+                              "type": "array",
+                              "items": {
+                                "nullable": true
+                              }
+                            }
+                          },
+                          "required": [
+                            "fields"
+                          ]
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "slug",
+                        "specificationTemplate"
+                      ]
+                    },
+                    "images": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "url": {
+                            "type": "string"
+                          },
+                          "altText": {
+                            "type": "string",
+                            "nullable": true
+                          }
+                        },
+                        "required": [
+                          "url",
+                          "altText"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "id",
+                    "slug",
+                    "name",
+                    "brand",
+                    "categoryId",
+                    "price",
+                    "discountPrice",
+                    "stock",
+                    "imageUrl",
+                    "imageAltText",
+                    "specifications",
+                    "specificationValues",
+                    "rating",
+                    "reviewCount",
+                    "description",
+                    "category",
+                    "images"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -1314,6 +1801,53 @@
         }
       }
     },
+    "/api/catalog/navigation-categories": {
+      "get": {
+        "tags": [
+          "Catalog"
+        ],
+        "responses": {
+          "200": {
+            "description": "Categories displayed in storefront navigation",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer"
+                      },
+                      "name": {
+                        "type": "string"
+                      },
+                      "slug": {
+                        "type": "string"
+                      },
+                      "parentIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        }
+                      }
+                    },
+                    "required": [
+                      "id",
+                      "name",
+                      "slug",
+                      "parentIds"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/catalog/categories": {
       "get": {
         "tags": [
@@ -1347,9 +1881,16 @@
                       "imageUrl": {
                         "type": "string"
                       },
-                      "parentId": {
-                        "type": "integer",
-                        "nullable": true
+                      "displayInNav": {
+                        "type": "boolean"
+                      },
+                      "parentIds": {
+                        "type": "array",
+                        "items": {
+                          "type": "integer",
+                          "minimum": 0,
+                          "exclusiveMinimum": true
+                        }
                       },
                       "createdAt": {
                         "type": "string",
@@ -1441,7 +1982,8 @@
                       "name",
                       "slug",
                       "attributePrefix",
-                      "parentId",
+                      "displayInNav",
+                      "parentIds",
                       "createdAt",
                       "updatedAt",
                       "specificationTemplate"
@@ -1516,6 +2058,19 @@
                   "description": {
                     "type": "string",
                     "nullable": true
+                  },
+                  "displayInNav": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "parentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "default": []
                   }
                 },
                 "required": [
@@ -1554,9 +2109,16 @@
                     "imageUrl": {
                       "type": "string"
                     },
-                    "parentId": {
-                      "type": "integer",
-                      "nullable": true
+                    "displayInNav": {
+                      "type": "boolean"
+                    },
+                    "parentIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
                     },
                     "createdAt": {
                       "type": "string",
@@ -1648,10 +2210,29 @@
                     "name",
                     "slug",
                     "attributePrefix",
-                    "parentId",
+                    "displayInNav",
+                    "parentIds",
                     "createdAt",
                     "updatedAt",
                     "specificationTemplate"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parent categories",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
                   ]
                 }
               }
@@ -1737,6 +2318,19 @@
                   "description": {
                     "type": "string",
                     "nullable": true
+                  },
+                  "displayInNav": {
+                    "type": "boolean",
+                    "default": false
+                  },
+                  "parentIds": {
+                    "type": "array",
+                    "items": {
+                      "type": "integer",
+                      "minimum": 0,
+                      "exclusiveMinimum": true
+                    },
+                    "default": []
                   }
                 },
                 "required": [
@@ -1775,9 +2369,16 @@
                     "imageUrl": {
                       "type": "string"
                     },
-                    "parentId": {
-                      "type": "integer",
-                      "nullable": true
+                    "displayInNav": {
+                      "type": "boolean"
+                    },
+                    "parentIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
                     },
                     "createdAt": {
                       "type": "string",
@@ -1869,10 +2470,29 @@
                     "name",
                     "slug",
                     "attributePrefix",
-                    "parentId",
+                    "displayInNav",
+                    "parentIds",
                     "createdAt",
                     "updatedAt",
                     "specificationTemplate"
+                  ]
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid parent categories or hierarchy cycle",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
                   ]
                 }
               }
@@ -2611,9 +3231,16 @@
                     "imageUrl": {
                       "type": "string"
                     },
-                    "parentId": {
-                      "type": "integer",
-                      "nullable": true
+                    "displayInNav": {
+                      "type": "boolean"
+                    },
+                    "parentIds": {
+                      "type": "array",
+                      "items": {
+                        "type": "integer",
+                        "minimum": 0,
+                        "exclusiveMinimum": true
+                      }
                     },
                     "createdAt": {
                       "type": "string",
@@ -2705,7 +3332,8 @@
                     "name",
                     "slug",
                     "attributePrefix",
-                    "parentId",
+                    "displayInNav",
+                    "parentIds",
                     "createdAt",
                     "updatedAt",
                     "specificationTemplate"

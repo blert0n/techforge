@@ -3,6 +3,7 @@
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Textarea } from "@/components/ui/textarea";
 import {
   useCatalogCategories,
@@ -45,12 +46,16 @@ export default function AdminCategoriesPage() {
     slug: "",
     attributePrefix: "",
     description: "",
+    displayInNav: false,
+    parentIds: [] as number[],
   });
   const [draft, setDraft] = useState({
     name: "",
     slug: "",
     attributePrefix: "",
     description: "",
+    displayInNav: false,
+    parentIds: [] as number[],
   });
 
   const filteredCategories = useMemo(() => {
@@ -73,6 +78,8 @@ export default function AdminCategoriesPage() {
       slug: category.slug,
       attributePrefix: category.attributePrefix,
       description: category.description ?? "",
+      displayInNav: category.displayInNav,
+      parentIds: category.parentIds,
     });
   }
 
@@ -133,6 +140,8 @@ export default function AdminCategoriesPage() {
         slug: "",
         attributePrefix: "",
         description: "",
+        displayInNav: false,
+        parentIds: [],
       });
     } catch {
       toast.error("Unable to create category", {
@@ -209,6 +218,9 @@ export default function AdminCategoriesPage() {
             {filteredCategories.map((category) => {
               const fieldCount =
                 category.specificationTemplate?.fields.length ?? 0;
+              const parentNames = category.parentIds
+                .map((parentId) => categories.find((item) => item.id === parentId)?.name)
+                .filter((name): name is string => Boolean(name));
 
               return (
                 <article
@@ -226,6 +238,9 @@ export default function AdminCategoriesPage() {
                       <Badge variant="outline">
                         {category.attributePrefix}
                       </Badge>
+                      <Badge variant={category.displayInNav ? "secondary" : "outline"}>
+                        {category.displayInNav ? "Shown in navigation" : "Hidden from navigation"}
+                      </Badge>
                     </div>
                     <p className="mt-1 line-clamp-1 text-sm text-muted-foreground">
                       {category.description ?? "No description yet."}
@@ -233,6 +248,11 @@ export default function AdminCategoriesPage() {
                     <code className="mt-2 block text-xs text-muted-foreground">
                       /{category.slug}
                     </code>
+                    {parentNames.length ? (
+                      <p className="mt-1 text-xs text-muted-foreground">
+                        Parent groups: {parentNames.join(", ")}
+                      </p>
+                    ) : null}
                   </div>
                   <div className="flex items-center justify-between gap-4 md:justify-end">
                     <div className="text-left md:text-right">
@@ -378,6 +398,41 @@ export default function AdminCategoriesPage() {
                   }
                 />
               </div>
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3">
+                <Checkbox
+                  checked={draft.displayInNav}
+                  onCheckedChange={(checked) =>
+                    setDraft({ ...draft, displayInNav: checked === true })
+                  }
+                />
+                <span>
+                  <span className="block text-sm font-medium text-foreground">Display in navigation</span>
+                  <span className="block text-xs text-muted-foreground">Show this category in the storefront navigation.</span>
+                </span>
+              </label>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">Parent categories</p>
+                <div className="grid max-h-40 gap-2 overflow-y-auto rounded-xl border border-border p-3 sm:grid-cols-2">
+                  {categories.filter((category) => category.id !== editingCategory.id).map((category) => (
+                    <label key={category.id} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <Checkbox
+                        checked={draft.parentIds.includes(category.id)}
+                        onCheckedChange={(checked) =>
+                          setDraft({
+                            ...draft,
+                            parentIds: checked === true
+                              ? [...draft.parentIds, category.id]
+                              : draft.parentIds.filter((id) => id !== category.id),
+                          })
+                        }
+                      />
+                      {category.name}
+                    </label>
+                  ))}
+                  {categories.length <= 1 ? <p className="text-xs text-muted-foreground">No other categories available.</p> : null}
+                </div>
+                <p className="text-xs text-muted-foreground">A category can appear under multiple parent groups.</p>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"
@@ -499,6 +554,40 @@ export default function AdminCategoriesPage() {
                   })
                 }
               />
+              <label className="flex cursor-pointer items-center gap-3 rounded-xl border border-border p-3">
+                <Checkbox
+                  checked={newCategory.displayInNav}
+                  onCheckedChange={(checked) =>
+                    setNewCategory({ ...newCategory, displayInNav: checked === true })
+                  }
+                />
+                <span>
+                  <span className="block text-sm font-medium text-foreground">Display in navigation</span>
+                  <span className="block text-xs text-muted-foreground">Show this category in the storefront navigation.</span>
+                </span>
+              </label>
+              <div className="space-y-2">
+                <p className="text-sm font-medium text-foreground">Parent categories</p>
+                <div className="grid max-h-40 gap-2 overflow-y-auto rounded-xl border border-border p-3 sm:grid-cols-2">
+                  {categories.map((category) => (
+                    <label key={category.id} className="flex cursor-pointer items-center gap-2 text-sm">
+                      <Checkbox
+                        checked={newCategory.parentIds.includes(category.id)}
+                        onCheckedChange={(checked) =>
+                          setNewCategory({
+                            ...newCategory,
+                            parentIds: checked === true
+                              ? [...newCategory.parentIds, category.id]
+                              : newCategory.parentIds.filter((id) => id !== category.id),
+                          })
+                        }
+                      />
+                      {category.name}
+                    </label>
+                  ))}
+                  {!categories.length ? <p className="text-xs text-muted-foreground">No parent categories available.</p> : null}
+                </div>
+              </div>
               <div className="flex justify-end gap-2">
                 <Button
                   type="button"

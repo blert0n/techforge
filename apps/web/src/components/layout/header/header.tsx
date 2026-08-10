@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import {
   ShoppingCart,
   MapPin,
@@ -19,7 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import { utilityLinks, categories, accountActions } from "./header.constants";
+import { utilityLinks, allCategoriesOption, accountActions } from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
 import { useSession } from "@/lib/auth-client";
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -34,6 +35,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
+import { useNavigationCategories } from "@/hooks/use-catalog";
+import { useDebounce } from "@/hooks/use-debounce";
+import { getProducts, type StorefrontProduct } from "@/services/products";
 
 interface HeaderProps {
   children?: React.ReactNode;
@@ -44,6 +48,48 @@ export function Header({ children }: HeaderProps) {
   const user = session?.user;
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
+  const [selectedCategory, setSelectedCategory] = useState("all");
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<StorefrontProduct[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const { data: navigationCategories = [] } = useNavigationCategories();
+  const navigationCategoryIds = new Set(
+    navigationCategories.map((category) => category.id),
+  );
+  const topLevelCategories = navigationCategories.filter(
+    (category) =>
+      !category.parentIds.some((parentId) => navigationCategoryIds.has(parentId)),
+  );
+  const categories = [
+    allCategoriesOption,
+    ...navigationCategories.map((category) => ({
+      value: category.slug,
+      label: category.name,
+    })),
+  ];
+  const selectedCategoryLabel =
+    categories.find((category) => category.value === selectedCategory)?.label ??
+    allCategoriesOption.label;
+
+  async function searchProducts(query: string, category = selectedCategory) {
+    const search = query.trim();
+    if (!search) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    const data = await getProducts({
+      category: category === "all" ? undefined : category,
+      search,
+    });
+    setSearchResults(data?.items ?? []);
+    setIsSearching(false);
+  }
+
+  const debouncedSearch = useDebounce(searchProducts);
 
   async function handleSignOut() {
     setIsSigningOut(true);
@@ -103,10 +149,19 @@ export function Header({ children }: HeaderProps) {
         </Link>
 
         <div className="hidden flex-1 md:flex">
-          <div className="flex w-full max-w-3xl">
-            <Select defaultValue="All Categories">
+          <div className="relative flex w-full max-w-3xl">
+            <Select
+              value={selectedCategory}
+              onValueChange={(value) => {
+                const category = value ?? "all";
+                setSelectedCategory(category);
+                if (searchQuery.trim()) debouncedSearch(searchQuery, category);
+              }}
+            >
               <SelectTrigger className="hidden w-48 rounded-r-none lg:flex">
-                <SelectValue />
+                <SelectValue className="capitalize">
+                  {selectedCategoryLabel}
+                </SelectValue>
               </SelectTrigger>
 
               <SelectContent
@@ -124,9 +179,62 @@ export function Header({ children }: HeaderProps) {
             </Select>
 
             <SearchInput
-              placeholder="Search for GPUs, CPUs, monitors, and more..."
+              onFocus={() => setIsSearchOpen(true)}
+              onQueryChange={(query) => {
+                setSearchQuery(query);
+                setIsSearchOpen(true);
+                if (query.trim()) debouncedSearch(query);
+                else void searchProducts(query);
+              }}
+              placeholder={`Search in ${selectedCategoryLabel.toLowerCase()}...`}
               className="rounded-l-md min-w-96"
             />
+            {isSearchOpen && searchQuery.trim() ? (
+              <div className="absolute top-full right-0 left-0 z-50 mt-2 overflow-hidden rounded-lg border border-border bg-card shadow-lg lg:left-48">
+                {isSearching ? (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">
+                    Searching...
+                  </p>
+                ) : searchResults.length ? (
+                  <ul className="max-h-96 divide-y divide-border overflow-y-auto scroll-smooth overscroll-contain">
+                    {searchResults.map((product) => (
+                      <li key={product.id}>
+                        <Link
+                          href={`/products/${product.slug}`}
+                          className="block px-4 py-3 transition-colors hover:bg-muted"
+                          onClick={() => setIsSearchOpen(false)}
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="relative size-10 shrink-0 overflow-hidden rounded bg-muted">
+                              {product.imageUrl ? (
+                                <Image
+                                  alt={product.imageAltText ?? product.name}
+                                  className="object-contain"
+                                  fill
+                                  sizes="40px"
+                                  src={product.imageUrl}
+                                />
+                              ) : null}
+                            </div>
+                            <div className="min-w-0">
+                              <p className="truncate text-sm font-medium">{product.name}</p>
+                              <p className="text-xs text-muted-foreground">
+                                {product.brand} · ${" "}
+                                {(product.discountPrice ?? product.price).toFixed(2)}
+                              </p>
+                            </div>
+                          </div>
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="px-4 py-3 text-sm text-muted-foreground">
+                    No matching products found.
+                  </p>
+                )}
+              </div>
+            ) : null}
           </div>
         </div>
 
@@ -267,18 +375,73 @@ export function Header({ children }: HeaderProps) {
         <ul className="flex items-center gap-6 whitespace-nowrap text-sm font-medium">
           <Menu className="h-4 w-4" />
 
-          {categories
-            .filter((category) => category.value !== "all")
-            .map((category) => (
-              <li key={category.value}>
-                <Link
-                  href={`/category/${category.value.replaceAll(" ", "-").toLowerCase()}`}
-                  className="transition-colors hover:text-primary"
-                >
-                  {category.label}
-                </Link>
+          <li>
+            <Link
+              href="/category"
+              className="transition-colors hover:text-primary"
+            >
+              All Categories
+            </Link>
+          </li>
+
+          {topLevelCategories.map((category) => {
+            const children = navigationCategories.filter((item) =>
+              item.parentIds.includes(category.id),
+            );
+
+            return (
+              <li key={category.id}>
+                {children.length ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger
+                      render={
+                        <button
+                          className="flex cursor-pointer items-center gap-1 transition-colors hover:text-primary"
+                          type="button"
+                        />
+                      }
+                    >
+                      {category.name}
+                      <ChevronDown className="size-3" />
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="w-52" sideOffset={10}>
+                      <DropdownMenuItem
+                        render={
+                          <Link
+                            className="cursor-pointer px-2 py-2 font-medium"
+                            href={`/category/${category.slug}`}
+                          />
+                        }
+                      >
+                        View all {category.name}
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      {children.map((child) => (
+                        <DropdownMenuItem
+                          key={child.id}
+                          render={
+                            <Link
+                              className="cursor-pointer px-2 py-2"
+                              href={`/category/${child.slug}`}
+                            />
+                          }
+                        >
+                          {child.name}
+                        </DropdownMenuItem>
+                      ))}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Link
+                    href={`/category/${category.slug}`}
+                    className="transition-colors hover:text-primary"
+                  >
+                    {category.name}
+                  </Link>
+                )}
               </li>
-            ))}
+            );
+          })}
         </ul>
       </nav>
 

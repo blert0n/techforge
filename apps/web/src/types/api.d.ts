@@ -13,25 +13,86 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    category?: string;
+                    search?: string;
+                    categoryIds?: string;
+                    minPrice?: number | null;
+                    maxPrice?: number | null;
+                    minRating?: number;
+                    specifications?: string;
+                    sort?: "featured" | "price-ascending" | "price-descending";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
             };
             requestBody?: never;
             responses: {
-                /** @description List all products */
+                /** @description Active storefront products, optionally including a category's descendants */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
                         "application/json": {
-                            id: string;
-                            name: string;
-                            price: number;
-                            category: string;
-                        }[];
+                            category: {
+                                id: number;
+                                name: string;
+                                slug: string;
+                                description: string | null;
+                                parents: {
+                                    name: string;
+                                    slug: string;
+                                }[];
+                                children: {
+                                    id: number;
+                                    name: string;
+                                    slug: string;
+                                    categoryIds: number[];
+                                }[];
+                            } | null;
+                            items: {
+                                id: number;
+                                slug: string;
+                                name: string;
+                                brand: string;
+                                categoryId: number;
+                                price: number;
+                                discountPrice: number | null;
+                                stock: number;
+                                imageUrl: string | null;
+                                imageAltText: string | null;
+                                specifications: string[];
+                                specificationValues: {
+                                    [key: string]: string | number | boolean;
+                                };
+                                rating: number;
+                                reviewCount: number;
+                            }[];
+                            specificationFilters: {
+                                key: string;
+                                label: string;
+                                unit: string | null;
+                                /** @enum {string} */
+                                format: "text" | "number" | "boolean";
+                                options: {
+                                    value: string;
+                                    label: string;
+                                }[];
+                            }[];
+                        };
+                    };
+                };
+                /** @description Category not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
                     };
                 };
             };
@@ -101,6 +162,84 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/products/by-slug/{slug}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    slug: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description An active storefront product */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: number;
+                            slug: string;
+                            name: string;
+                            brand: string;
+                            categoryId: number;
+                            price: number;
+                            discountPrice: number | null;
+                            stock: number;
+                            imageUrl: string | null;
+                            imageAltText: string | null;
+                            specifications: string[];
+                            specificationValues: {
+                                [key: string]: string | number | boolean;
+                            };
+                            rating: number;
+                            reviewCount: number;
+                            description: string;
+                            category: {
+                                id: number;
+                                name: string;
+                                slug: string;
+                                specificationTemplate: {
+                                    fields: unknown[];
+                                } | null;
+                            };
+                            images: {
+                                url: string;
+                                altText: string | null;
+                            }[];
+                        };
+                    };
+                };
+                /** @description Product not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -648,6 +787,46 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/catalog/navigation-categories": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Categories displayed in storefront navigation */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            id: number;
+                            name: string;
+                            slug: string;
+                            parentIds: number[];
+                        }[];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/catalog/categories": {
         parameters: {
             query?: never;
@@ -677,7 +856,8 @@ export interface paths {
                             attributePrefix: string;
                             description?: string;
                             imageUrl?: string;
-                            parentId: number | null;
+                            displayInNav: boolean;
+                            parentIds: number[];
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -741,6 +921,10 @@ export interface paths {
                         slug: string;
                         attributePrefix: string;
                         description: string | null;
+                        /** @default false */
+                        displayInNav?: boolean;
+                        /** @default [] */
+                        parentIds?: number[];
                     };
                 };
             };
@@ -758,7 +942,8 @@ export interface paths {
                             attributePrefix: string;
                             description?: string;
                             imageUrl?: string;
-                            parentId: number | null;
+                            displayInNav: boolean;
+                            parentIds: number[];
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -780,6 +965,17 @@ export interface paths {
                                 /** Format: date-time */
                                 updatedAt: string;
                             } | null;
+                        };
+                    };
+                };
+                /** @description Invalid parent categories */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
                         };
                     };
                 };
@@ -909,6 +1105,10 @@ export interface paths {
                         slug: string;
                         attributePrefix: string;
                         description: string | null;
+                        /** @default false */
+                        displayInNav?: boolean;
+                        /** @default [] */
+                        parentIds?: number[];
                     };
                 };
             };
@@ -926,7 +1126,8 @@ export interface paths {
                             attributePrefix: string;
                             description?: string;
                             imageUrl?: string;
-                            parentId: number | null;
+                            displayInNav: boolean;
+                            parentIds: number[];
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */
@@ -948,6 +1149,17 @@ export interface paths {
                                 /** Format: date-time */
                                 updatedAt: string;
                             } | null;
+                        };
+                    };
+                };
+                /** @description Invalid parent categories or hierarchy cycle */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
                         };
                     };
                 };
@@ -1332,7 +1544,8 @@ export interface paths {
                             attributePrefix: string;
                             description?: string;
                             imageUrl?: string;
-                            parentId: number | null;
+                            displayInNav: boolean;
+                            parentIds: number[];
                             /** Format: date-time */
                             createdAt: string;
                             /** Format: date-time */

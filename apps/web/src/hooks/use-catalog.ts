@@ -7,6 +7,7 @@ import {
   deleteCatalogCategory,
   getCatalogBrands,
   getCatalogCategories,
+  getNavigationCategories,
   updateSpecificationTemplate,
   updateCatalogBrand,
   updateCatalogCategory,
@@ -16,6 +17,14 @@ import {
 
 export const catalogCategoriesQueryKey = ["catalog", "categories"] as const;
 export const catalogBrandsQueryKey = ["catalog", "brands"] as const;
+export const navigationCategoriesQueryKey = ["catalog", "navigation-categories"] as const;
+
+export function useNavigationCategories() {
+  return useQuery({
+    queryKey: navigationCategoriesQueryKey,
+    queryFn: getNavigationCategories,
+  });
+}
 
 export function useCatalogCategories() {
   return useQuery({

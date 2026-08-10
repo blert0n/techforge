@@ -1,8 +1,8 @@
-import { asc, eq, or } from "drizzle-orm";
+import { asc, eq, inArray, or } from "drizzle-orm";
 import type { RouteHandler } from "@hono/zod-openapi";
 
 import { db } from "../../db/client";
-import { brand, category, product, specificationTemplate } from "../../db/schema/index";
+import { brand, category, categoryParent, product, specificationTemplate } from "../../db/schema/index";
 import type {
   createCatalogBrandRoute,
   createCatalogCategoryRoute,
@@ -10,6 +10,7 @@ import type {
   deleteCatalogCategoryRoute,
   listCatalogBrandsRoute,
   listCatalogCategoriesRoute,
+  listNavigationCategoriesRoute,
   updateCatalogCategoryRoute,
   updateCatalogBrandRoute,
   updateCategorySpecificationTemplateRoute,
@@ -130,11 +131,11 @@ function serializeCategory(record: {
   attributePrefix: string;
   description: string | null;
   imageUrl: string | null;
-  parentId: number | null;
+  displayInNav: boolean;
   createdAt: Date;
   updatedAt: Date;
   specificationTemplate: typeof specificationTemplate.$inferSelect | null;
-}) {
+}, parentIds: number[] = []) {
   return {
     id: record.id,
     name: record.name,
@@ -142,7 +143,8 @@ function serializeCategory(record: {
     attributePrefix: record.attributePrefix,
     description: record.description ?? undefined,
     imageUrl: record.imageUrl ?? undefined,
-    parentId: record.parentId,
+    displayInNav: record.displayInNav,
+    parentIds,
     createdAt: record.createdAt.toISOString(),
     updatedAt: record.updatedAt.toISOString(),
     specificationTemplate: record.specificationTemplate
@@ -164,15 +166,74 @@ export const listCatalogCategories: RouteHandler<
     with: { specificationTemplate: true },
     orderBy: [asc(category.name)],
   });
+  const links = await db.select().from(categoryParent);
+  const parentIdsByCategory = new Map<number, number[]>();
+  for (const link of links) {
+    const parentIds = parentIdsByCategory.get(link.categoryId) ?? [];
+    parentIds.push(link.parentId);
+    parentIdsByCategory.set(link.categoryId, parentIds);
+  }
 
-  return c.json(categories.map(serializeCategory), 200);
+  return c.json(
+    categories.map((item) => serializeCategory(item, parentIdsByCategory.get(item.id) ?? [])),
+    200,
+  );
+};
+
+export const listNavigationCategories: RouteHandler<
+  typeof listNavigationCategoriesRoute
+> = async (c) => {
+  const categories = await db
+    .select({ id: category.id, name: category.name, slug: category.slug })
+    .from(category)
+    .where(eq(category.displayInNav, true))
+    .orderBy(asc(category.name));
+
+  const categoryIds = categories.map((item) => item.id);
+  const links = categoryIds.length
+    ? await db.select().from(categoryParent).where(inArray(categoryParent.categoryId, categoryIds))
+    : [];
+  const parentIdsByCategory = new Map<number, number[]>();
+  for (const link of links) {
+    const parentIds = parentIdsByCategory.get(link.categoryId) ?? [];
+    parentIds.push(link.parentId);
+    parentIdsByCategory.set(link.categoryId, parentIds);
+  }
+
+  return c.json(
+    categories.map((item) => ({
+      ...item,
+      parentIds: parentIdsByCategory.get(item.id) ?? [],
+    })),
+    200,
+  );
 };
 
 export const createCatalogCategory: RouteHandler<typeof createCatalogCategoryRoute> = async (c) => {
   const body = c.req.valid("json");
-  const [created] = await db.insert(category).values(body).returning({ id: category.id });
+  const { parentIds: requestedParentIds, ...values } = body;
+  const parentIds = [...new Set(requestedParentIds)];
+  if (parentIds.length) {
+    const existingParents = await db
+      .select({ id: category.id })
+      .from(category)
+      .where(inArray(category.id, parentIds));
+    if (existingParents.length !== parentIds.length) {
+      return c.json({ message: "One or more parent categories do not exist" }, 400);
+    }
+  }
+
+  const [created] = await db.transaction(async (tx) => {
+    const createdRows = await tx.insert(category).values(values).returning({ id: category.id });
+    if (parentIds.length) {
+      await tx.insert(categoryParent).values(
+        parentIds.map((parentId) => ({ categoryId: createdRows[0].id, parentId })),
+      );
+    }
+    return createdRows;
+  });
   const saved = await db.query.category.findFirst({ where: eq(category.id, created.id), with: { specificationTemplate: true } });
-  return c.json(serializeCategory(saved!), 201);
+  return c.json(serializeCategory(saved!, parentIds), 201);
 };
 
 export const updateCategorySpecificationTemplate: RouteHandler<
@@ -210,11 +271,61 @@ export const updateCatalogCategory: RouteHandler<
 > = async (c) => {
   const { id } = c.req.valid("param");
   const body = c.req.valid("json");
-  const [updated] = await db
-    .update(category)
-    .set({ ...body, updatedAt: new Date() })
-    .where(eq(category.id, id))
-    .returning({ id: category.id });
+  const { parentIds: requestedParentIds, ...values } = body;
+  const parentIds = [...new Set(requestedParentIds)];
+
+  if (parentIds.includes(id)) {
+    return c.json({ message: "A category cannot be its own parent" }, 400);
+  }
+  if (parentIds.length) {
+    const existingParents = await db
+      .select({ id: category.id })
+      .from(category)
+      .where(inArray(category.id, parentIds));
+    if (existingParents.length !== parentIds.length) {
+      return c.json({ message: "One or more parent categories do not exist" }, 400);
+    }
+  }
+
+  const links = await db.select().from(categoryParent);
+  const parentsByCategory = new Map<number, number[]>();
+  for (const link of links) {
+    if (link.categoryId === id) continue;
+    const parents = parentsByCategory.get(link.categoryId) ?? [];
+    parents.push(link.parentId);
+    parentsByCategory.set(link.categoryId, parents);
+  }
+  const reachesCategory = (startId: number) => {
+    const pending = [startId];
+    const visited = new Set<number>();
+    while (pending.length) {
+      const current = pending.pop()!;
+      if (current === id) return true;
+      if (visited.has(current)) continue;
+      visited.add(current);
+      pending.push(...(parentsByCategory.get(current) ?? []));
+    }
+    return false;
+  };
+  if (parentIds.some(reachesCategory)) {
+    return c.json({ message: "This parent selection would create a category cycle" }, 400);
+  }
+
+  const [updated] = await db.transaction(async (tx) => {
+    const updatedRows = await tx
+      .update(category)
+      .set({ ...values, updatedAt: new Date() })
+      .where(eq(category.id, id))
+      .returning({ id: category.id });
+    if (!updatedRows[0]) return updatedRows;
+    await tx.delete(categoryParent).where(eq(categoryParent.categoryId, id));
+    if (parentIds.length) {
+      await tx.insert(categoryParent).values(
+        parentIds.map((parentId) => ({ categoryId: id, parentId })),
+      );
+    }
+    return updatedRows;
+  });
 
   if (!updated) return c.json({ message: "Category not found" }, 404);
 
@@ -223,7 +334,7 @@ export const updateCatalogCategory: RouteHandler<
     with: { specificationTemplate: true },
   });
 
-  return c.json(serializeCategory(savedCategory!), 200);
+  return c.json(serializeCategory(savedCategory!, parentIds), 200);
 };
 
 export const deleteCatalogCategory: RouteHandler<

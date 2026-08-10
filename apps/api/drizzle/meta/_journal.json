@@ -50,6 +50,27 @@
       "when": 1786251600000,
       "tag": "0006_guest_user_carts",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1786260600000,
+      "tag": "0007_category_navigation_flag",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1786264200000,
+      "tag": "0008_multi_parent_categories",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1786364707716,
+      "tag": "0009_uneven_trish_tilby",
+      "breakpoints": true
     }
   ]
 }

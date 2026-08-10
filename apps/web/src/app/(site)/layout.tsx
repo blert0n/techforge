@@ -7,13 +7,9 @@ export default function SiteLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      style={{ display: "flex", flexDirection: "column", minHeight: "100vh" }}
-    >
+    <div className="flex min-h-screen flex-col">
       <Header />
-      <main
-        style={{ flex: 1, padding: "16px 32px 16px", fontFamily: "sans-serif" }}
-      >
+      <main className="flex-1 px-3 py-4 font-sans sm:px-4 md:px-8">
         {children}
       </main>
       <Footer />

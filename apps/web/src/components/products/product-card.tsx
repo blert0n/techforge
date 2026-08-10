@@ -1,18 +1,28 @@
 import Image from "next/image";
-import { Check, Heart, Plus, ShoppingCart, Star, StarHalf } from "lucide-react";
+import Link from "next/link";
+import {
+  Check,
+  Heart,
+  ImageIcon,
+  Plus,
+  ShoppingCart,
+  Star,
+  StarHalf,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 export type ProductCardData = {
+  slug?: string;
   brand: string;
   name: string;
   price: string;
   oldPrice?: string;
   reviews: number;
   badge?: string;
-  image: string;
+  image?: string;
   rating: number;
   specs?: string[];
-  stock?: "In Stock" | "Low Stock";
+  stock?: "In Stock" | "Low Stock" | "Out of Stock";
 };
 export function ProductCard({
   product,
@@ -22,10 +32,11 @@ export function ProductCard({
   variant?: "featured" | "listing";
 }) {
   const listing = variant === "listing";
+  const productHref = product.slug ? `/products/${product.slug}` : undefined;
   return (
     <article className="group relative flex h-full flex-col rounded-2xl border border-border bg-card p-4 shadow-sm transition-all hover:shadow-lg">
       {product.badge && (
-        <span className="absolute top-4 left-4 z-10 rounded bg-destructive px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-destructive-foreground">
+        <span className="absolute top-4 left-4 z-10 rounded bg-destructive px-2 py-1 text-[11px] font-semibold text-white uppercase tracking-wider text-destructive-foreground">
           {product.badge}
         </span>
       )}
@@ -38,30 +49,37 @@ export function ProductCard({
         <Heart />
         <span className="sr-only">Add {product.name} to wishlist</span>
       </Button>
-      <div className="mb-4 flex h-48 w-full items-center justify-center overflow-hidden rounded-xl p-4">
-        <Image
-          src={product.image}
-          alt={product.name}
-          width={300}
-          height={300}
-          className="h-full w-full rounded-lg object-contain transition-transform duration-300 group-hover:scale-105"
-        />
-      </div>
+      <ProductLink
+        href={productHref}
+        className="mb-4 flex h-48 w-full shrink-0 items-center justify-center overflow-hidden rounded-xl bg-muted/20 p-4"
+      >
+        {product.image ? (
+          <div className="relative size-40 shrink-0">
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="160px"
+              className="object-contain transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+        ) : (
+          <ImageIcon className="size-12 text-muted-foreground/50" />
+        )}
+      </ProductLink>
       <div className="flex flex-1 flex-col">
         <span className="mb-1 text-xs text-muted-foreground">
           {product.brand}
         </span>
-        <h3 className="mb-2 line-clamp-2 text-sm font-semibold transition-colors group-hover:text-primary">
+        <ProductLink
+          href={productHref}
+          className="mb-2 line-clamp-2 text-sm font-semibold transition-colors group-hover:text-primary"
+        >
           {product.name}
-        </h3>
-        {listing && product.specs && (
-          <div className="mb-2 space-y-1 text-xs text-muted-foreground">
-            {product.specs.map((spec) => (
-              <p key={spec}>{spec}</p>
-            ))}
-          </div>
-        )}
+        </ProductLink>
+
         <div className="mb-2 flex items-center gap-1 text-xs text-yellow-500">
+          {product.rating === 0 ? <Star className="size-3" /> : null}
           {Array.from({ length: Math.floor(product.rating) }).map(
             (_, index) => (
               <Star key={index} className="size-3 fill-current" />
@@ -88,7 +106,7 @@ export function ProductCard({
             </div>
             {listing && product.stock && (
               <span
-                className={`flex items-center gap-1 text-xs font-medium ${product.stock === "Low Stock" ? "text-destructive" : "text-emerald-600"}`}
+                className={`flex items-center gap-1 text-xs font-medium ${product.stock === "In Stock" ? "text-emerald-600" : "text-destructive"}`}
               >
                 {product.stock === "In Stock" && <Check className="size-3.5" />}
                 {product.stock}
@@ -98,7 +116,7 @@ export function ProductCard({
           {listing ? (
             <Button
               type="button"
-              variant={product.stock === "Low Stock" ? "outline" : "default"}
+              disabled={product.stock === "Out of Stock"}
               className="w-full"
             >
               <ShoppingCart />
@@ -113,5 +131,23 @@ export function ProductCard({
         </div>
       </div>
     </article>
+  );
+}
+
+function ProductLink({
+  href,
+  className,
+  children,
+}: {
+  href?: string;
+  className: string;
+  children: React.ReactNode;
+}) {
+  return href ? (
+    <Link href={href} className={className}>
+      {children}
+    </Link>
+  ) : (
+    <div className={className}>{children}</div>
   );
 }

@@ -29,10 +29,18 @@ export const categoryWithTemplateSchema = z.object({
   attributePrefix: z.string(),
   description: z.string().optional(),
   imageUrl: z.string().optional(),
-  parentId: z.number().int().nullable(),
+  displayInNav: z.boolean(),
+  parentIds: z.array(z.number().int().positive()),
   createdAt: z.string().datetime(),
   updatedAt: z.string().datetime(),
   specificationTemplate: specificationTemplateSchema.nullable(),
+});
+
+export const navigationCategorySchema = z.object({
+  id: z.number().int(),
+  name: z.string(),
+  slug: z.string(),
+  parentIds: z.array(z.number().int().positive()),
 });
 
 export const brandSchema = z.object({
@@ -53,6 +61,8 @@ export const updateCatalogCategorySchema = z.object({
   slug: z.string().trim().min(1).max(120),
   attributePrefix: z.string().trim().regex(/^[a-z][a-z0-9_]*$/),
   description: z.string().trim().nullable(),
+  displayInNav: z.boolean().default(false),
+  parentIds: z.array(z.number().int().positive()).default([]),
 });
 
 export const createCatalogCategorySchema = updateCatalogCategorySchema;

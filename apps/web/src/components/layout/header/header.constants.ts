@@ -1,27 +1,9 @@
 import { User, Heart } from "lucide-react";
 
-export const categories = [
-  {
-    value: "All Categories",
-    label: "All Categories",
-  },
-  {
-    value: "Desktops",
-    label: "Desktops",
-  },
-  {
-    value: "Laptops",
-    label: "Laptops",
-  },
-  {
-    value: "Components",
-    label: "Components",
-  },
-  {
-    value: "Accessories",
-    label: "Accessories",
-  },
-];
+export const allCategoriesOption = {
+  value: "all",
+  label: "All Categories",
+};
 
 export const utilityLinks = [
   {

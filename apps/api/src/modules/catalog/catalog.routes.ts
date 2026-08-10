@@ -1,4 +1,5 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
+import { createMiddleware } from "hono/factory";
 
 import type { AuthVariables } from "../../middleware/auth.middleware";
 import { requireRole } from "../../middleware/auth.middleware";
@@ -9,6 +10,7 @@ import {
   deleteCatalogCategory,
   listCatalogBrands,
   listCatalogCategories,
+  listNavigationCategories,
   updateCategorySpecificationTemplate,
   updateCatalogBrand,
   updateCatalogCategory,
@@ -20,6 +22,7 @@ import {
   createBrandSchema,
   createCatalogCategorySchema,
   messageSchema,
+  navigationCategorySchema,
   updateSpecificationTemplateSchema,
   updateBrandSchema,
   updateCatalogCategorySchema,
@@ -36,6 +39,23 @@ const forbiddenResponse = {
   content: { "application/json": { schema: messageSchema } },
   description: "Administrator access is required",
 };
+
+const catalogContext = createMiddleware<{ Variables: AuthVariables }>(
+  async (_c, next) => next(),
+);
+
+export const listNavigationCategoriesRoute = createRoute({
+  method: "get",
+  path: "/navigation-categories",
+  tags: ["Catalog"],
+  middleware: catalogContext,
+  responses: {
+    200: {
+      content: { "application/json": { schema: navigationCategorySchema.array() } },
+      description: "Categories displayed in storefront navigation",
+    },
+  },
+});
 
 export const listCatalogCategoriesRoute = createRoute({
   method: "get",
@@ -57,7 +77,7 @@ export const listCatalogCategoriesRoute = createRoute({
 export const createCatalogCategoryRoute = createRoute({
   method: "post", path: "/categories", tags: ["Catalog"], middleware: requireRole("admin"),
   request: { body: { content: { "application/json": { schema: createCatalogCategorySchema } } } },
-  responses: { 201: { content: { "application/json": { schema: categoryWithTemplateSchema } }, description: "Category created" }, 401: unauthorizedResponse, 403: forbiddenResponse },
+  responses: { 201: { content: { "application/json": { schema: categoryWithTemplateSchema } }, description: "Category created" }, 400: { content: { "application/json": { schema: messageSchema } }, description: "Invalid parent categories" }, 401: unauthorizedResponse, 403: forbiddenResponse },
 });
 
 export const listCatalogBrandsRoute = createRoute({
@@ -190,6 +210,7 @@ export const updateCatalogCategoryRoute = createRoute({
       content: { "application/json": { schema: categoryWithTemplateSchema } },
       description: "Category updated",
     },
+    400: { content: { "application/json": { schema: messageSchema } }, description: "Invalid parent categories or hierarchy cycle" },
     401: unauthorizedResponse,
     403: forbiddenResponse,
     404: { content: { "application/json": { schema: messageSchema } }, description: "Category not found" },
@@ -214,6 +235,7 @@ export const deleteCatalogCategoryRoute = createRoute({
   },
 });
 
+catalogRouter.openapi(listNavigationCategoriesRoute, listNavigationCategories);
 catalogRouter.openapi(listCatalogCategoriesRoute, listCatalogCategories);
 catalogRouter.openapi(createCatalogCategoryRoute, createCatalogCategory);
 catalogRouter.openapi(updateCatalogCategoryRoute, updateCatalogCategory);

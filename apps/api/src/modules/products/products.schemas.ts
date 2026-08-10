@@ -32,6 +32,61 @@ export const createCatalogProductSchema = z.object({
   attributeKeys: z.array(z.string()),
 });
 
+export const storefrontProductListQuerySchema = z.object({
+  category: z.string().trim().min(1).optional(),
+  search: z.string().trim().max(200).optional(),
+  categoryIds: z.string().trim().optional(),
+  minPrice: z.coerce.number().nonnegative().optional(),
+  maxPrice: z.coerce.number().nonnegative().optional(),
+  minRating: z.coerce.number().min(1).max(5).optional(),
+  specifications: z.string().trim().optional(),
+  sort: z.enum(["featured", "price-ascending", "price-descending"]).default("featured"),
+});
+
+export const storefrontProductSchema = z.object({
+  id: z.number().int(),
+  slug: z.string(),
+  name: z.string(),
+  brand: z.string(),
+  categoryId: z.number().int(),
+  price: z.number(),
+  discountPrice: z.number().nullable(),
+  stock: z.number().int().nonnegative(),
+  imageUrl: z.string().nullable(),
+  imageAltText: z.string().nullable(),
+  specifications: z.array(z.string()),
+  specificationValues: z.record(
+    z.string(),
+    z.union([z.string(), z.number(), z.boolean()]),
+  ),
+  rating: z.number().min(0).max(5),
+  reviewCount: z.number().int().nonnegative(),
+});
+
+export const storefrontProductListSchema = z.object({
+  category: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    slug: z.string(),
+    description: z.string().nullable(),
+    parents: z.array(z.object({ name: z.string(), slug: z.string() })),
+    children: z.array(z.object({
+      id: z.number().int(),
+      name: z.string(),
+      slug: z.string(),
+      categoryIds: z.array(z.number().int()),
+    })),
+  }).nullable(),
+  items: z.array(storefrontProductSchema),
+  specificationFilters: z.array(z.object({
+    key: z.string(),
+    label: z.string(),
+    unit: z.string().nullable(),
+    format: z.enum(["text", "number", "boolean"]),
+    options: z.array(z.object({ value: z.string(), label: z.string() })),
+  })),
+});
+
 export const adminProductListItemSchema = z.object({
   id: z.number().int(),
   name: z.string(),
@@ -96,6 +151,21 @@ export const productParamsSchema = z.object({
     param: { name: "id", in: "path" },
     example: "1",
   }),
+});
+
+export const productSlugParamsSchema = z.object({
+  slug: z.string().min(1),
+});
+
+export const storefrontProductDetailSchema = storefrontProductSchema.extend({
+  description: z.string(),
+  category: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    slug: z.string(),
+    specificationTemplate: z.object({ fields: z.array(z.any()) }).nullable(),
+  }),
+  images: z.array(z.object({ url: z.string(), altText: z.string().nullable() })),
 });
 
 export const messageSchema = z.object({ message: z.string() });

@@ -19,7 +19,7 @@ const adminProductsQueryKey = ["products", "admin"] as const;
 export function useProducts() {
   return useQuery({
     queryKey: productsQueryKey,
-    queryFn: getProducts,
+    queryFn: () => getProducts(),
   });
 }
 

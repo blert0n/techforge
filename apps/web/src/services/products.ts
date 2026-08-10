@@ -20,6 +20,35 @@ export type AdminProductFilters = NonNullable<
   paths["/api/products/admin"]["get"]["parameters"]["query"]
 >;
 
+export type StorefrontProductsResponse =
+  paths["/api/products"]["get"]["responses"][200]["content"]["application/json"];
+
+export type StorefrontProductFilters = NonNullable<
+  paths["/api/products"]["get"]["parameters"]["query"]
+>;
+
+export type StorefrontProduct = StorefrontProductsResponse["items"][number];
+
+export type StorefrontProductDetail = StorefrontProduct & {
+  description: string;
+  category: {
+    id: number;
+    name: string;
+    slug: string;
+    specificationTemplate: {
+      fields: Array<string | {
+        key: string;
+        label: string;
+        unit?: string;
+        group?: string;
+        order?: number;
+        format: "text" | "number" | "boolean";
+      }>;
+    } | null;
+  };
+  images: { url: string; altText: string | null }[];
+};
+
 function getErrorMessage(error: unknown, fallback: string) {
   if (
     typeof error === "object" &&
@@ -33,14 +62,24 @@ function getErrorMessage(error: unknown, fallback: string) {
   return fallback;
 }
 
-export async function getProducts() {
-  const { data, error } = await apiClient.GET("/api/products");
+export async function getProducts(filters: StorefrontProductFilters = {}) {
+  const { data, error } = await apiClient.GET("/api/products", {
+    params: { query: filters },
+  });
 
-  if (error) {
-    throw new Error("Failed to fetch products");
+  if (error || !data) {
+    return null;
   }
 
   return data;
+}
+
+export async function getStorefrontProduct(slug: string) {
+  const response = await fetch(`${apiBaseUrl}/api/products/by-slug/${encodeURIComponent(slug)}`, {
+    cache: "no-store",
+  });
+  if (!response.ok) return null;
+  return response.json() as Promise<StorefrontProductDetail>;
 }
 
 export async function createProduct(values: CreateProductInput) {

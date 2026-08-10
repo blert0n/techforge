@@ -1,25 +1,19 @@
 import { notFound } from "next/navigation";
 
-import ProductsPage from "@/components/products/single-products-page";
-
-const validCategories = [
-  "all-categories",
-  "components",
-  "desktops",
-  "laptops",
-  "accessories",
-];
+import ProductsPage from "@/components/products/products-grid";
+import { getProducts } from "@/services/products";
 
 export default async function CategoryPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ category: string }>;
+  searchParams: Promise<{ search?: string }>;
 }) {
   const { category } = await params;
+  const { search } = await searchParams;
+  const data = await getProducts({ category, search });
+  if (!data) notFound();
 
-  if (!validCategories.includes(category)) {
-    notFound();
-  }
-
-  return <ProductsPage />;
+  return <ProductsPage data={data} />;
 }

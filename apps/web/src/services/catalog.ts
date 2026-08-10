@@ -11,6 +11,15 @@ export type SpecificationTemplateField = NonNullable<
 export type CatalogBrand =
   paths["/api/catalog/brands"]["get"]["responses"][200]["content"]["application/json"][number];
 
+export type NavigationCategory =
+  paths["/api/catalog/navigation-categories"]["get"]["responses"][200]["content"]["application/json"][number];
+
+export async function getNavigationCategories() {
+  const { data, error } = await apiClient.GET("/api/catalog/navigation-categories");
+  if (error || !data) throw new Error("Failed to load navigation categories");
+  return data;
+}
+
 function getErrorMessage(error: unknown, fallback: string) {
   if (
     typeof error === "object" &&
