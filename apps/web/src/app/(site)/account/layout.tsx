@@ -14,13 +14,13 @@ export default function AccountLayout({
 }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, hasMounted } = useCurrentUser();
+  const { user, hasMounted, isPending } = useCurrentUser();
 
   useEffect(() => {
-    if (hasMounted && !user) router.replace("/sign-in");
-  }, [hasMounted, router, user]);
+    if (hasMounted && !isPending && !user) router.replace("/sign-in");
+  }, [hasMounted, isPending, router, user]);
 
-  if (!hasMounted || !user) return null;
+  if (!hasMounted || isPending || !user) return null;
 
   return (
     <div
