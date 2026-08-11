@@ -23,6 +23,7 @@ import {
   Package,
   PackageCheck,
   Pencil,
+  MessageSquare,
   Plus,
   Search,
   Trash2,
@@ -360,6 +361,20 @@ export default function AdminProductsPage() {
                     </td>
                     <td className="px-5 py-4">
                       <div className="flex justify-end">
+                        <Button
+                          aria-label={`View reviews for ${product.name}`}
+                          nativeButton={false}
+                          render={
+                            <Link
+                              href={`/admin/reviews?productId=${product.id}`}
+                            />
+                          }
+                          size="icon-sm"
+                          type="button"
+                          variant="ghost"
+                        >
+                          <MessageSquare />
+                        </Button>
                         <Button
                           aria-label={`Edit ${product.name}`}
                           nativeButton={false}

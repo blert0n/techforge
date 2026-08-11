@@ -16,6 +16,7 @@ import {
   Tags,
   Users,
   type LucideIcon,
+  Star,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -64,7 +65,11 @@ const adminNavigation: AdminNavigationGroup[] = [
         href: "/admin/orders",
         icon: Boxes,
         label: "Orders",
-        badge: "12",
+      },
+      {
+        href: "/admin/reviews",
+        icon: Star,
+        label: "Reviews",
       },
     ],
   },

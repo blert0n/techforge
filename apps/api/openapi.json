@@ -4779,6 +4779,25 @@
                         "type": "integer",
                         "minimum": 0
                       },
+                      "product": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "integer"
+                          },
+                          "name": {
+                            "type": "string"
+                          },
+                          "category": {
+                            "type": "string"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "name",
+                          "category"
+                        ]
+                      },
                       "author": {
                         "type": "object",
                         "properties": {
@@ -4816,6 +4835,7 @@
                       "body",
                       "helpfulUpvotes",
                       "helpfulDownvotes",
+                      "product",
                       "author",
                       "createdAt",
                       "updatedAt"
@@ -4902,6 +4922,25 @@
                       "type": "integer",
                       "minimum": 0
                     },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "category"
+                      ]
+                    },
                     "author": {
                       "type": "object",
                       "properties": {
@@ -4939,6 +4978,7 @@
                     "body",
                     "helpfulUpvotes",
                     "helpfulDownvotes",
+                    "product",
                     "author",
                     "createdAt",
                     "updatedAt"
@@ -5009,9 +5049,414 @@
         "tags": [
           "Reviews"
         ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 10
+            },
+            "required": false,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "required": false,
+            "name": "rating",
+            "in": "query"
+          }
+        ],
         "responses": {
           "200": {
             "description": "Reviews left by the current user",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "productId": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 5
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "helpfulUpvotes": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "helpfulDownvotes": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "product": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "category": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "category"
+                            ]
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "image": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "image"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "productId",
+                          "rating",
+                          "title",
+                          "body",
+                          "helpfulUpvotes",
+                          "helpfulDownvotes",
+                          "product",
+                          "author",
+                          "createdAt",
+                          "updatedAt"
+                        ]
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total",
+                        "totalPages"
+                      ]
+                    },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "averageRating": {
+                          "type": "number",
+                          "minimum": 0
+                        },
+                        "helpfulVotes": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "averageRating",
+                        "helpfulVotes"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "pagination",
+                    "stats"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is required",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/admin": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 5
+            },
+            "required": false,
+            "name": "rating",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 0,
+              "exclusiveMinimum": true
+            },
+            "required": false,
+            "name": "productId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Reviews for administration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string",
+                            "format": "uuid"
+                          },
+                          "productId": {
+                            "type": "integer"
+                          },
+                          "rating": {
+                            "type": "integer",
+                            "minimum": 1,
+                            "maximum": 5
+                          },
+                          "title": {
+                            "type": "string"
+                          },
+                          "body": {
+                            "type": "string"
+                          },
+                          "helpfulUpvotes": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "helpfulDownvotes": {
+                            "type": "integer",
+                            "minimum": 0
+                          },
+                          "product": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "integer"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "category": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "category"
+                            ]
+                          },
+                          "author": {
+                            "type": "object",
+                            "properties": {
+                              "id": {
+                                "type": "string"
+                              },
+                              "name": {
+                                "type": "string"
+                              },
+                              "image": {
+                                "type": "string",
+                                "nullable": true
+                              }
+                            },
+                            "required": [
+                              "id",
+                              "name",
+                              "image"
+                            ]
+                          },
+                          "createdAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "updatedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "productId",
+                          "rating",
+                          "title",
+                          "body",
+                          "helpfulUpvotes",
+                          "helpfulDownvotes",
+                          "product",
+                          "author",
+                          "createdAt",
+                          "updatedAt"
+                        ]
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total",
+                        "totalPages"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "pagination"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/reviews/pending-reviews": {
+      "get": {
+        "tags": [
+          "Reviews"
+        ],
+        "responses": {
+          "200": {
+            "description": "Paid-order products the current user has not reviewed",
             "content": {
               "application/json": {
                 "schema": {
@@ -5019,72 +5464,29 @@
                   "items": {
                     "type": "object",
                     "properties": {
-                      "id": {
-                        "type": "string",
-                        "format": "uuid"
-                      },
                       "productId": {
                         "type": "integer"
                       },
-                      "rating": {
-                        "type": "integer",
-                        "minimum": 1,
-                        "maximum": 5
-                      },
-                      "title": {
+                      "productName": {
                         "type": "string"
                       },
-                      "body": {
+                      "category": {
                         "type": "string"
                       },
-                      "helpfulUpvotes": {
-                        "type": "integer",
-                        "minimum": 0
+                      "orderNumber": {
+                        "type": "string"
                       },
-                      "helpfulDownvotes": {
-                        "type": "integer",
-                        "minimum": 0
-                      },
-                      "author": {
-                        "type": "object",
-                        "properties": {
-                          "id": {
-                            "type": "string"
-                          },
-                          "name": {
-                            "type": "string"
-                          },
-                          "image": {
-                            "type": "string",
-                            "nullable": true
-                          }
-                        },
-                        "required": [
-                          "id",
-                          "name",
-                          "image"
-                        ]
-                      },
-                      "createdAt": {
-                        "type": "string",
-                        "format": "date-time"
-                      },
-                      "updatedAt": {
+                      "placedAt": {
                         "type": "string",
                         "format": "date-time"
                       }
                     },
                     "required": [
-                      "id",
                       "productId",
-                      "rating",
-                      "title",
-                      "body",
-                      "helpfulUpvotes",
-                      "helpfulDownvotes",
-                      "author",
-                      "createdAt",
-                      "updatedAt"
+                      "productName",
+                      "category",
+                      "orderNumber",
+                      "placedAt"
                     ]
                   }
                 }
@@ -5163,6 +5565,25 @@
                       "type": "integer",
                       "minimum": 0
                     },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "category"
+                      ]
+                    },
                     "author": {
                       "type": "object",
                       "properties": {
@@ -5200,6 +5621,7 @@
                     "body",
                     "helpfulUpvotes",
                     "helpfulDownvotes",
+                    "product",
                     "author",
                     "createdAt",
                     "updatedAt"
@@ -5304,6 +5726,25 @@
                       "type": "integer",
                       "minimum": 0
                     },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "category"
+                      ]
+                    },
                     "author": {
                       "type": "object",
                       "properties": {
@@ -5341,6 +5782,7 @@
                     "body",
                     "helpfulUpvotes",
                     "helpfulDownvotes",
+                    "product",
                     "author",
                     "createdAt",
                     "updatedAt"
@@ -5569,6 +6011,25 @@
                       "type": "integer",
                       "minimum": 0
                     },
+                    "product": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer"
+                        },
+                        "name": {
+                          "type": "string"
+                        },
+                        "category": {
+                          "type": "string"
+                        }
+                      },
+                      "required": [
+                        "id",
+                        "name",
+                        "category"
+                      ]
+                    },
                     "author": {
                       "type": "object",
                       "properties": {
@@ -5606,6 +6067,7 @@
                     "body",
                     "helpfulUpvotes",
                     "helpfulDownvotes",
+                    "product",
                     "author",
                     "createdAt",
                     "updatedAt"
@@ -6180,6 +6642,10 @@
                                 "id": {
                                   "type": "string"
                                 },
+                                "productId": {
+                                  "type": "integer",
+                                  "nullable": true
+                                },
                                 "productName": {
                                   "type": "string"
                                 },
@@ -6201,6 +6667,7 @@
                               },
                               "required": [
                                 "id",
+                                "productId",
                                 "productName",
                                 "productSlug",
                                 "imageUrl",
@@ -6315,6 +6782,336 @@
           },
           "403": {
             "description": "Filtering another user's orders requires administrator access",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/admin": {
+      "get": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1
+            },
+            "required": false,
+            "name": "page",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 100,
+              "default": 20
+            },
+            "required": false,
+            "name": "pageSize",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "enum": [
+                "pending",
+                "processing",
+                "shipped",
+                "delivered",
+                "cancelled"
+              ]
+            },
+            "required": false,
+            "name": "status",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 50
+            },
+            "required": false,
+            "name": "paymentStatus",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "maxLength": 100
+            },
+            "required": false,
+            "name": "orderNumber",
+            "in": "query"
+          },
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1
+            },
+            "required": false,
+            "name": "userId",
+            "in": "query"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "All orders for administration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "items": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "orderNumber": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "processing",
+                              "shipped",
+                              "delivered",
+                              "cancelled"
+                            ]
+                          },
+                          "paymentStatus": {
+                            "type": "string"
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "total": {
+                            "type": "string"
+                          },
+                          "itemCount": {
+                            "type": "integer",
+                            "minimum": 0,
+                            "exclusiveMinimum": true
+                          },
+                          "placedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          },
+                          "items": {
+                            "type": "array",
+                            "items": {
+                              "type": "object",
+                              "properties": {
+                                "id": {
+                                  "type": "string"
+                                },
+                                "productId": {
+                                  "type": "integer",
+                                  "nullable": true
+                                },
+                                "productName": {
+                                  "type": "string"
+                                },
+                                "productSlug": {
+                                  "type": "string"
+                                },
+                                "imageUrl": {
+                                  "type": "string",
+                                  "nullable": true
+                                },
+                                "quantity": {
+                                  "type": "integer",
+                                  "minimum": 0,
+                                  "exclusiveMinimum": true
+                                },
+                                "lineTotal": {
+                                  "type": "string"
+                                }
+                              },
+                              "required": [
+                                "id",
+                                "productId",
+                                "productName",
+                                "productSlug",
+                                "imageUrl",
+                                "quantity",
+                                "lineTotal"
+                              ]
+                            }
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "orderNumber",
+                          "status",
+                          "paymentStatus",
+                          "currency",
+                          "total",
+                          "itemCount",
+                          "placedAt",
+                          "items"
+                        ]
+                      }
+                    },
+                    "pagination": {
+                      "type": "object",
+                      "properties": {
+                        "page": {
+                          "type": "integer"
+                        },
+                        "pageSize": {
+                          "type": "integer"
+                        },
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "totalPages": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "page",
+                        "pageSize",
+                        "total",
+                        "totalPages"
+                      ]
+                    },
+                    "stats": {
+                      "type": "object",
+                      "properties": {
+                        "total": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "pending": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "processing": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "shipped": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "delivered": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "cancelled": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "total",
+                        "pending",
+                        "processing",
+                        "shipped",
+                        "delivered",
+                        "cancelled"
+                      ]
+                    }
+                  },
+                  "required": [
+                    "items",
+                    "pagination",
+                    "stats"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/orders/admin/{orderNumber}/status": {
+      "patch": {
+        "tags": [
+          "Orders"
+        ],
+        "parameters": [
+          {
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "example": "TF-1786377017595-EAA9B9"
+            },
+            "required": true,
+            "name": "orderNumber",
+            "in": "path"
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "status": {
+                    "type": "string",
+                    "enum": [
+                      "pending",
+                      "processing",
+                      "shipped",
+                      "delivered",
+                      "cancelled"
+                    ]
+                  }
+                },
+                "required": [
+                  "status"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Order status updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "message": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "message"
+                  ]
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Order not found",
             "content": {
               "application/json": {
                 "schema": {
@@ -6452,6 +7249,10 @@
                           "id": {
                             "type": "string"
                           },
+                          "productId": {
+                            "type": "integer",
+                            "nullable": true
+                          },
                           "productName": {
                             "type": "string"
                           },
@@ -6479,6 +7280,7 @@
                         },
                         "required": [
                           "id",
+                          "productId",
                           "productName",
                           "productSlug",
                           "sku",
@@ -6654,6 +7456,103 @@
                   },
                   "required": [
                     "message"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/dashboard/admin": {
+      "get": {
+        "tags": [
+          "Dashboard"
+        ],
+        "responses": {
+          "200": {
+            "description": "Summary metrics and recent orders for administration",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "metrics": {
+                      "type": "object",
+                      "properties": {
+                        "totalRevenue": {
+                          "type": "string"
+                        },
+                        "totalOrders": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "activeCustomers": {
+                          "type": "integer",
+                          "minimum": 0
+                        },
+                        "lowStockItems": {
+                          "type": "integer",
+                          "minimum": 0
+                        }
+                      },
+                      "required": [
+                        "totalRevenue",
+                        "totalOrders",
+                        "activeCustomers",
+                        "lowStockItems"
+                      ]
+                    },
+                    "recentOrders": {
+                      "type": "array",
+                      "items": {
+                        "type": "object",
+                        "properties": {
+                          "id": {
+                            "type": "string"
+                          },
+                          "orderNumber": {
+                            "type": "string"
+                          },
+                          "customerName": {
+                            "type": "string"
+                          },
+                          "status": {
+                            "type": "string",
+                            "enum": [
+                              "pending",
+                              "processing",
+                              "shipped",
+                              "delivered",
+                              "cancelled"
+                            ]
+                          },
+                          "currency": {
+                            "type": "string"
+                          },
+                          "total": {
+                            "type": "string"
+                          },
+                          "placedAt": {
+                            "type": "string",
+                            "format": "date-time"
+                          }
+                        },
+                        "required": [
+                          "id",
+                          "orderNumber",
+                          "customerName",
+                          "status",
+                          "currency",
+                          "total",
+                          "placedAt"
+                        ]
+                      }
+                    }
+                  },
+                  "required": [
+                    "metrics",
+                    "recentOrders"
                   ]
                 }
               }

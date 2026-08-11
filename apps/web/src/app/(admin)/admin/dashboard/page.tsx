@@ -1,92 +1,78 @@
+"use client";
+
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { useAdminDashboard } from "@/hooks/use-dashboard";
 import {
   AlertTriangle,
   ArrowRight,
   CircleDollarSign,
-  Download,
   MoreHorizontal,
   ShoppingCart,
-  TrendingUp,
   Users,
 } from "lucide-react";
 import Link from "next/link";
 
-const metrics = [
-  {
-    label: "Total Revenue",
-    value: "$124,563.00",
-    change: "+12.5%",
-    icon: CircleDollarSign,
-    iconClassName: "bg-primary/10 text-primary",
-  },
-  {
-    label: "Total Orders",
-    value: "1,234",
-    change: "+8.2%",
-    icon: ShoppingCart,
-    iconClassName: "bg-blue-500/10 text-blue-600",
-  },
-  {
-    label: "Active Customers",
-    value: "8,432",
-    change: "+14.1%",
-    icon: Users,
-    iconClassName: "bg-violet-500/10 text-violet-600",
-  },
+const currencyFormatter = new Intl.NumberFormat("en-US", {
+  style: "currency",
+  currency: "USD",
+});
+
+const avatarClassNames = [
+  "bg-primary/15 text-primary",
+  "bg-violet-100 text-violet-700",
+  "bg-orange-100 text-orange-700",
+  "bg-pink-100 text-pink-700",
 ];
 
-const orders = [
-  {
-    id: "#ORD-0921",
-    customer: "Alex Smith",
-    initials: "AS",
-    date: "Today, 10:45 AM",
-    total: "$1,262.58",
-    status: "Processing",
-    avatarClassName: "bg-primary/15 text-primary",
-    statusClassName: "border-blue-200 bg-blue-100 text-blue-800",
-  },
-  {
-    id: "#ORD-0920",
-    customer: "Jane Doe",
-    initials: "JD",
-    date: "Today, 09:12 AM",
-    total: "$450.00",
-    status: "Shipped",
-    avatarClassName: "bg-violet-100 text-violet-700",
-    statusClassName: "border-emerald-200 bg-emerald-100 text-emerald-800",
-  },
-  {
-    id: "#ORD-0919",
-    customer: "Michael Ross",
-    initials: "MR",
-    date: "Yesterday, 2:30 PM",
-    total: "$2,199.99",
-    status: "Delivered",
-    avatarClassName: "bg-orange-100 text-orange-700",
-    statusClassName: "border-emerald-200 bg-emerald-100 text-emerald-800",
-  },
-  {
-    id: "#ORD-0918",
-    customer: "Sarah Jenkins",
-    initials: "SJ",
-    date: "Yesterday, 11:20 AM",
-    total: "$89.50",
-    status: "Pending",
-    avatarClassName: "bg-pink-100 text-pink-700",
-    statusClassName: "border-amber-200 bg-amber-100 text-amber-800",
-  },
-];
+const statusClassNames = {
+  pending: "border-amber-200 bg-amber-100 text-amber-800",
+  processing: "border-blue-200 bg-blue-100 text-blue-800",
+  shipped: "border-violet-200 bg-violet-100 text-violet-800",
+  delivered: "border-emerald-200 bg-emerald-100 text-emerald-800",
+  cancelled: "border-destructive/30 bg-destructive/10 text-destructive",
+};
+
+function getInitials(name: string) {
+  return name
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join("")
+    .toUpperCase();
+}
 
 export default function AdminDashboardPage() {
+  const { data } = useAdminDashboard();
+  const metrics = [
+    {
+      label: "Total Revenue",
+      value: currencyFormatter.format(Number(data?.metrics.totalRevenue ?? 0)),
+      icon: CircleDollarSign,
+      href: "/admin/orders",
+      linkLabel: "Review revenue",
+      iconClassName: "bg-primary/10 text-primary",
+    },
+    {
+      label: "Total Orders",
+      value: (data?.metrics.totalOrders ?? 0).toLocaleString(),
+      icon: ShoppingCart,
+      href: "/admin/orders",
+      linkLabel: "Review orders",
+      iconClassName: "bg-blue-500/10 text-blue-600",
+    },
+    {
+      label: "Active Customers",
+      value: (data?.metrics.activeCustomers ?? 0).toLocaleString(),
+      icon: Users,
+      href: "/admin/customers",
+      linkLabel: "Review customers",
+      iconClassName: "bg-violet-500/10 text-violet-600",
+    },
+  ];
+  const orders = data?.recentOrders ?? [];
+
   return (
     <div className="flex min-w-0 flex-1 flex-col gap-6">
       <header className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
@@ -97,23 +83,6 @@ export default function AdminDashboardPage() {
           <p className="text-sm text-muted-foreground">
             Monitor your store&apos;s performance and activity.
           </p>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Select defaultValue="30-days">
-            <SelectTrigger className="h-9 min-w-32 bg-card">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="7-days">Last 7 days</SelectItem>
-              <SelectItem value="30-days">Last 30 days</SelectItem>
-              <SelectItem value="year">This year</SelectItem>
-            </SelectContent>
-          </Select>
-          <Button size="lg">
-            <Download />
-            Export
-          </Button>
         </div>
       </header>
 
@@ -144,15 +113,12 @@ export default function AdminDashboardPage() {
                   <Icon className="size-5" />
                 </span>
               </div>
-              <div className="mt-auto flex items-center gap-2 text-sm">
-                <span className="flex items-center gap-1 font-medium text-emerald-600">
-                  <TrendingUp className="size-4" />
-                  {metric.change}
-                </span>
-                <span className="text-xs text-muted-foreground">
-                  vs last period
-                </span>
-              </div>
+              <Link
+                href={metric.href}
+                className="mt-auto flex items-center gap-1 text-sm font-medium text-primary hover:underline"
+              >
+                {metric.linkLabel} <ArrowRight className="size-3.5" />
+              </Link>
             </article>
           );
         })}
@@ -163,7 +129,9 @@ export default function AdminDashboardPage() {
               <p className="text-sm font-medium text-muted-foreground">
                 Low Stock Items
               </p>
-              <p className="mt-1 text-2xl font-bold text-foreground">24</p>
+              <p className="mt-1 text-2xl font-bold text-foreground">
+                {data?.metrics.lowStockItems ?? 0}
+              </p>
             </div>
             <span className="flex size-10 items-center justify-center rounded-full bg-destructive/10 text-destructive">
               <AlertTriangle className="size-5" />
@@ -201,38 +169,44 @@ export default function AdminDashboardPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-border">
-              {orders.map((order) => (
+              {orders.map((order, index) => (
                 <tr
                   key={order.id}
                   className="transition-colors hover:bg-muted/30"
                 >
                   <td className="whitespace-nowrap px-6 py-4 font-medium text-foreground">
-                    {order.id}
+                    {order.orderNumber}
                   </td>
                   <td className="px-6 py-4 text-foreground">
                     <div className="flex items-center gap-2">
                       <span
-                        className={`flex size-6 items-center justify-center rounded-full text-xs font-bold ${order.avatarClassName}`}
+                        className={`flex size-6 items-center justify-center rounded-full text-xs font-bold ${avatarClassNames[index % avatarClassNames.length]}`}
                       >
-                        {order.initials}
+                        {getInitials(order.customerName)}
                       </span>
-                      {order.customer}
+                      {order.customerName}
                     </div>
                   </td>
                   <td className="whitespace-nowrap px-6 py-4 text-muted-foreground">
-                    {order.date}
+                    {new Date(order.placedAt).toLocaleString()}
                   </td>
                   <td className="px-6 py-4 font-medium text-foreground">
-                    {order.total}
+                    {new Intl.NumberFormat("en-US", {
+                      style: "currency",
+                      currency: order.currency,
+                    }).format(Number(order.total))}
                   </td>
                   <td className="px-6 py-4">
-                    <Badge variant="outline" className={order.statusClassName}>
+                    <Badge
+                      variant="outline"
+                      className={statusClassNames[order.status]}
+                    >
                       {order.status}
                     </Badge>
                   </td>
                   <td className="px-6 py-4 text-right">
                     <Button
-                      aria-label={`Actions for ${order.id}`}
+                      aria-label={`Actions for ${order.orderNumber}`}
                       size="icon-sm"
                       variant="ghost"
                     >

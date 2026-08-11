@@ -51,6 +51,7 @@ export default function ProductDetailsPage({
       </section>
 
       <ProductDetailTabs
+        productId={product.id}
         specifications={specifications}
         description={product.description}
       />

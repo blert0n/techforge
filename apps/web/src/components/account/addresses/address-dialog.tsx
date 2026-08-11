@@ -18,6 +18,62 @@ const types: { value: AddressType; icon: typeof House }[] = [
   { value: "Work", icon: BriefcaseBusiness },
   { value: "Other", icon: Package },
 ];
+const countries = [
+  "Albania",
+  "Australia",
+  "Austria",
+  "Belgium",
+  "Brazil",
+  "Bulgaria",
+  "Canada",
+  "Chile",
+  "China",
+  "Colombia",
+  "Croatia",
+  "Cyprus",
+  "Czechia",
+  "Denmark",
+  "Estonia",
+  "Finland",
+  "France",
+  "Germany",
+  "Greece",
+  "Hong Kong",
+  "Hungary",
+  "India",
+  "Indonesia",
+  "Ireland",
+  "Israel",
+  "Italy",
+  "Japan",
+  "Kosova",
+  "Latvia",
+  "Lithuania",
+  "Luxembourg",
+  "Malaysia",
+  "Mexico",
+  "Netherlands",
+  "New Zealand",
+  "Norway",
+  "Philippines",
+  "Poland",
+  "Portugal",
+  "Romania",
+  "Singapore",
+  "Slovakia",
+  "Slovenia",
+  "South Africa",
+  "South Korea",
+  "Spain",
+  "Sweden",
+  "Switzerland",
+  "Thailand",
+  "Turkey",
+  "United Arab Emirates",
+  "United Kingdom",
+  "United States",
+  "Vietnam",
+];
 export function AddressDialog({
   address,
   onClose,
@@ -151,13 +207,11 @@ export function AddressDialog({
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="United States">United States</SelectItem>
-                    <SelectItem value="Canada">Canada</SelectItem>
-                    <SelectItem value="United Kingdom">
-                      United Kingdom
-                    </SelectItem>
-                    <SelectItem value="Germany">Germany</SelectItem>
-                    <SelectItem value="Australia">Australia</SelectItem>
+                    {countries.map((country) => (
+                      <SelectItem key={country} value={country}>
+                        {country}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               )}

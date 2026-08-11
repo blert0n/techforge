@@ -3,7 +3,12 @@ import { and, count, desc, eq, ilike, inArray, or } from "drizzle-orm";
 
 import { db } from "../../db/client";
 import { order, orderItem } from "../../db/schema";
-import type { getMyOrderRoute, getMyOrdersRoute } from "./orders.routes";
+import type {
+  getAdminOrdersRoute,
+  getMyOrderRoute,
+  getMyOrdersRoute,
+  updateOrderStatusRoute,
+} from "./orders.routes";
 
 export const getMyOrders: RouteHandler<typeof getMyOrdersRoute> = async (c) => {
   const user = c.get("user");
@@ -78,6 +83,7 @@ export const getMyOrders: RouteHandler<typeof getMyOrdersRoute> = async (c) => {
         placedAt: record.placedAt.toISOString(),
         items: record.items.map((item) => ({
           id: item.id,
+          productId: item.productId,
           productName: item.productName,
           productSlug: item.productSlug,
           imageUrl: item.imageUrl,
@@ -130,6 +136,7 @@ export const getMyOrder: RouteHandler<typeof getMyOrderRoute> = async (c) => {
       },
       items: record.items.map((item) => ({
         id: item.id,
+        productId: item.productId,
         productName: item.productName,
         productSlug: item.productSlug,
         sku: item.sku,
@@ -141,4 +148,80 @@ export const getMyOrder: RouteHandler<typeof getMyOrderRoute> = async (c) => {
     },
     200,
   );
+};
+
+export const getAdminOrders: RouteHandler<typeof getAdminOrdersRoute> = async (
+  c,
+) => {
+  const { page, pageSize, status, paymentStatus, orderNumber, userId } =
+    c.req.valid("query");
+  const where = and(
+    ...(status ? [eq(order.status, status)] : []),
+    ...(paymentStatus ? [eq(order.paymentStatus, paymentStatus)] : []),
+    ...(orderNumber ? [ilike(order.orderNumber, `%${orderNumber}%`)] : []),
+    ...(userId ? [eq(order.userId, userId)] : []),
+  );
+  const [records, [{ total }]] = await Promise.all([
+    db.query.order.findMany({
+      where,
+      orderBy: [desc(order.placedAt)],
+      limit: pageSize,
+      offset: (page - 1) * pageSize,
+      with: { items: true },
+    }),
+    db.select({ total: count() }).from(order).where(where),
+  ]);
+  return c.json(
+    {
+      items: records.map((record) => ({
+        id: record.id,
+        orderNumber: record.orderNumber,
+        status: record.status as
+          "pending" | "processing" | "shipped" | "delivered" | "cancelled",
+        paymentStatus: record.paymentStatus,
+        currency: record.currency,
+        total: record.total,
+        itemCount: record.items.reduce((sum, item) => sum + item.quantity, 0),
+        placedAt: record.placedAt.toISOString(),
+        items: record.items.map((item) => ({
+          id: item.id,
+          productId: item.productId,
+          productName: item.productName,
+          productSlug: item.productSlug,
+          imageUrl: item.imageUrl,
+          quantity: item.quantity,
+          lineTotal: item.lineTotal,
+        })),
+      })),
+      pagination: {
+        page,
+        pageSize,
+        total,
+        totalPages: Math.ceil(total / pageSize),
+      },
+      stats: {
+        total: 0,
+        pending: 0,
+        processing: 0,
+        shipped: 0,
+        delivered: 0,
+        cancelled: 0,
+      },
+    },
+    200,
+  );
+};
+
+export const updateOrderStatus: RouteHandler<
+  typeof updateOrderStatusRoute
+> = async (c) => {
+  const { orderNumber } = c.req.valid("param");
+  const { status } = c.req.valid("json");
+  const [updated] = await db
+    .update(order)
+    .set({ status })
+    .where(eq(order.orderNumber, orderNumber))
+    .returning();
+  if (!updated) return c.json({ message: "Order not found" }, 404);
+  return c.json({ message: "Order status updated" }, 200);
 };

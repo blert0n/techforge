@@ -2267,6 +2267,11 @@ export interface paths {
                             body: string;
                             helpfulUpvotes: number;
                             helpfulDownvotes: number;
+                            product: {
+                                id: number;
+                                name: string;
+                                category: string;
+                            };
                             author: {
                                 id: string;
                                 name: string;
@@ -2315,6 +2320,11 @@ export interface paths {
                             body: string;
                             helpfulUpvotes: number;
                             helpfulDownvotes: number;
+                            product: {
+                                id: number;
+                                name: string;
+                                category: string;
+                            };
                             author: {
                                 id: string;
                                 name: string;
@@ -2377,7 +2387,11 @@ export interface paths {
         };
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    rating?: number;
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -2391,23 +2405,165 @@ export interface paths {
                     };
                     content: {
                         "application/json": {
-                            /** Format: uuid */
-                            id: string;
-                            productId: number;
-                            rating: number;
-                            title: string;
-                            body: string;
-                            helpfulUpvotes: number;
-                            helpfulDownvotes: number;
-                            author: {
+                            items: {
+                                /** Format: uuid */
                                 id: string;
-                                name: string;
-                                image: string | null;
+                                productId: number;
+                                rating: number;
+                                title: string;
+                                body: string;
+                                helpfulUpvotes: number;
+                                helpfulDownvotes: number;
+                                product: {
+                                    id: number;
+                                    name: string;
+                                    category: string;
+                                };
+                                author: {
+                                    id: string;
+                                    name: string;
+                                    image: string | null;
+                                };
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            }[];
+                            pagination: {
+                                page: number;
+                                pageSize: number;
+                                total: number;
+                                totalPages: number;
                             };
+                            stats: {
+                                total: number;
+                                averageRating: number;
+                                helpfulVotes: number;
+                            };
+                        };
+                    };
+                };
+                /** @description Authentication is required */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    rating?: number;
+                    productId?: number;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Reviews for administration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                /** Format: uuid */
+                                id: string;
+                                productId: number;
+                                rating: number;
+                                title: string;
+                                body: string;
+                                helpfulUpvotes: number;
+                                helpfulDownvotes: number;
+                                product: {
+                                    id: number;
+                                    name: string;
+                                    category: string;
+                                };
+                                author: {
+                                    id: string;
+                                    name: string;
+                                    image: string | null;
+                                };
+                                /** Format: date-time */
+                                createdAt: string;
+                                /** Format: date-time */
+                                updatedAt: string;
+                            }[];
+                            pagination: {
+                                page: number;
+                                pageSize: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/reviews/pending-reviews": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Paid-order products the current user has not reviewed */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            productId: number;
+                            productName: string;
+                            category: string;
+                            orderNumber: string;
                             /** Format: date-time */
-                            createdAt: string;
-                            /** Format: date-time */
-                            updatedAt: string;
+                            placedAt: string;
                         }[];
                     };
                 };
@@ -2465,6 +2621,11 @@ export interface paths {
                             body: string;
                             helpfulUpvotes: number;
                             helpfulDownvotes: number;
+                            product: {
+                                id: number;
+                                name: string;
+                                category: string;
+                            };
                             author: {
                                 id: string;
                                 name: string;
@@ -2585,6 +2746,11 @@ export interface paths {
                             body: string;
                             helpfulUpvotes: number;
                             helpfulDownvotes: number;
+                            product: {
+                                id: number;
+                                name: string;
+                                category: string;
+                            };
                             author: {
                                 id: string;
                                 name: string;
@@ -2676,6 +2842,11 @@ export interface paths {
                             body: string;
                             helpfulUpvotes: number;
                             helpfulDownvotes: number;
+                            product: {
+                                id: number;
+                                name: string;
+                                category: string;
+                            };
                             author: {
                                 id: string;
                                 name: string;
@@ -2978,6 +3149,7 @@ export interface paths {
                                 placedAt: string;
                                 items: {
                                     id: string;
+                                    productId: number | null;
                                     productName: string;
                                     productSlug: string;
                                     imageUrl: string | null;
@@ -3034,6 +3206,141 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/orders/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: {
+                    page?: number;
+                    pageSize?: number;
+                    status?: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                    paymentStatus?: string;
+                    orderNumber?: string;
+                    userId?: string;
+                };
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description All orders for administration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            items: {
+                                id: string;
+                                orderNumber: string;
+                                /** @enum {string} */
+                                status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                                paymentStatus: string;
+                                currency: string;
+                                total: string;
+                                itemCount: number;
+                                /** Format: date-time */
+                                placedAt: string;
+                                items: {
+                                    id: string;
+                                    productId: number | null;
+                                    productName: string;
+                                    productSlug: string;
+                                    imageUrl: string | null;
+                                    quantity: number;
+                                    lineTotal: string;
+                                }[];
+                            }[];
+                            pagination: {
+                                page: number;
+                                pageSize: number;
+                                total: number;
+                                totalPages: number;
+                            };
+                            stats: {
+                                total: number;
+                                pending: number;
+                                processing: number;
+                                shipped: number;
+                                delivered: number;
+                                cancelled: number;
+                            };
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/orders/admin/{orderNumber}/status": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    orderNumber: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: {
+                content: {
+                    "application/json": {
+                        /** @enum {string} */
+                        status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                    };
+                };
+            };
+            responses: {
+                /** @description Order status updated */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+                /** @description Order not found */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message: string;
+                        };
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
     "/api/orders/{orderNumber}": {
         parameters: {
             query?: never;
@@ -3085,6 +3392,7 @@ export interface paths {
                             };
                             items: {
                                 id: string;
+                                productId: number | null;
                                 productName: string;
                                 productSlug: string;
                                 sku: string;
@@ -3210,6 +3518,59 @@ export interface paths {
                 };
             };
         };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/dashboard/admin": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description Summary metrics and recent orders for administration */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            metrics: {
+                                totalRevenue: string;
+                                totalOrders: number;
+                                activeCustomers: number;
+                                lowStockItems: number;
+                            };
+                            recentOrders: {
+                                id: string;
+                                orderNumber: string;
+                                customerName: string;
+                                /** @enum {string} */
+                                status: "pending" | "processing" | "shipped" | "delivered" | "cancelled";
+                                currency: string;
+                                total: string;
+                                /** Format: date-time */
+                                placedAt: string;
+                            }[];
+                        };
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;

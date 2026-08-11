@@ -1,20 +1,22 @@
-import { Edit3, ThumbsUp, Trash2 } from "lucide-react";
+import { Edit3, Package, ThumbsUp, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { StarRating } from "./star-rating";
 import type { Review } from "./types";
+
 export function ReviewCard({
   review,
   onEdit,
+  onDelete,
 }: {
   review: Review;
   onEdit: (review: Review) => void;
+  onDelete: (id: string) => void;
 }) {
-  const Icon = review.icon;
   return (
     <article className="p-6">
       <div className="flex gap-4">
         <div className="grid size-16 shrink-0 place-items-center rounded-xl border border-border bg-muted text-muted-foreground">
-          <Icon className="size-6" />
+          <Package className="size-6" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex justify-between gap-3">
@@ -37,6 +39,7 @@ export function ReviewCard({
                 variant="outline"
                 size="icon-sm"
                 className="text-destructive"
+                onClick={() => onDelete(review.id)}
               >
                 <Trash2 />
                 <span className="sr-only">Delete review</span>
@@ -47,7 +50,12 @@ export function ReviewCard({
             <StarRating rating={review.rating} />
             <b className="text-xs">{review.rating}.0</b>
             <span className="text-xs text-muted-foreground">
-              · {review.date}
+              ·{" "}
+              {review.date.toLocaleDateString(undefined, {
+                month: "long",
+                day: "numeric",
+                year: "numeric",
+              })}
             </span>
             <span className="rounded-full bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold uppercase text-emerald-600">
               Verified purchase
@@ -57,16 +65,6 @@ export function ReviewCard({
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
             {review.body}
           </p>
-          <div className="mt-3 flex flex-wrap gap-2">
-            {review.tags.map((tag) => (
-              <span
-                key={tag}
-                className="rounded-md bg-muted px-2 py-1 text-xs text-muted-foreground"
-              >
-                {tag}
-              </span>
-            ))}
-          </div>
           <div className="mt-4 flex gap-3 border-t border-border/60 pt-4 text-xs text-muted-foreground">
             <span>Was this helpful?</span>
             <span className="flex items-center gap-1 text-emerald-600">

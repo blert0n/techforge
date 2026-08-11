@@ -1,20 +1,19 @@
-import type { LucideIcon } from "lucide-react";
-
 export type Review = {
-  id: number;
+  id: string;
+  productId: number;
   category: string;
   product: string;
   title: string;
   body: string;
   rating: number;
-  date: string;
+  date: Date;
   helpful: number;
-  tags: string[];
-  icon: LucideIcon;
 };
+
 export type PendingReview = {
+  productId: number;
   category: string;
   product: string;
-  details: string;
-  icon: LucideIcon;
+  purchasedAt: string;
+  orderNumber: string;
 };

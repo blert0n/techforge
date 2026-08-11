@@ -1,5 +1,11 @@
 import { PenLine, Star } from "lucide-react";
-export function ReviewsHeader() {
+export function ReviewsHeader({
+  total,
+  average,
+}: {
+  total: number;
+  average: number;
+}) {
   return (
     <header className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
       <div>
@@ -10,8 +16,7 @@ export function ReviewsHeader() {
         </p>
       </div>
       <div className="flex gap-3">
-        <Metric icon={Star} value="4.6" label="avg rating" />
-        <Metric icon={PenLine} value="8" label="total reviews" />
+        <Metric icon={PenLine} value={String(total)} label="Total Reviews" />
       </div>
     </header>
   );

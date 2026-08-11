@@ -7,20 +7,36 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { StarRating } from "./star-rating";
 import { reviewFormSchema, type ReviewFormValues } from "./review-schema";
+import { useCreateReview, useUpdateReview } from "@/hooks/use-reviews";
 export function ReviewDialog({
   product,
+  review,
   onClose,
 }: {
-  product: string;
+  product: { id: number; name: string } | string;
+  review?: { id: string; rating: number; title: string; body: string };
   onClose: () => void;
 }) {
   const { register, handleSubmit, watch, setValue } = useForm<ReviewFormValues>(
     {
       resolver: zodResolver(reviewFormSchema),
-      defaultValues: { rating: 0, title: "", body: "" },
+      defaultValues: {
+        rating: review?.rating ?? 0,
+        title: review?.title ?? "",
+        body: review?.body ?? "",
+      },
     },
   );
+  const createReview = useCreateReview();
+  const updateReview = useUpdateReview();
   const rating = watch("rating");
+  const productName = typeof product === "string" ? product : product.name;
+  const submit = async (values: ReviewFormValues) => {
+    if (review) await updateReview.mutateAsync({ id: review.id, values });
+    else if (typeof product !== "string")
+      await createReview.mutateAsync({ productId: product.id, ...values });
+    onClose();
+  };
   return (
     <div className="fixed inset-0 z-50 grid place-items-center p-4">
       <Button
@@ -30,12 +46,14 @@ export function ReviewDialog({
         onClick={onClose}
       />
       <form
-        onSubmit={handleSubmit(onClose)}
+        onSubmit={handleSubmit(submit)}
         className="relative w-full max-w-lg rounded-2xl bg-card shadow-2xl"
       >
         <header className="border-b border-border p-6">
-          <h2 className="text-lg font-bold uppercase">Write a Review</h2>
-          <p className="text-sm text-muted-foreground">{product}</p>
+          <h2 className="text-lg font-bold uppercase">
+            {review ? "Edit Review" : "Write a Review"}
+          </h2>
+          <p className="text-sm text-muted-foreground">{productName}</p>
         </header>
         <div className="space-y-4 p-6">
           <Label>Overall rating</Label>
@@ -60,7 +78,13 @@ export function ReviewDialog({
           >
             Cancel
           </Button>
-          <Button type="submit" className="flex-1" disabled={!rating}>
+          <Button
+            type="submit"
+            className="flex-1"
+            disabled={
+              !rating || createReview.isPending || updateReview.isPending
+            }
+          >
             Submit review
           </Button>
         </footer>

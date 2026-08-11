@@ -14,6 +14,19 @@ export const reviewListQuerySchema = z.object({
   productId: z.coerce.number().int().positive(),
 });
 
+export const myReviewListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(10),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+});
+
+export const adminReviewListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
+  productId: z.coerce.number().int().positive().optional(),
+});
+
 export const createReviewSchema = z.object({
   productId: z.number().int().positive(),
   rating: z.number().int().min(1).max(5),
@@ -41,6 +54,11 @@ export const reviewSchema = z.object({
   body: z.string(),
   helpfulUpvotes: z.number().int().nonnegative(),
   helpfulDownvotes: z.number().int().nonnegative(),
+  product: z.object({
+    id: z.number().int(),
+    name: z.string(),
+    category: z.string(),
+  }),
   author: z.object({
     id: z.string(),
     name: z.string(),
@@ -51,3 +69,36 @@ export const reviewSchema = z.object({
 });
 
 export const reviewMessageSchema = z.object({ message: z.string() });
+
+export const myReviewsSchema = z.object({
+  items: z.array(reviewSchema),
+  pagination: z.object({
+    page: z.number().int(),
+    pageSize: z.number().int(),
+    total: z.number().int().nonnegative(),
+    totalPages: z.number().int().nonnegative(),
+  }),
+  stats: z.object({
+    total: z.number().int().nonnegative(),
+    averageRating: z.number().nonnegative(),
+    helpfulVotes: z.number().int().nonnegative(),
+  }),
+});
+
+export const adminReviewsSchema = z.object({
+  items: z.array(reviewSchema),
+  pagination: z.object({
+    page: z.number().int(),
+    pageSize: z.number().int(),
+    total: z.number().int().nonnegative(),
+    totalPages: z.number().int().nonnegative(),
+  }),
+});
+
+export const pendingReviewProductSchema = z.object({
+  productId: z.number().int(),
+  productName: z.string(),
+  category: z.string(),
+  orderNumber: z.string(),
+  placedAt: z.string().datetime(),
+});

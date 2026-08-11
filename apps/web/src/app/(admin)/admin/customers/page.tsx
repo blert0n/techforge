@@ -46,10 +46,12 @@ import {
   Pencil,
   Plus,
   Search,
+  ShoppingBag,
   Trash2,
   UserRoundCog,
 } from "lucide-react";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import Link from "next/link";
 import { toast } from "sonner";
 
 type ManagedUser = {
@@ -407,6 +409,18 @@ export default function CustomersPage() {
                     </TableCell>
                     <TableCell className="px-5">
                       <div className="flex justify-end gap-1">
+                        <Button
+                          nativeButton={false}
+                          render={
+                            <Link href={`/admin/orders?userId=${user.id}`} />
+                          }
+                          size="icon-sm"
+                          title="View orders"
+                          type="button"
+                          variant="ghost"
+                        >
+                          <ShoppingBag />
+                        </Button>
                         <Button
                           className="cursor-pointer transition-transform hover:scale-110 disabled:cursor-not-allowed disabled:hover:scale-100"
                           disabled={pending}

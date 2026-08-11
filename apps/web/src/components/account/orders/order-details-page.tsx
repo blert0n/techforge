@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { ArrowLeft, CircleCheck, MapPin, Package, Receipt } from "lucide-react";
 import { useMyOrder } from "@/hooks/use-orders";
+import { useUpdateOrderStatus } from "@/hooks/use-orders";
+import { Button } from "@/components/ui/button";
 
 function formatCurrency(value: string, currency: string) {
   return new Intl.NumberFormat(undefined, {
@@ -11,8 +13,17 @@ function formatCurrency(value: string, currency: string) {
   }).format(Number(value));
 }
 
-export default function OrderDetailsPage({ orderId }: { orderId: string }) {
+export default function OrderDetailsPage({
+  orderId,
+  backHref = "/account/orders",
+  canUpdateStatus = false,
+}: {
+  orderId: string;
+  backHref?: string;
+  canUpdateStatus?: boolean;
+}) {
   const { data: order, isLoading, isError } = useMyOrder(orderId);
+  const updateStatus = useUpdateOrderStatus(orderId);
 
   if (isLoading) {
     return (
@@ -35,7 +46,7 @@ export default function OrderDetailsPage({ orderId }: { orderId: string }) {
     <div className="space-y-6">
       <header>
         <Link
-          href="/account/orders"
+          href={backHref}
           className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-foreground"
         >
           <ArrowLeft className="size-4" />
@@ -60,33 +71,58 @@ export default function OrderDetailsPage({ orderId }: { orderId: string }) {
         </div>
       </header>
       <div className="grid gap-6 lg:grid-cols-[1fr_20rem]">
-        <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
-          <header className="border-b border-border p-6">
-            <h2 className="flex items-center gap-2 text-base font-bold uppercase">
-              <Package className="size-4 text-primary" />
-              Order Items
-            </h2>
-          </header>
-          <div className="divide-y divide-border">
-            {order.items.map((item) => (
-              <div
-                key={item.id}
-                className="flex items-center justify-between gap-4 p-6"
-              >
-                <div>
-                  <p className="text-xs font-semibold uppercase text-primary">
-                    {item.sku}
-                  </p>
-                  <p className="mt-1 font-semibold">{item.productName}</p>
-                  <p className="mt-1 text-sm text-muted-foreground">
-                    Qty: {item.quantity}
-                  </p>
+        <div className="space-y-3">
+          {canUpdateStatus && (
+            <div className="flex flex-wrap gap-2">
+              {(
+                [
+                  "pending",
+                  "processing",
+                  "shipped",
+                  "delivered",
+                  "cancelled",
+                ] as const
+              ).map((status) => (
+                <Button
+                  key={status}
+                  size="sm"
+                  variant={order.status === status ? "default" : "outline"}
+                  disabled={updateStatus.isPending || order.status === status}
+                  onClick={() => updateStatus.mutate(status)}
+                >
+                  {status}
+                </Button>
+              ))}
+            </div>
+          )}
+          <section className="overflow-hidden rounded-xl border border-border bg-card shadow-sm">
+            <header className="border-b border-border p-6">
+              <h2 className="flex items-center gap-2 text-base font-bold uppercase">
+                <Package className="size-4 text-primary" />
+                Order Items
+              </h2>
+            </header>
+            <div className="divide-y divide-border">
+              {order.items.map((item) => (
+                <div
+                  key={item.id}
+                  className="flex items-center justify-between gap-4 p-6"
+                >
+                  <div>
+                    <p className="text-xs font-semibold uppercase text-primary">
+                      {item.sku}
+                    </p>
+                    <p className="mt-1 font-semibold">{item.productName}</p>
+                    <p className="mt-1 text-sm text-muted-foreground">
+                      Qty: {item.quantity}
+                    </p>
+                  </div>
+                  <b>{formatCurrency(item.lineTotal, order.currency)}</b>
                 </div>
-                <b>{formatCurrency(item.lineTotal, order.currency)}</b>
-              </div>
-            ))}
-          </div>
-        </section>
+              ))}
+            </div>
+          </section>
+        </div>
         <aside className="space-y-6">
           <section className="rounded-xl border border-border bg-card p-6 shadow-sm">
             <h2 className="flex items-center gap-2 text-sm font-bold uppercase">

@@ -9,6 +9,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useAddresses } from "@/hooks/use-addresses";
 import { useCurrentUser } from "@/hooks/use-current-user";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -62,6 +64,7 @@ export function CheckoutForm({
 
   return (
     <form className="space-y-6" onSubmit={form.handleSubmit(onSubmit)}>
+      {!user && <CheckoutAuth />}
       <CheckoutSection id="shipping-address" title="Shipping address">
         {defaultAddress ? (
           <p className="rounded-lg bg-muted/50 px-3 py-2 text-sm text-muted-foreground">
@@ -139,26 +142,10 @@ export function CheckoutForm({
             />
           </Field>
           <Field label="State">
-            <Controller
-              control={control}
-              name="state"
-              rules={{ required: "State is required" }}
-              render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger
-                    className="h-9 w-full"
-                    aria-invalid={!!errors.state}
-                  >
-                    <SelectValue placeholder="Select" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="CA">California</SelectItem>
-                    <SelectItem value="NY">New York</SelectItem>
-                    <SelectItem value="TX">Texas</SelectItem>
-                    <SelectItem value="WA">Washington</SelectItem>
-                  </SelectContent>
-                </Select>
-              )}
+            <Input
+              autoComplete="address-level1"
+              aria-invalid={!!errors.state}
+              {...register("state", { required: "State is required" })}
             />
           </Field>
           <Field label="ZIP code" error={errors.postalCode?.message}>
@@ -178,25 +165,111 @@ export function CheckoutForm({
             {...register("phone", { required: "Phone number is required" })}
           />
         </Field>
-        {user ? (
-          <CheckField
-            control={control}
-            name="saveAddress"
-            label="Save this address to my account"
-          />
-        ) : null}
       </CheckoutSection>
       <Button
         type="submit"
         className="h-12 w-full text-base"
-        disabled={isSubmitting}
+        disabled={isSubmitting || !user}
       >
         <LockKeyhole />
         {isSubmitting
           ? "Redirecting to secure payment..."
-          : "Continue to secure payment"}
+          : user
+            ? "Continue to secure payment"
+            : "Sign in to continue to secure payment"}
       </Button>
     </form>
+  );
+}
+
+function CheckoutAuth() {
+  const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  async function submit() {
+    setIsSubmitting(true);
+    const { error } =
+      mode === "sign-in"
+        ? await authClient.signIn.email({ email, password })
+        : await authClient.signUp.email({ name, email, password });
+    setIsSubmitting(false);
+    if (error) {
+      toast.error(
+        mode === "sign-in" ? "Unable to sign in" : "Unable to create account",
+        { description: error.message, position: "top-center" },
+      );
+    }
+  }
+
+  return (
+    <CheckoutSection title="Sign in to continue">
+      <p className="text-sm text-muted-foreground">
+        An account is required before secure payment.{" "}
+        {mode === "sign-in"
+          ? "Sign in below or create one."
+          : "Create your account to continue."}
+      </p>
+      <div className="space-y-3">
+        {mode === "sign-up" && (
+          <Input
+            required
+            placeholder="Full name"
+            value={name}
+            onChange={(event) => setName(event.target.value)}
+          />
+        )}
+        <Input
+          required
+          type="email"
+          autoComplete="email"
+          placeholder="Email address"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+        />
+        <Input
+          required
+          type="password"
+          autoComplete={
+            mode === "sign-in" ? "current-password" : "new-password"
+          }
+          minLength={mode === "sign-up" ? 8 : undefined}
+          placeholder="Password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+        />
+        <div className="flex flex-wrap items-center gap-3">
+          <Button
+            type="button"
+            size="sm"
+            disabled={isSubmitting}
+            onClick={() => void submit()}
+          >
+            {isSubmitting
+              ? "Please wait..."
+              : mode === "sign-in"
+                ? "Sign in"
+                : "Create account"}
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            variant="ghost"
+            onClick={() =>
+              setMode((current) =>
+                current === "sign-in" ? "sign-up" : "sign-in",
+              )
+            }
+          >
+            {mode === "sign-in"
+              ? "Create an account"
+              : "I already have an account"}
+          </Button>
+        </div>
+      </div>
+    </CheckoutSection>
   );
 }
 

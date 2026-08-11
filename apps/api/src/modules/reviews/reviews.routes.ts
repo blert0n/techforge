@@ -1,16 +1,23 @@
 import { createRoute, OpenAPIHono } from "@hono/zod-openapi";
-import { requireAuth } from "../../middleware/auth.middleware";
+import { requireAuth, requireRole } from "../../middleware/auth.middleware";
 import {
   createReview,
   deleteReview,
   getReview,
   listReviews,
   listMyReviews,
+  listAdminReviews,
+  listPendingReviewProducts,
   voteOnReviewHelpfulness,
   updateReview,
 } from "./reviews.controller";
 import {
   createReviewSchema,
+  adminReviewListQuerySchema,
+  adminReviewsSchema,
+  myReviewListQuerySchema,
+  myReviewsSchema,
+  pendingReviewProductSchema,
   reviewListQuerySchema,
   reviewHelpfulnessSchema,
   reviewMessageSchema,
@@ -56,12 +63,27 @@ export const listMyReviewsRoute = createRoute({
   path: "/my-reviews",
   tags: ["Reviews"],
   middleware: requireAuth,
+  request: { query: myReviewListQuerySchema },
   responses: {
     200: {
-      content: { "application/json": { schema: reviewSchema.array() } },
+      content: { "application/json": { schema: myReviewsSchema } },
       description: "Reviews left by the current user",
     },
     401: messageResponse("Authentication is required"),
+  },
+});
+
+export const listAdminReviewsRoute = createRoute({
+  method: "get",
+  path: "/admin",
+  tags: ["Reviews"],
+  middleware: requireRole("admin"),
+  request: { query: adminReviewListQuerySchema },
+  responses: {
+    200: {
+      content: { "application/json": { schema: adminReviewsSchema } },
+      description: "Reviews for administration",
+    },
   },
 });
 
@@ -81,6 +103,22 @@ export const createReviewRoute = createRoute({
     400: messageResponse("Product is unavailable"),
     401: messageResponse("Authentication is required"),
     409: messageResponse("The user has already reviewed this product"),
+  },
+});
+
+export const listPendingReviewProductsRoute = createRoute({
+  method: "get",
+  path: "/pending-reviews",
+  tags: ["Reviews"],
+  middleware: requireAuth,
+  responses: {
+    200: {
+      content: {
+        "application/json": { schema: pendingReviewProductSchema.array() },
+      },
+      description: "Paid-order products the current user has not reviewed",
+    },
+    401: messageResponse("Authentication is required"),
   },
 });
 
@@ -142,6 +180,11 @@ export const voteOnReviewHelpfulnessRoute = createRoute({
 export const reviewsRouter = new OpenAPIHono();
 reviewsRouter.openapi(listReviewsRoute, listReviews);
 reviewsRouter.openapi(listMyReviewsRoute, listMyReviews);
+reviewsRouter.openapi(listAdminReviewsRoute, listAdminReviews);
+reviewsRouter.openapi(
+  listPendingReviewProductsRoute,
+  listPendingReviewProducts,
+);
 reviewsRouter.openapi(getReviewRoute, getReview);
 reviewsRouter.openapi(createReviewRoute, createReview);
 reviewsRouter.openapi(updateReviewRoute, updateReview);

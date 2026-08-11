@@ -1,10 +1,35 @@
 import { Clock3, PenLine, Star, ThumbsUp } from "lucide-react";
-export function ReviewStats() {
+export function ReviewStats({
+  total,
+  average,
+  helpful,
+  pending,
+}: {
+  total: number;
+  average: number;
+  helpful: number;
+  pending: number;
+}) {
   const stats = [
-    [PenLine, "8", "Reviews Written", "text-primary bg-primary/10"],
-    [Star, "4.6", "Avg. Rating Given", "text-yellow-500 bg-yellow-400/10"],
-    [ThumbsUp, "142", "Helpful Votes", "text-emerald-600 bg-emerald-500/10"],
-    [Clock3, "3", "Pending Reviews", "text-orange-500 bg-orange-400/10"],
+    [PenLine, String(total), "Reviews Written", "text-primary bg-primary/10"],
+    [
+      Star,
+      total ? average.toFixed(1) : "—",
+      "Avg. Rating Given",
+      "text-yellow-500 bg-yellow-400/10",
+    ],
+    [
+      ThumbsUp,
+      String(helpful),
+      "Helpful Votes",
+      "text-emerald-600 bg-emerald-500/10",
+    ],
+    [
+      Clock3,
+      String(pending),
+      "Pending Reviews",
+      "text-orange-500 bg-orange-400/10",
+    ],
   ] as const;
   return (
     <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

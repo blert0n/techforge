@@ -4,7 +4,6 @@ import Link from "next/link";
 import Image from "next/image";
 import {
   ShoppingCart,
-  MapPin,
   Menu,
   ChevronDown,
   LayoutDashboard,
@@ -22,11 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "../../ui/select";
-import {
-  utilityLinks,
-  allCategoriesOption,
-  accountActions,
-} from "./header.constants";
+import { allCategoriesOption, accountActions } from "./header.constants";
 import { SearchInput } from "@/components/ui/search-input";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { BrandLogo } from "@/components/layout/brand-logo";
@@ -309,7 +304,13 @@ export function Header({ children }: HeaderProps) {
               ) : (
                 <Link
                   key={href}
-                  href={href === "/account/dashboard" ? "/sign-in" : href}
+                  href={
+                    !user &&
+                    (href === "/account/dashboard" ||
+                      href === "/account/orders")
+                      ? "/sign-in"
+                      : href
+                  }
                   className="group flex flex-col text-foreground transition-colors hover:text-primary"
                 >
                   <span className="hidden text-xs text-muted-foreground group-hover:text-primary md:block">

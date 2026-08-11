@@ -16,6 +16,7 @@ import { handleStripeWebhook } from "./modules/payments/payments.webhook";
 import { wishlistRouter } from "./modules/wishlist/wishlist.routes";
 import { ordersRouter } from "./modules/orders/orders.routes";
 import { usersRouter } from "./modules/users/users.routes";
+import { dashboardRouter } from "./modules/dashboard/dashboard.routes";
 
 export const app = new OpenAPIHono();
 
@@ -57,6 +58,7 @@ app.route("/api/payments", paymentsRouter);
 app.route("/api/wishlist", wishlistRouter);
 app.route("/api/orders", ordersRouter);
 app.route("/api/users", usersRouter);
+app.route("/api/dashboard", dashboardRouter);
 app.route("/api/health", healthRouter);
 
 app.doc("/openapi.json", {

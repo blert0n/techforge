@@ -4,7 +4,8 @@ import { accountMenu } from "@/components/account/data/account.mock";
 import { useCurrentUser } from "@/hooks/use-current-user";
 import { UserRound } from "lucide-react";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 
 export default function AccountLayout({
   children,
@@ -12,7 +13,14 @@ export default function AccountLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const user = useCurrentUser();
+  const router = useRouter();
+  const { user, hasMounted } = useCurrentUser();
+
+  useEffect(() => {
+    if (hasMounted && !user) router.replace("/sign-in");
+  }, [hasMounted, router, user]);
+
+  if (!hasMounted || !user) return null;
 
   return (
     <div
@@ -47,11 +55,11 @@ export default function AccountLayout({
             shadow-sm
           "
         >
-          {user?.user?.image ? (
+          {user.image ? (
             <img
               alt="Profile preview"
               className="h-12 w-12 rounded-full object-cover object-center"
-              src={user.user.image}
+              src={user.image}
             />
           ) : (
             <div
@@ -63,9 +71,9 @@ export default function AccountLayout({
           )}
 
           <div>
-            <h2 className="font-bold text-foreground">{user?.user?.name}</h2>
+            <h2 className="font-bold text-foreground">{user.name}</h2>
 
-            <p className="text-xs text-muted-foreground">{user?.user?.email}</p>
+            <p className="text-xs text-muted-foreground">{user.email}</p>
           </div>
         </div>
 

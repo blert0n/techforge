@@ -16,6 +16,16 @@ export const myOrdersQuerySchema = z.object({
   userId: z.string().min(1).optional(),
 });
 
+export const adminOrdersQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  pageSize: z.coerce.number().int().min(1).max(100).default(20),
+  status: orderStatusSchema.optional(),
+  paymentStatus: z.string().trim().min(1).max(50).optional(),
+  orderNumber: z.string().trim().max(100).optional(),
+  userId: z.string().trim().min(1).optional(),
+});
+export const updateOrderStatusSchema = z.object({ status: orderStatusSchema });
+
 export const orderParamsSchema = z.object({
   orderNumber: z
     .string()
@@ -38,6 +48,7 @@ export const orderListItemSchema = z.object({
   items: z.array(
     z.object({
       id: z.string(),
+      productId: z.number().int().nullable(),
       productName: z.string(),
       productSlug: z.string(),
       imageUrl: z.string().nullable(),
@@ -93,6 +104,7 @@ export const orderDetailsSchema = z.object({
   items: z.array(
     z.object({
       id: z.string(),
+      productId: z.number().int().nullable(),
       productName: z.string(),
       productSlug: z.string(),
       sku: z.string(),
