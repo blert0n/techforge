@@ -259,7 +259,7 @@ export default function ProductsPage({
             </FilterGroup>
             <FilterGroup title="Customer reviews">
               <div className="space-y-2">
-                {[4, 3, 2, 1].map((rating) => (
+                {[5, 4, 3, 2, 1].map((rating) => (
                   <Label
                     key={rating}
                     className="cursor-pointer text-sm font-normal"
@@ -277,7 +277,11 @@ export default function ProductsPage({
                         <Star key={index} className="size-3 fill-current" />
                       ))}
                     </span>
-                    <span className="text-xs text-muted-foreground">& up</span>
+                    {rating !== 5 && (
+                      <span className="text-xs text-muted-foreground">
+                        & up
+                      </span>
+                    )}
                   </Label>
                 ))}
               </div>

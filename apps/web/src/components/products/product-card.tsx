@@ -147,7 +147,7 @@ export function ProductCard({
         </ProductLink>
 
         <div className="mt-auto flex flex-col gap-2 pt-4">
-          {/* <div className="flex items-center gap-1 text-xs text-yellow-500">
+          <div className="flex items-center gap-1 text-xs text-yellow-500">
             {product.rating === 0 ? <Star className="size-3" /> : null}
             {Array.from({ length: Math.floor(product.rating) }).map(
               (_, index) => (
@@ -160,7 +160,7 @@ export function ProductCard({
             <span className="ml-1 text-muted-foreground">
               ({product.reviews})
             </span>
-          </div> */}
+          </div>
           <div className="flex items-center justify-between">
             <div>
               <span className="text-lg font-bold">{product.price}</span>

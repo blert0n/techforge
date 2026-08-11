@@ -20,6 +20,7 @@ import {
   product as productTable,
   productAttribute,
   productImage,
+  review,
   specificationTemplate,
   wishlistItem,
 } from "../../db/schema/index";
@@ -34,6 +35,32 @@ import {
   parseSpecificationFilters,
   resolveCategoryTree,
 } from "./products.shared";
+
+type ReviewSummary = { rating: number; reviewCount: number };
+
+async function getReviewSummaries(productIds: number[]) {
+  if (!productIds.length) return new Map<number, ReviewSummary>();
+
+  const summaries = await db
+    .select({
+      productId: review.productId,
+      rating: sql<string>`coalesce(avg(${review.rating}), 0)`,
+      reviewCount: sql<number>`count(*)`,
+    })
+    .from(review)
+    .where(inArray(review.productId, productIds))
+    .groupBy(review.productId);
+
+  return new Map(
+    summaries.map((summary) => [
+      summary.productId,
+      {
+        rating: Number(summary.rating),
+        reviewCount: Number(summary.reviewCount),
+      },
+    ]),
+  );
+}
 
 async function getWishlistedProductIds(headers: Headers, productIds: number[]) {
   if (!productIds.length) return new Set<number>();
@@ -68,14 +95,18 @@ export const getStorefrontProduct: RouteHandler<
     },
   });
   if (!record) return c.json({ message: "Product not found" }, 404);
-  const wishlistedProductIds = await getWishlistedProductIds(
-    c.req.raw.headers,
-    [record.id],
-  );
+  const [wishlistedProductIds, reviewSummaries] = await Promise.all([
+    getWishlistedProductIds(c.req.raw.headers, [record.id]),
+    getReviewSummaries([record.id]),
+  ]);
 
   return c.json(
     {
-      ...mapStorefrontProduct(record, wishlistedProductIds.has(record.id)),
+      ...mapStorefrontProduct(
+        record,
+        wishlistedProductIds.has(record.id),
+        reviewSummaries.get(record.id),
+      ),
       description: record.description,
       category: {
         id: record.category.id,
@@ -153,8 +184,18 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
     productFilters.push(gte(effectivePrice, query.minPrice));
   if (query.maxPrice !== undefined)
     productFilters.push(lte(effectivePrice, query.maxPrice));
-  if (query.minRating !== undefined)
-    productFilters.push(sql`0 >= ${query.minRating}`);
+  if (query.minRating !== undefined) {
+    productFilters.push(
+      inArray(
+        productTable.id,
+        db
+          .select({ productId: review.productId })
+          .from(review)
+          .groupBy(review.productId)
+          .having(sql`avg(${review.rating}) >= ${query.minRating}`),
+      ),
+    );
+  }
 
   const requestedSpecifications = parseSpecificationFilters(
     query.specifications,
@@ -230,10 +271,13 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
           .where(and(...baseFilters))
       : Promise.resolve([]),
   ]);
-  const wishlistedProductIds = await getWishlistedProductIds(
-    c.req.raw.headers,
-    records.map((record) => record.id),
-  );
+  const [wishlistedProductIds, reviewSummaries] = await Promise.all([
+    getWishlistedProductIds(
+      c.req.raw.headers,
+      records.map((record) => record.id),
+    ),
+    getReviewSummaries(records.map((record) => record.id)),
+  ]);
 
   let parents: { name: string; slug: string }[] = [];
   if (selectedCategory) {
@@ -313,7 +357,11 @@ export const listProducts: RouteHandler<typeof listProductsRoute> = async (
           }
         : null,
       items: records.map((record) =>
-        mapStorefrontProduct(record, wishlistedProductIds.has(record.id)),
+        mapStorefrontProduct(
+          record,
+          wishlistedProductIds.has(record.id),
+          reviewSummaries.get(record.id),
+        ),
       ),
       specificationFilters,
     },

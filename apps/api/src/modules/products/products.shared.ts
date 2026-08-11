@@ -108,6 +108,7 @@ export function mapStorefrontProduct(
     specification: { specifications: unknown } | null;
   },
   isWishlisted = false,
+  reviewSummary?: { rating: number; reviewCount: number },
 ) {
   const rawSpecifications = (record.specification?.specifications ??
     {}) as Record<string, unknown>;
@@ -137,8 +138,8 @@ export function mapStorefrontProduct(
           `${key.replace(/([a-z0-9])([A-Z])/g, "$1 $2")}: ${String(item)}`,
       ),
     specificationValues,
-    rating: 0,
-    reviewCount: 0,
+    rating: reviewSummary?.rating ?? 0,
+    reviewCount: reviewSummary?.reviewCount ?? 0,
     isWishlisted,
   };
 }

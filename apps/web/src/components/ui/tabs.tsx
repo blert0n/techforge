@@ -7,12 +7,23 @@ const Context = React.createContext<{
 } | null>(null);
 export function Tabs({
   defaultValue,
+  value: controlledValue,
+  onValueChange,
   children,
 }: {
-  defaultValue: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
   children: React.ReactNode;
 }) {
-  const [value, setValue] = React.useState(defaultValue);
+  const [uncontrolledValue, setUncontrolledValue] = React.useState(
+    defaultValue ?? "",
+  );
+  const value = controlledValue ?? uncontrolledValue;
+  const setValue = (nextValue: string) => {
+    if (controlledValue === undefined) setUncontrolledValue(nextValue);
+    onValueChange?.(nextValue);
+  };
   return (
     <Context.Provider value={{ value, setValue }}>{children}</Context.Provider>
   );

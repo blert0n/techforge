@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { Star, ThumbsDown, ThumbsUp } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -21,10 +22,23 @@ export function ProductDetailTabs({
 }) {
   const { data: reviews = [] } = useProductReviews(productId);
   const vote = useVoteOnReviewHelpfulness(productId);
+  const [activeTab, setActiveTab] = useState("description");
+
+  useEffect(() => {
+    const activateReviewsFromHash = () => {
+      if (window.location.hash === "#reviews") setActiveTab("reviews");
+    };
+
+    activateReviewsFromHash();
+    window.addEventListener("hashchange", activateReviewsFromHash);
+    return () =>
+      window.removeEventListener("hashchange", activateReviewsFromHash);
+  }, []);
+
   return (
     <section className="border-t border-border pt-6">
       <div className="rounded-2xl border border-border bg-card p-6">
-        <Tabs defaultValue="description">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList variant="line" className="mb-6">
             <TabsTrigger value="description">Description</TabsTrigger>
             <TabsTrigger value="specifications">Technical specs</TabsTrigger>

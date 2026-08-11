@@ -6,6 +6,8 @@ import {
   Minus,
   Plus,
   ShoppingCart,
+  Star,
+  StarHalf,
   Truck,
 } from "lucide-react";
 import { useState } from "react";
@@ -42,6 +44,7 @@ export function ProductOverviewDynamic({
   const discountPercentage = savings
     ? Math.round((savings / product.price) * 100)
     : 0;
+  const displayedRating = Math.round(product.rating * 2) / 2;
   const toggleWishlist = () => {
     if (!hasMounted) return;
     if (!user) {
@@ -89,6 +92,26 @@ export function ProductOverviewDynamic({
         {product.brand}
       </span>
       <h1 className="text-2xl font-bold leading-tight">{product.name}</h1>
+      {product.reviewCount > 0 ? (
+        <div className="my-3 flex flex-wrap items-center gap-1 text-sm text-yellow-500">
+          {Array.from({ length: Math.floor(displayedRating) }).map(
+            (_, index) => (
+              <Star key={index} className="size-4 fill-current" />
+            ),
+          )}
+          {displayedRating % 1 !== 0 ? (
+            <StarHalf className="size-4 fill-current" />
+          ) : null}
+          <b className="ml-1 text-foreground">{product.rating.toFixed(2)}</b>
+          <a
+            href="#reviews"
+            className="ml-1 text-muted-foreground hover:text-primary hover:underline"
+          >
+            ({product.reviewCount}{" "}
+            {product.reviewCount === 1 ? "review" : "reviews"})
+          </a>
+        </div>
+      ) : null}
       <div className="mb-5">
         <div className="flex items-end gap-3">
           <span className="text-xl font-bold">
